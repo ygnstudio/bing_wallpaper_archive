@@ -3,6 +3,8 @@ const subtitle = document.getElementById('subtitle');
 const searchEl = document.getElementById('search');
 const yearEl = document.getElementById('year');
 const monthEl = document.getElementById('month');
+const catEl = document.getElementById('category');
+const colorEl = document.getElementById('color');
 const sentinel = document.getElementById('sentinel');
 const emptyEl = document.getElementById('empty');
 const lightbox = document.getElementById('lightbox');
@@ -22,10 +24,21 @@ let filtered = [];
 let rendered = 0;
 let current = null;         // 当前灯箱对应的数据项
 
+// 分类/颜色筛选的可选项顺序（仅展示数据中存在的项）
+const CATEGORY_ORDER = ['动物', '风景', '建筑', '植物', '美食', '交通', '太空', '人物', '抽象艺术', '其他'];
+const COLOR_ORDER = ['蓝', '绿', '红', '黄', '橙', '紫', '粉', '棕', '灰白', '多彩'];
+const COLOR_HEX = {
+  '蓝': '#4a9eff', '绿': '#46c46a', '红': '#ef5350', '黄': '#ffd54f',
+  '橙': '#ff9f43', '紫': '#ab6bff', '粉': '#ff8fc7', '棕': '#a9794f',
+  '灰白': '#bcc3cc', '多彩': 'linear-gradient(135deg,#ef5350,#ffd54f,#46c46a,#4a9eff,#ab6bff)'
+};
+
 async function load() {
   const res = await fetch('./data/index.json');
   items = await res.json();
   buildYearOptions();
+  buildCategoryOptions();
+  buildColorOptions();
   applyFilter();
   const withImg = items.filter(i => i.thumbnail).length;
   const oldest = items.length ? items[items.length - 1].date : '-';
@@ -59,13 +72,43 @@ function rebuildMonthOptions() {
   }
 }
 
+function buildCategoryOptions() {
+  const present = new Set(items.map(i => i.category).filter(Boolean));
+  catEl.innerHTML = '<option value="">全部分类</option>';
+  for (const c of CATEGORY_ORDER) {
+    if (!present.has(c)) continue;
+    const o = document.createElement('option');
+    o.value = c;
+    const n = items.filter(i => i.category === c).length;
+    o.textContent = c + `（${n}）`;
+    catEl.appendChild(o);
+  }
+}
+
+function buildColorOptions() {
+  const present = new Set(items.map(i => i.color).filter(Boolean));
+  colorEl.innerHTML = '<option value="">全部颜色</option>';
+  for (const c of COLOR_ORDER) {
+    if (!present.has(c)) continue;
+    const o = document.createElement('option');
+    o.value = c;
+    const n = items.filter(i => i.color === c).length;
+    o.textContent = c + `（${n}）`;
+    colorEl.appendChild(o);
+  }
+}
+
 function getFiltered() {
   const q = searchEl.value.trim().toLowerCase();
   const y = yearEl.value;
   const m = monthEl.value;
+  const cat = catEl.value;
+  const col = colorEl.value;
   return items.filter(i => {
     if (y && i.date.slice(0, 4) !== y) return false;
     if (m && i.date.slice(4, 6) !== m) return false;
+    if (cat && i.category !== cat) return false;
+    if (col && i.color !== col) return false;
     if (q) {
       const hay = ((i.title || '') + (i.copyright || '') + (i.date || '')).toLowerCase();
       if (!hay.includes(q)) return false;
@@ -110,6 +153,26 @@ function renderMore() {
     cap.className = 'cap';
     cap.textContent = it.title || it.date;
     a.appendChild(cap);
+
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+    if (it.category) {
+      const ct = document.createElement('span');
+      ct.className = 'tag tag-cat';
+      ct.textContent = it.category;
+      tags.appendChild(ct);
+    }
+    if (it.color) {
+      const cd = document.createElement('span');
+      cd.className = 'tag tag-color';
+      const dot = document.createElement('i');
+      dot.className = 'dot';
+      dot.style.background = COLOR_HEX[it.color] || 'transparent';
+      cd.appendChild(dot);
+      cd.appendChild(document.createTextNode(it.color));
+      tags.appendChild(cd);
+    }
+    a.appendChild(tags);
     frag.appendChild(a);
   }
   grid.appendChild(frag);
@@ -131,6 +194,8 @@ io.observe(sentinel);
 searchEl.addEventListener('input', applyFilter);
 yearEl.addEventListener('change', applyFilter);
 monthEl.addEventListener('change', applyFilter);
+catEl.addEventListener('change', applyFilter);
+colorEl.addEventListener('change', applyFilter);
 
 grid.addEventListener('click', (e) => {
   const card = e.target.closest('.card');

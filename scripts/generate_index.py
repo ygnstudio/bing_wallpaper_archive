@@ -2,9 +2,9 @@
 """Build data/index.json from data/metadata.json + the thumbnails/ cache.
 
 Output entry per wallpaper day:
-  date, title, copyright, copyrightlink,
+  date, title, copyright, copyrightlink, category, color,
   thumbnail (repo path or null), url (full Bing CDN link), urlbase
-Sorted newest-first. Run after download.py updates metadata.json / thumbnails/.
+Sorted newest-first. Run after download.py / classify.py update metadata.json / thumbnails/.
 """
 import json
 import os
@@ -25,6 +25,8 @@ def main():
             "title": m.get("title", ""),
             "copyright": m.get("copyright", ""),
             "copyrightlink": m.get("copyrightlink", ""),
+            "category": m.get("category", "其他"),
+            "color": m.get("color") or None,
             "thumbnail": thumb if os.path.exists(os.path.join(ROOT, thumb)) else None,
             "url": m.get("url", ""),
             "urlbase": m.get("urlbase", ""),
