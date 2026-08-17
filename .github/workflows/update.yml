@@ -26,6 +26,9 @@ jobs:
       - name: Fetch today's wallpaper
         run: python scripts/download.py
 
+      - name: Classify (category & color)
+        run: python scripts/classify.py
+
       - name: Rebuild index
         run: python scripts/generate_index.py
 

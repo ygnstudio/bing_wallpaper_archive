@@ -27,7 +27,7 @@ h1 { margin: 0 0 4px; font-size: 20px; }
   color: var(--fg);
   font-size: 14px;
 }
-#year, #month {
+#year, #month, #category, #color {
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -80,6 +80,33 @@ h1 { margin: 0 0 4px; font-size: 20px; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.card .tags {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 10px 10px;
+  flex-wrap: wrap;
+}
+.card .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: #15181f;
+}
+.card .tag-cat { color: var(--fg); }
+.card .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(255, 255, 255, .25);
 }
 .lightbox {
   position: fixed;
