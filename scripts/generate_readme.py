@@ -32,7 +32,7 @@ data/index.json        完整索引（date / title / copyright / thumbnail / url
 data/metadata.json     原始抓取元数据（去重用）
 thumbnails/            已提交缩略图缓存（480x270）
 wallpapers/            本机全图缓存（gitignore，不入库）
-scripts/               download / generate_thumbnail / generate_index / download_full / backfill_thumbnails
+scripts/               download / download_full / generate_index / thumbnails / check_archive
 ```
 
 ## 本地使用
@@ -42,8 +42,9 @@ pip install -r requirements.txt
 python scripts/download.py                  # 抓当日壁纸（全图存 wallpapers/，更新元数据+缩略图）
 python scripts/download_full.py 20260817    # 按日期从 Bing 下载全图到本机
 python scripts/download_full.py 20260101 20260817   # 下载一段区间
-python scripts/download_full.py all         # 下载索引里所有日期
-python scripts/backfill_thumbnails.py       # 补历史缩略图（从 Bing / 镜像抓取，可断点续传）
+python scripts/download_full.py all         # 下载索引里所有日期（注意：~GB 级，不入库）
+python scripts/thumbnails.py                # 生成/重生成缩略图（默认只补缺失；--force 覆盖全部）
+python scripts/check_archive.py             # 校验索引引用的缩略图是否齐全（CI 防回归）
 ```
 
 数据来源：Bing 每日壁纸；历史元数据整合自

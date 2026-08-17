@@ -42,7 +42,13 @@ def fetch_metadata():
 def build_url(meta):
     raw = meta.get("url") or (meta.get("urlbase", "") + "_1920x1080.jpg")
     url = urljoin(BING_BASE, raw)
-    return re.sub(r"UHD|4K|\d{3,4}x\d{3,4}", "1920x1080", url, flags=re.I)
+    # 仅替换 th?id=OHR.xxx 后的尺寸后缀（UHD/4K/WxH），不动 rf= 等其他段，
+    # 避免生成形如 rf=LaDigue_1920x1080.jpg 的脏 URL。
+    m = re.search(r"th\?id=(OHR\.[^&]+)", url, flags=re.I)
+    if m:
+        oid = re.sub(r"_(UHD|4K|\d+X\d+)$", "", m.group(1), flags=re.I)
+        return f"https://www.bing.com/th?id={oid}_1920x1080.jpg"
+    return url
 
 
 def date_key(meta):

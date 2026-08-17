@@ -14,7 +14,8 @@ DATA = os.path.join(ROOT, "data")
 
 
 def main():
-    meta = json.load(open(os.path.join(DATA, "metadata.json"), encoding="utf-8"))
+    with open(os.path.join(DATA, "metadata.json"), encoding="utf-8") as f:
+        meta = json.load(f)
     entries = []
     for date, m in meta.items():
         y, mo = date[:4], date[4:6]
@@ -31,7 +32,8 @@ def main():
         entries.append(entry)
     entries.sort(key=lambda e: e["date"], reverse=True)
     out = os.path.join(DATA, "index.json")
-    json.dump(entries, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(entries, f, ensure_ascii=False, indent=1)
     with_thumb = sum(1 for e in entries if e["thumbnail"])
     print(f"index.json: {len(entries)} entries, {with_thumb} with thumbnail, "
           f"{len(entries) - with_thumb} missing")

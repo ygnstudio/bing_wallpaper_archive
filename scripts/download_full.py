@@ -22,15 +22,17 @@ import re
 import sys
 from datetime import date, timedelta
 from pathlib import Path
-from urllib.request import Request, urlopen
+import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
 HEADERS = {"User-Agent": UA, "Referer": "https://www.bing.com/"}
+SESSION = requests.Session()
 
 
 def load_meta():
-    return json.loads((ROOT / "data" / "metadata.json").read_text(encoding="utf-8") or "{}")
+    with open(ROOT / "data" / "metadata.json", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def build_url(meta: dict, res: str | None) -> str | None:
@@ -52,9 +54,9 @@ def build_url(meta: dict, res: str | None) -> str | None:
 
 
 def _fetch(url: str) -> bytes:
-    req = Request(url, headers=HEADERS)
-    with urlopen(req, timeout=30) as r:
-        return r.read()
+    r = SESSION.get(url, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    return r.content
 
 
 def download(day: str, res: str | None = None) -> bool:
@@ -113,6 +115,10 @@ def main():
     meta = load_meta()
     if args[0] == "all":
         days = list(meta.keys())
+        # 警告：全量下载会把所有原图写入 wallpapers/（gitignore，不入库），
+        # 但每张 1–5MB，数千张合计可达数 GB，请确保本地磁盘充足。
+        print(f"warn: 'all' 会下载 {len(days)} 张全图到 wallpapers/（~GB 级，不入库），"
+              f"请确保磁盘空间充足。", file=sys.stderr)
     elif len(args) == 2:
         days = list(date_range(args[0], args[1]))
     else:

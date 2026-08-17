@@ -118,6 +118,7 @@ h1 { margin: 0 0 4px; font-size: 20px; }
   cursor: pointer;
 }
 .lb-actions { margin-top: 8px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.lb-hint { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; max-width: 640px; }
 .lb-actions a, .lb-actions button {
   color: var(--accent);
   font-size: 13px;

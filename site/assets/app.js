@@ -205,7 +205,9 @@ function openLightbox(it) {
     el.textContent = o.label;
     lbRes.appendChild(el);
   }
-  lbRes.value = opts[0].v;
+  // 默认 1080p（UHD 仅按需选），避免点开即拉 4K 原图导致慢网首开偏重
+  const def = opts.find(o => o.v === '1920x1080') || opts[0];
+  lbRes.value = def.v;
   applyResolution();
   lightbox.hidden = false;
 }
