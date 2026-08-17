@@ -23,6 +23,20 @@
   <div id="sentinel" class="sentinel">加载更多…</div>
   <p id="empty" class="empty" hidden>没有匹配的壁纸。</p>
 
+  <div id="batchbar" class="batchbar">
+    <span id="batch-count">已选 0 张</span>
+    <label class="batch-res">分辨率
+      <select id="batch-res" aria-label="打包分辨率">
+        <option value="1920x1080">1080p</option>
+        <option value="UHD">UHD 4K</option>
+      </select>
+    </label>
+    <button id="batch-selectall" type="button" class="ghost">全选当前结果</button>
+    <button id="batch-zip" type="button">打包下载（至少 2 张）</button>
+    <button id="batch-clear" type="button" class="ghost">取消选择</button>
+    <span id="batch-progress" class="batch-progress"></span>
+  </div>
+
   <div id="lightbox" class="lightbox" hidden>
     <button id="close" aria-label="关闭">×</button>
     <img id="lb-img" alt="">
