@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bing 每日壁纸归档</title>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+  <header>
+    <h1>Bing 每日壁纸归档</h1>
+    <p id="subtitle">加载中…</p>
+    <div class="controls">
+      <input id="search" type="search" placeholder="搜索标题 / 版权 / 日期…" />
+      <select id="year" aria-label="年份筛选"><option value="">全部年份</option></select>
+      <select id="month" aria-label="月份筛选"><option value="">全部月份</option></select>
+    </div>
+  </header>
+
+  <main id="grid" class="grid"></main>
+  <div id="sentinel" class="sentinel">加载更多…</div>
+  <p id="empty" class="empty" hidden>没有匹配的壁纸。</p>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <button id="close" aria-label="关闭">×</button>
+    <img id="lb-img" alt="">
+    <div class="lb-meta">
+      <h2 id="lb-title"></h2>
+      <p id="lb-copyright"></p>
+      <p id="lb-note" class="lb-note" hidden></p>
+      <div class="lb-res-row">
+        <label for="lb-res">全图分辨率</label>
+        <select id="lb-res" aria-label="全图分辨率"></select>
+      </div>
+      <div class="lb-actions">
+        <a id="lb-link" target="_blank" rel="noopener">在新窗口打开原图 ↗</a>
+        <a id="lb-download" download>下载全图</a>
+        <button id="lb-copy" type="button">复制链接</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/app.js"></script>
+</body>
+</html>
