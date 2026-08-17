@@ -24,17 +24,25 @@
   <p id="empty" class="empty" hidden>没有匹配的壁纸。</p>
 
   <div id="batchbar" class="batchbar">
-    <span id="batch-count">已选 0 张</span>
-    <label class="batch-res">分辨率
-      <select id="batch-res" aria-label="打包分辨率">
-        <option value="1920x1080">1080p</option>
-        <option value="UHD">UHD 4K</option>
-      </select>
-    </label>
-    <button id="batch-selectall" type="button" class="ghost">全选当前结果</button>
-    <button id="batch-zip" type="button">打包下载（至少 2 张）</button>
-    <button id="batch-clear" type="button" class="ghost">取消选择</button>
-    <span id="batch-progress" class="batch-progress"></span>
+    <div id="batch-panel" class="batch-panel" hidden>
+      <div class="batch-row">已选 <strong id="batch-count">0</strong> 张</div>
+      <label class="batch-res">分辨率
+        <select id="batch-res" aria-label="打包分辨率">
+          <option value="1920x1080">1080p</option>
+          <option value="UHD">UHD 4K</option>
+        </select>
+      </label>
+      <div class="batch-actions">
+        <button id="batch-selectall" type="button" class="ghost">全选当前</button>
+        <button id="batch-clear" type="button" class="ghost">取消</button>
+        <button id="batch-zip" type="button">打包下载</button>
+      </div>
+      <span id="batch-progress" class="batch-progress"></span>
+    </div>
+    <button id="batch-toggle" class="fab" type="button" aria-label="批量下载选项">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 3v10.2l3.6-3.6 1.4 1.4L12 16 7 11l1.4-1.4L12 13.2zM5 18h14v2H5z"/></svg>
+      <span id="batch-badge" class="batch-badge" hidden>0</span>
+    </button>
   </div>
 
   <div id="lightbox" class="lightbox" hidden>
