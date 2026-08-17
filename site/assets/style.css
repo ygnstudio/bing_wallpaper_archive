@@ -44,33 +44,69 @@ h1 { margin: 0 0 4px; font-size: 20px; }
   min-height: 20px;
 }
 .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+/* 批量下载：右下角悬浮按钮（FAB）+ 展开面板 */
 .batchbar {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 30;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 12px;
-  flex-wrap: wrap;
-  margin: 8px 24px 24px;
-  padding: 12px 16px;
-  background: #11141a;
-  border: 1px solid var(--border);
-  border-radius: 10px;
 }
-.batchbar button {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+.fab {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
   background: var(--accent);
   color: #fff;
-  font-size: 14px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
 }
-.batchbar button.ghost { background: transparent; color: var(--fg); }
-.batchbar button:disabled { opacity: .45; cursor: not-allowed; }
-#batch-count { font-size: 14px; }
-.batch-res { color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.fab:hover { filter: brightness(1.08); }
+.batch-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #ef5350;
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  border: 2px solid var(--bg);
+}
+.batch-panel {
+  width: 260px;
+  max-width: calc(100vw - 36px);
+  background: #11141a;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+.batch-panel[hidden] { display: none; }
+.batch-row { font-size: 14px; color: var(--fg); }
+.batch-res {
+  color: var(--muted);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .batch-res select {
   padding: 6px 8px;
   border-radius: 6px;
@@ -79,6 +115,19 @@ h1 { margin: 0 0 4px; font-size: 20px; }
   border: 1px solid var(--border);
   font-size: 14px;
 }
+.batch-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.batch-actions button {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.batch-actions button.ghost { background: transparent; color: var(--fg); }
+.batch-actions button:disabled { opacity: .45; cursor: not-allowed; }
 .batch-progress { color: var(--muted); font-size: 13px; }
 .grid {
   display: grid;

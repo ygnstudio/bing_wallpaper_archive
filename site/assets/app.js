@@ -17,6 +17,9 @@ const lbDownload = document.getElementById('lb-download');
 const lbCopy = document.getElementById('lb-copy');
 const lbRes = document.getElementById('lb-res');
 const batchbar = document.getElementById('batchbar');
+const batchToggle = document.getElementById('batch-toggle');
+const batchPanel = document.getElementById('batch-panel');
+const batchBadge = document.getElementById('batch-badge');
 const batchCount = document.getElementById('batch-count');
 const batchRes = document.getElementById('batch-res');
 const batchZip = document.getElementById('batch-zip');
@@ -239,7 +242,9 @@ grid.addEventListener('change', (e) => {
 // ===== 批量打包下载（纯前端 ZIP，STORE 不压缩） =====
 function updateBatchBar() {
   const n = selected.size;
-  batchCount.textContent = `已选 ${n} 张`;
+  batchCount.textContent = String(n);
+  batchBadge.textContent = String(n);
+  batchBadge.hidden = n === 0;
   batchZip.disabled = n < 2;
   batchZip.textContent = n < 2 ? '打包下载（至少 2 张）' : `打包下载 ZIP（${n}）`;
   batchSelectAll.disabled = filtered.length === 0;
@@ -410,6 +415,12 @@ async function doBatchDownload() {
 batchZip.addEventListener('click', doBatchDownload);
 batchClear.addEventListener('click', clearSelection);
 batchSelectAll.addEventListener('click', selectAllFiltered);
+// 悬浮按钮：展开/收起选项面板；点击面板外自动收起
+batchToggle.addEventListener('click', () => { batchPanel.hidden = !batchPanel.hidden; });
+document.addEventListener('click', (e) => {
+  if (batchPanel.hidden) return;
+  if (!batchbar.contains(e.target)) batchPanel.hidden = true;
+});
 updateBatchBar();
 
 // 根据图片来源判断可选分辨率：
