@@ -245,8 +245,10 @@ function updateBatchBar() {
   batchCount.textContent = String(n);
   batchBadge.textContent = String(n);
   batchBadge.hidden = n === 0;
-  batchZip.disabled = n < 2;
-  batchZip.textContent = n < 2 ? '打包下载（至少 2 张）' : `打包下载 ZIP（${n}）`;
+  batchZip.disabled = n < 1;                       // 0 张禁用；1 张直接下，≥2 张打包
+  batchZip.textContent = n === 0 ? '未选择'
+    : n === 1 ? '下载这张'
+    : `打包下载 ZIP（${n}）`;
   batchSelectAll.disabled = filtered.length === 0;
   batchClear.disabled = n === 0;
 }
@@ -358,9 +360,35 @@ function buildZipStore(entries) {
   return new Blob([out], { type: 'application/zip' });
 }
 
+// 单张直接下载（不打包）：与灯箱「下载全图」一致，跨域读字节后用 Blob 触发保存
+async function downloadSingle(date) {
+  const it = byDate.get(date);
+  if (!it) return;
+  const res = batchRes.value;            // 沿用面板所选分辨率
+  const suffix = res === 'UHD' ? '_UHD' : '';
+  let bytes = null;
+  let name = date + suffix + '.jpg';
+  try {
+    const url = buildResUrl(it.url, res) || it.url;
+    bytes = await fetchBytes(url);
+  } catch (_) { /* 原图失败，下面回退缩略图 */ }
+  if (!bytes && it.thumbnail) {
+    try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) {}
+  }
+  if (!bytes) { batchProgress.textContent = '无可用图片，取消'; return; }
+  const blob = new Blob([bytes], { type: 'image/jpeg' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  batchProgress.textContent = '已下载这张 ✓';
+}
+
 async function doBatchDownload() {
   const n = selected.size;
-  if (n < 2) return;
+  if (n === 0) return;
+  if (n === 1) { await downloadSingle([...selected][0]); return; }   // 单张：直接下载
   if (n >= 50 && !confirm(`将打包 ${n} 张图片，文件可能较大、耗时较长，继续？`)) return;
   const res = batchRes.value;            // '1920x1080' | 'UHD'
   batchZip.disabled = true;
