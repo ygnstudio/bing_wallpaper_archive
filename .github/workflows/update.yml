@@ -2,7 +2,7 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: "30 16 * * *"   # 00:30 Beijing time (Bing refreshes ~00:00 UTC+8)
+    - cron: "0 9 * * *"   # 09:00 UTC = 17:00 Beijing：Bing 换图(~15:00/16:00 北京)之后抓当天新图，当天傍晚入库
   workflow_dispatch:
 
 permissions:
