@@ -23,11 +23,34 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install VLM dependencies
+        run: |
+          pip install --quiet --upgrade pip
+          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet transformers qwen-vl-utils huggingface_hub
+
+      - name: Cache VLM model
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/huggingface
+          key: qwen2-vl-2b-v1
+          restore-keys: |
+            qwen2-vl-2b-
+
+      - name: Prefetch VLM model (no-op on cache hit)
+        run: |
+          python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2-VL-2B-Instruct'); print('model ready')"
+
       - name: Fetch today's wallpaper
         run: python scripts/download.py
 
-      - name: Classify (category & color)
+      - name: Classify (color + keyword category)
         run: python scripts/classify.py
+
+      - name: VLM classify today's wallpaper
+        run: |
+          TODAY=$(date -u +%Y%m%d)
+          python scripts/vlm_classify.py --date $TODAY
 
       - name: Rebuild index
         run: python scripts/generate_index.py

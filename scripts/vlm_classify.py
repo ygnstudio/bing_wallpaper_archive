@@ -11,6 +11,7 @@
   python scripts/vlm_classify.py              # 定向重判弱信号
   python scripts/vlm_classify.py --all        # 全量重判
   python scripts/vlm_classify.py --category X # 只重判某类
+  python scripts/vlm_classify.py --date YYYYMMDD   # 只判指定日期（CI 每日用）
 
 模型：默认用本地 ModelScope 缓存；环境变量 VLM_MODEL_DIR 可覆盖（CI 用）。
 """
@@ -28,11 +29,24 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import classify  # noqa: E402
 from classify import CATEGORY_RES, search_term  # noqa: E402
 
-MODEL_DIR = os.environ.get("VLM_MODEL_DIR") or (
-    os.path.expanduser("~/.cache/modelscope/models/Qwen--Qwen2-VL-2B-Instruct/snapshots/master")
-)
-
 LABELS = ["人物", "动物", "美食", "交通", "建筑", "太空", "植物", "抽象艺术", "风景", "其他"]
+
+
+def _resolve_model_dir():
+    """优先用本地 ModelScope / HuggingFace 缓存；都没有就让 from_pretrained 自动下。"""
+    ms_dir = os.path.expanduser("~/.cache/modelscope/models/Qwen--Qwen2-VL-2B-Instruct/snapshots/master")
+    if os.path.isdir(ms_dir):
+        return ms_dir
+    hf_root = os.path.expanduser("~/.cache/huggingface/hub/models--Qwen--Qwen2-VL-2B-Instruct/snapshots")
+    if os.path.isdir(hf_root):
+        subs = [d for d in os.listdir(hf_root) if os.path.isdir(os.path.join(hf_root, d))]
+        if subs:
+            return os.path.join(hf_root, sorted(subs)[0])
+    # 回退：让 transformers 自动从 HF 下载到默认 cache
+    return "Qwen/Qwen2-VL-2B-Instruct"
+
+
+MODEL_DIR = os.environ.get("VLM_MODEL_DIR") or _resolve_model_dir()
 
 
 def keyword_match_len(m):
@@ -100,24 +114,33 @@ def main():
     args = sys.argv[1:]
     mode_all = "--all" in args
     only_cat = None
+    only_date = None
     if "--category" in args:
         only_cat = args[args.index("--category") + 1]
+    if "--date" in args:
+        only_date = args[args.index("--date") + 1]
 
     with open(META_PATH, encoding="utf-8") as f:
         meta = json.load(f)
 
     # 选目标
-    targets = []
-    for date, m in meta.items():
-        if mode_all:
-            targets.append(date)
-        elif only_cat:
-            if m.get("category") == only_cat:
+    if only_date:
+        if only_date not in meta:
+            print(f"warn: {only_date} 不在 metadata.json，跳过", flush=True)
+            return
+        targets = [only_date]
+    else:
+        targets = []
+        for date, m in meta.items():
+            if mode_all:
                 targets.append(date)
-        else:
-            # 定向：其他 或 单字弱信号
-            if m.get("category") == "其他" or keyword_match_len(m) <= 1:
-                targets.append(date)
+            elif only_cat:
+                if m.get("category") == only_cat:
+                    targets.append(date)
+            else:
+                # 定向：其他 或 单字弱信号
+                if m.get("category") == "其他" or keyword_match_len(m) <= 1:
+                    targets.append(date)
 
     print(f"待重判 {len(targets)} 条（总 {len(meta)} 条）", flush=True)
 
