@@ -46,7 +46,11 @@ def build_url(meta):
     # 避免生成形如 rf=LaDigue_1920x1080.jpg 的脏 URL。
     m = re.search(r"th\?id=(OHR\.[^&]+)", url, flags=re.I)
     if m:
-        oid = re.sub(r"_(UHD|4K|\d+X\d+)$", "", m.group(1), flags=re.I)
+        oid = m.group(1)
+        # 先剥掉 .jpg 扩展名，再剥末尾尺寸后缀；否则 _UHD.jpg 这种会被
+        # re.sub(r"_(UHD|...)$") 漏掉，生成 _UHD.jpg_1920x1080.jpg 的双重后缀脏 URL（404）。
+        oid = re.sub(r"\.jpe?g$", "", oid, flags=re.I)
+        oid = re.sub(r"_(UHD|4K|\d+X\d+)$", "", oid, flags=re.I)
         return f"https://www.bing.com/th?id={oid}_1920x1080.jpg"
     return url
 
