@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Fetch today's Bing wallpaper into the light archive.
 
-- downloads the full image into wallpapers/ (local cache, gitignored)
+- downloads the image, generates today's thumbnail into thumbnails/ (committed, served by Pages)
 - appends/updates the entry in data/metadata.json (Bing source URL kept)
-- generates today's thumbnail into thumbnails/ (committed, served by Pages)
+- 不保留全尺寸原图（原图由前端从 Bing CDN 按需直取）
 
 Run daily by .github/workflows/update.yml.
 """
 from __future__ import annotations
 
+import io
 import json
 import re
 import sys
@@ -76,9 +77,9 @@ def save_json(p: Path, obj):
     p.write_text(json.dumps(obj, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
-def make_thumbnail(src: Path, dst: Path):
+def make_thumbnail(data: bytes, dst: Path):
     dst.parent.mkdir(parents=True, exist_ok=True)
-    with Image.open(src) as im:
+    with Image.open(io.BytesIO(data)) as im:
         im = ImageOps.exif_transpose(im).convert("RGB")
         im = im.resize((THUMB_W, THUMB_H), Image.LANCZOS)
         im.save(dst, "JPEG", quality=85, optimize=True)
@@ -88,17 +89,16 @@ def main():
     meta = fetch_metadata()
     url = build_url(meta)
     key = date_key(meta)
-    wall = ROOT / "wallpapers" / key[:4] / key[4:6] / f"{key}.jpg"
     thumb = ROOT / "thumbnails" / key[:4] / key[4:6] / f"{key}.jpg"
 
     try:
         req = Request(url, headers=HEADERS)
         with urlopen(req, timeout=TIMEOUT) as r:
-            wall.parent.mkdir(parents=True, exist_ok=True)
-            wall.write_bytes(r.read())
-        print("saved full image:", wall)
+            data = r.read()
+        make_thumbnail(data, thumb)
+        print("saved thumbnail:", thumb)
     except Exception as e:  # network flake should not abort the run
-        print("warn: full image download failed:", e, file=sys.stderr)
+        print("warn: image download failed:", e, file=sys.stderr)
 
     records = load_json(ROOT / "data" / "metadata.json")
     records[key] = {
@@ -109,12 +109,6 @@ def main():
         "urlbase": meta.get("urlbase", "") or "",
     }
     save_json(ROOT / "data" / "metadata.json", dict(sorted(records.items())))
-
-    if wall.exists():
-        make_thumbnail(wall, thumb)
-        print("saved thumbnail:", thumb)
-    else:
-        print("warn: thumbnail skipped (full image missing)")
 
 
 if __name__ == "__main__":
