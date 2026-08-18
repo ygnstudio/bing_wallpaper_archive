@@ -15,6 +15,7 @@ const lbNote = document.getElementById('lb-note');
 const lbLink = document.getElementById('lb-link');
 const lbDownload = document.getElementById('lb-download');
 const lbCopy = document.getElementById('lb-copy');
+const lbCopyMd = document.getElementById('lb-copy-md');
 const lbRes = document.getElementById('lb-res');
 const batchbar = document.getElementById('batchbar');
 const batchToggle = document.getElementById('batch-toggle');
@@ -535,6 +536,20 @@ lbCopy.onclick = async () => {
     setTimeout(() => (lbCopy.textContent = '复制链接'), 1500);
   } catch {
     lbCopy.textContent = '复制失败';
+  }
+};
+
+lbCopyMd.onclick = async () => {
+  if (!current) return;
+  const url = buildResUrl(current.url, lbRes.value) || current.url || '';
+  const alt = current.title || current.date || '';
+  const md = `![${alt}](${url})`;
+  try {
+    await navigator.clipboard.writeText(md);
+    lbCopyMd.textContent = '已复制 ✓';
+    setTimeout(() => (lbCopyMd.textContent = '复制 Markdown'), 1500);
+  } catch {
+    lbCopyMd.textContent = '复制失败';
   }
 };
 
