@@ -1,0 +1,19 @@
+{
+  "name": "Bing 每日壁纸归档",
+  "short_name": "Bing壁纸",
+  "description": "自动归档必应每日壁纸的轻量图库，支持分类、颜色、日期筛选与批量下载。",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

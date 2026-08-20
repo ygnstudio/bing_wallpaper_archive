@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ygnstudio.github.io/bing_wallpaper_archive/sitemap.xml

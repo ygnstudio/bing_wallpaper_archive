@@ -199,6 +199,30 @@ function validateData() {
   console.log(`Data validated: metadata=${Object.keys(meta).length} index=${idx.length}`);
 }
 
+/**
+ * 生成 sitemap.xml（首页 + 关于页）
+ */
+async function generateSitemap() {
+  const BASE_URL = 'https://ygnstudio.github.io/bing_wallpaper_archive';
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [
+    { loc: `${BASE_URL}/`, lastmod: today, changefreq: 'daily', priority: '1.0' },
+    { loc: `${BASE_URL}/about.html`, lastmod: today, changefreq: 'monthly', priority: '0.5' }
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    urls.map(u =>
+      `  <url>\n` +
+      `    <loc>${u.loc}</loc>\n` +
+      `    <lastmod>${u.lastmod}</lastmod>\n` +
+      `    <changefreq>${u.changefreq}</changefreq>\n` +
+      `    <priority>${u.priority}</priority>\n` +
+      `  </url>`
+    ).join('\n') +
+    `\n</urlset>\n`;
+  await writeFile(join(DIST, 'sitemap.xml'), xml);
+}
+
 async function main() {
   console.log(isDev ? 'Building (dev)...' : 'Building (prod)...');
 
@@ -228,8 +252,8 @@ async function main() {
   await copyFile(join(SRC, 'assets', 'sw.js'), join(DIST, 'assets', 'sw.js'));
   await copyFile(join(SRC, 'assets', 'worker.js'), join(DIST, 'assets', 'worker.js'));
 
-  // 生成资源清单，供 SW 预缓存
-  await writeFile(join(DIST, 'assets', 'manifest.json'), JSON.stringify({
+  // 生成资源清单，供 SW 预缓存（注意与 PWA manifest.json 区分）
+  await writeFile(join(DIST, 'assets', 'asset-manifest.json'), JSON.stringify({
     assets: [
       `./assets/${jsName}`,
       `./assets/${cssName}`,
@@ -241,6 +265,14 @@ async function main() {
   // 处理 HTML
   await processHtml('index.html', jsHash, cssHash);
   await processHtml('about.html', jsHash, cssHash);
+
+  // 复制 PWA 与 SEO 静态资源
+  await copyFile(join(SRC, 'favicon.svg'), join(DIST, 'favicon.svg'));
+  await copyFile(join(SRC, 'manifest.json'), join(DIST, 'manifest.json'));
+  await copyFile(join(SRC, 'robots.txt'), join(DIST, 'robots.txt'));
+
+  // 生成 sitemap.xml
+  await generateSitemap();
 
   // 复制 data/（site/data 是本地 dev 符号链接，CI 中可能不存在，回退到根目录真实 data/）
   const dataSrc = existsSync(join(SRC, 'data')) ? join(SRC, 'data') : join(ROOT, 'data');
@@ -254,7 +286,8 @@ async function main() {
 
   console.log(jsName);
   console.log(cssName);
-  console.log('manifest.json');
+  console.log('asset-manifest.json');
+  console.log('sitemap.xml');
   console.log('Build complete.');
 }
 
