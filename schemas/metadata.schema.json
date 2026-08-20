@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bing Wallpaper Metadata",
+  "type": "object",
+  "patternProperties": {
+    "^[0-9]{8}$": {
+      "type": "object",
+      "required": ["title", "url", "urlbase"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "copyright": { "type": "string" },
+        "copyrightlink": { "type": "string", "format": "uri" },
+        "url": { "type": "string", "format": "uri" },
+        "urlbase": { "type": "string" },
+        "thumbnail": { "type": "string" },
+        "category": { "type": "string" },
+        "color": { "type": "string" },
+        "uhd": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
