@@ -3,7 +3,8 @@
 
 Output entry per wallpaper day:
   date, title, copyright, copyrightlink, category, color,
-  thumbnail (repo path or null), url (full Bing CDN link), urlbase
+  thumbnail (repo path or null), url (full Bing CDN link), urlbase,
+  uhd (4K 源是否可用: true/false/null)
 Sorted newest-first. Run after download.py / classify.py update metadata.json / thumbnails/.
 """
 import json
@@ -30,6 +31,7 @@ def main():
             "thumbnail": thumb if os.path.exists(os.path.join(ROOT, thumb)) else None,
             "url": m.get("url", ""),
             "urlbase": m.get("urlbase", ""),
+            "uhd": m.get("uhd"),
         }
         entries.append(entry)
     entries.sort(key=lambda e: e["date"], reverse=True)

@@ -366,7 +366,10 @@ body {
   inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 45%);
   pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
 }
+.card:hover .media::after, .card.selected .media::after { opacity: 1; }
 .card .ph {
   width: 100%;
   height: 100%;
@@ -388,7 +391,10 @@ body {
   justify-content: space-between;
   gap: 10px;
   padding: 14px;
+  opacity: 0;
+  transition: opacity .15s;
 }
+.card:hover .info, .card.selected .info { opacity: 1; }
 .card .title {
   font-size: 14px;
   font-weight: 500;
@@ -506,6 +512,14 @@ body {
 .batch-actions button.ghost { background: transparent; color: var(--fg); }
 .batch-actions button:disabled { opacity: .45; cursor: not-allowed; }
 .batch-progress { color: var(--muted); font-size: 13px; }
+.batch-note {
+  font-size: 12px;
+  color: #ffb74d;
+  background: rgba(255, 183, 77, .12);
+  border-radius: 6px;
+  padding: 6px 9px;
+  line-height: 1.45;
+}
 
 /* ===== 灯箱 ===== */
 .lightbox {

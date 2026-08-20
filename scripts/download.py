@@ -85,6 +85,27 @@ def make_thumbnail(data: bytes, dst: Path):
         im.save(dst, "JPEG", quality=85, optimize=True)
 
 
+def probe_uhd(urlbase):
+    """探测该图是否提供 4K(UHD) 源；404 明确无，其他异常返回 None（乐观视为有）。"""
+    if not urlbase:
+        return None
+    uhd_url = "https://www.bing.com" + urlbase + "_UHD.jpg"
+    for method in ("HEAD", "GET"):
+        try:
+            req = Request(uhd_url, headers=HEADERS, method=method)
+            if method == "GET":
+                req.add_header("Range", "bytes=0-0")
+            with urlopen(req, timeout=TIMEOUT) as r:
+                return r.status in (200, 206)
+        except HTTPError as e:
+            if e.code == 404:
+                return False
+            continue
+        except (URLError, OSError, ValueError):
+            return None
+    return None
+
+
 def main():
     meta = fetch_metadata()
     url = build_url(meta)
@@ -100,6 +121,7 @@ def main():
     except Exception as e:  # network flake should not abort the run
         print("warn: image download failed:", e, file=sys.stderr)
 
+    uhd = probe_uhd(meta.get("urlbase", ""))
     records = load_json(ROOT / "data" / "metadata.json")
     records[key] = {
         "title": meta.get("title", "") or "",
@@ -107,6 +129,7 @@ def main():
         "copyrightlink": meta.get("copyrightlink", "") or "",
         "url": url,
         "urlbase": meta.get("urlbase", "") or "",
+        "uhd": True if uhd is None else bool(uhd),
     }
     save_json(ROOT / "data" / "metadata.json", dict(sorted(records.items())))
 
