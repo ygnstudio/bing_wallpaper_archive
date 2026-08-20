@@ -4,9 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Daily Update"]
-    types: [completed]
 
 permissions:
   contents: read
@@ -28,9 +25,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-
-      - name: Validate data
-        run: python3 scripts/validate.py
 
       - name: Install Node dependencies
         run: npm ci

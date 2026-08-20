@@ -50,6 +50,9 @@ jobs:
       - name: VLM classify latest wallpaper
         run: python scripts/vlm_classify.py --latest
 
+      - name: Detect missing UHD availability
+        run: python scripts/detect_uhd.py
+
       - name: Rebuild index
         run: python scripts/generate_index.py
 
