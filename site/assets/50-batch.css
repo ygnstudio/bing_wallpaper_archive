@@ -10,7 +10,7 @@
   gap: 12px;
   transition: opacity .25s ease, transform .25s ease;
 }
-.batchbar.near-footer {
+.batchbar.near-footer .fab {
   opacity: 0;
   transform: translateY(24px) scale(.92);
   pointer-events: none;

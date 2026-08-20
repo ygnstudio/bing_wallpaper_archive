@@ -45,8 +45,6 @@
   .footer { flex-direction: column; text-align: center; gap: 10px; }
   .batchbar { right: 12px; bottom: 12px; }
   .fab { width: 52px; height: 52px; }
-  .back-to-top { right: 12px; bottom: 74px; }
-  .batchbar.near-footer ~ .back-to-top { bottom: 12px; }
 }
 
 /* 小屏手机 */
@@ -75,11 +73,9 @@
   .lightbox img { max-width: 100%; max-height: 70vh; }
   .lb-meta h2 { font-size: 15px; }
   .lb-hint { display: none; }
-  /* 批量 FAB 放右下角，返回顶部放左下角，避免重叠 */
+  /* 小屏下 batchbar 整体在右下角，返回顶部在 FAB 上方 */
   .batchbar { left: auto; right: 12px; bottom: 12px; align-items: flex-end; }
   .batch-panel { width: 270px; max-width: calc(100vw - 40px); align-self: flex-end; }
-  .back-to-top { left: 12px; right: auto; bottom: 12px; }
-  .batchbar.near-footer ~ .back-to-top { left: 12px; right: auto; bottom: 12px; }
   .filter-row.date-row { gap: 6px; }
   .date-range { gap: 4px; }
   .date-range-label { display: none; }
