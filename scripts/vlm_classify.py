@@ -11,7 +11,8 @@
   python scripts/vlm_classify.py              # 定向重判弱信号
   python scripts/vlm_classify.py --all        # 全量重判
   python scripts/vlm_classify.py --category X # 只重判某类
-  python scripts/vlm_classify.py --date YYYYMMDD   # 只判指定日期（CI 每日用）
+  python scripts/vlm_classify.py --date YYYYMMDD   # 只判指定日期
+  python scripts/vlm_classify.py --latest     # 只判 metadata 最新一条（每日 CI 用）
 
 模型：默认用本地 ModelScope 缓存；环境变量 VLM_MODEL_DIR 可覆盖（CI 用）。
 """
@@ -113,6 +114,7 @@ def thumb_path(date):
 def main():
     args = sys.argv[1:]
     mode_all = "--all" in args
+    mode_latest = "--latest" in args
     only_cat = None
     only_date = None
     if "--category" in args:
@@ -124,7 +126,10 @@ def main():
         meta = json.load(f)
 
     # 选目标
-    if only_date:
+    if mode_latest:
+        # 判 metadata 里日期最新的条目（每日 CI 用：download 刚写入的最新一张）
+        targets = [max(meta.keys())] if meta else []
+    elif only_date:
         if only_date not in meta:
             print(f"warn: {only_date} 不在 metadata.json，跳过", flush=True)
             return

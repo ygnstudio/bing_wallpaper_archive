@@ -2,7 +2,7 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # 09:00 UTC = 17:00 Beijing：Bing 换图(~15:00/16:00 北京)之后抓当天新图，当天傍晚入库
+    - cron: "0 1 * * *"   # 01:00 UTC = 09:00 Beijing：Bing 换图(~北京时间次日凌晨)之后抓最新已发布图，当天早间入库
   workflow_dispatch:
 
 permissions:
@@ -47,10 +47,8 @@ jobs:
       - name: Classify (color + keyword category)
         run: python scripts/classify.py
 
-      - name: VLM classify today's wallpaper
-        run: |
-          TODAY=$(date -u +%Y%m%d)
-          python scripts/vlm_classify.py --date $TODAY
+      - name: VLM classify latest wallpaper
+        run: python scripts/vlm_classify.py --latest
 
       - name: Rebuild index
         run: python scripts/generate_index.py
