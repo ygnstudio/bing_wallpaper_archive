@@ -53,6 +53,9 @@ jobs:
       - name: Rebuild index
         run: python scripts/generate_index.py
 
+      - name: Update README stats
+        run: python scripts/update_readme_stats.py
+
       - name: Verify archive (no missing thumbnails)
         run: python scripts/check_archive.py
 
@@ -60,5 +63,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data thumbnails site
+          git add data thumbnails site README.md
           git diff --cached --quiet && echo "no changes" || (git commit -m "daily: update wallpaper" && git pull --rebase --autostash && git push)

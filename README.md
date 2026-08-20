@@ -34,6 +34,7 @@ bing_wallpaper_archive/
 │   ├── classify.py        #   分类 + 颜色打标（关键词启发式 + 主色提取）
 │   ├── vlm_classify.py    #   VLM 视觉语言模型分类（Qwen2-VL，图文一起读）
 │   ├── generate_index.py  #   重建 index.json
+│   ├── update_readme_stats.py # 自动同步 README 数据规模
 │   └── check_archive.py   #   校验缩略图完整性
 └── .github/workflows/     # GitHub Actions
     ├── update.yml         #   每日自动更新
