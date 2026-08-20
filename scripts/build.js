@@ -162,8 +162,9 @@ async function main() {
   await processHtml('index.html', jsHash, cssHash);
   await processHtml('about.html', jsHash, cssHash);
 
-  // 复制 data/
-  await copyDir(join(SRC, 'data'), join(DIST, 'data'));
+  // 复制 data/（site/data 是本地 dev 符号链接，CI 中可能不存在，回退到根目录真实 data/）
+  const dataSrc = existsSync(join(SRC, 'data')) ? join(SRC, 'data') : join(ROOT, 'data');
+  await copyDir(dataSrc, join(DIST, 'data'));
 
   // 转换缩略图为 webp（仓库仍只存 jpg，构建产物含 webp）
   const thumbSrc = existsSync(join(SRC, 'thumbnails')) ? join(SRC, 'thumbnails') : join(ROOT, 'thumbnails');
