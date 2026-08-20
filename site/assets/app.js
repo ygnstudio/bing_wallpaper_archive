@@ -195,6 +195,20 @@ function detectTouch() {
   if (isTouch) document.body.classList.add('touch');
 }
 
+// 全局错误捕获：线上环境打印并提示，避免静默失败
+window.addEventListener('error', (e) => {
+  console.error('[site error]', e.error || e.message);
+  if (els.archiveStats && !els.archiveStats.textContent.includes('加载失败')) {
+    els.archiveStats.textContent = '页面运行出现异常，请刷新重试';
+  }
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[site unhandled]', e.reason);
+  if (els.archiveStats && !els.archiveStats.textContent.includes('加载失败')) {
+    els.archiveStats.textContent = '页面运行出现异常，请刷新重试';
+  }
+});
+
 init().catch(err => { els.archiveStats.textContent = '加载失败：' + err; });
 
 // 注册 Service Worker（线上环境启用缓存）
