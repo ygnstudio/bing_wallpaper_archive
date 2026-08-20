@@ -6,7 +6,7 @@
 import './types.js';
 import { CACHE_BUST, ROOT_MARGIN } from './config.js';
 import { loadIndex, buildResUrl, fetchBytes } from './api.js';
-import { setItems, setFiltered, setRendered, setDateBounds, setActiveCat, setActiveColor } from './state.js';
+import { setItems, setFiltered, setRendered, setDateBounds, setActiveCat, setActiveColor, activeCat, activeColor } from './state.js';
 import { getFiltered } from './filter.js';
 import { initMonthPicker, setupDateInputs, swapDateRange } from './picker.js';
 import { renderCategoryPills, renderColorPills, renderHero, renderMore, updateFilterCount, updateStats } from './ui.js';
