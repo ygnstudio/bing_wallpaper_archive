@@ -46,6 +46,7 @@ const heroDate = document.getElementById('hero-date');
 const heroTitle = document.getElementById('hero-title');
 const heroDesc = document.getElementById('hero-desc');
 const heroDownload = document.getElementById('hero-download');
+const heroDownloadText = document.getElementById('hero-download-text');
 const heroView = document.getElementById('hero-view');
 
 const PAGE = 60;            // 每批渲染的卡片数
@@ -93,7 +94,6 @@ async function load() {
 }
 
 function updateStats() {
-  const withImg = items.filter(i => i.thumbnail).length;
   archiveStats.textContent = `已归档 ${items.length.toLocaleString()} 张 · 每日更新`;
   document.title = `Bing 每日壁纸归档 · ${items.length.toLocaleString()} 张`;
 }
@@ -115,6 +115,20 @@ function updateDateTriggerText() {
   toText.textContent = dateTo.value || '';
 }
 
+function normalizeDateRange() {
+  if (dateFrom.value && dateTo.value && dateFrom.value > dateTo.value) {
+    const tmp = dateFrom.value;
+    dateFrom.value = dateTo.value;
+    dateTo.value = tmp;
+  }
+}
+
+function setDate(input, value) {
+  input.value = value;
+  normalizeDateRange();
+  updateDateTriggerText();
+}
+
 function swapDateRange() {
   const tmp = dateFrom.value;
   dateFrom.value = dateTo.value;
@@ -132,8 +146,8 @@ function openMonthPicker(target) {
     pickerYear = new Date().getFullYear();
   }
   renderMonthPicker();
-  positionMonthPicker();
   monthPicker.hidden = false;
+  positionMonthPicker();
 }
 
 function closeMonthPicker() {
@@ -181,8 +195,7 @@ function renderMonthPicker() {
     }
     btn.addEventListener('click', () => {
       const input = pickerTarget === 'from' ? dateFrom : dateTo;
-      input.value = `${pickerYear}-${monthStr}`;
-      updateDateTriggerText();
+      setDate(input, `${pickerYear}-${monthStr}`);
       applyFilter();
       closeMonthPicker();
     });
@@ -194,8 +207,7 @@ function setMonthToThisMonth() {
   const now = new Date();
   const input = pickerTarget === 'from' ? dateFrom : dateTo;
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  input.value = ym;
-  updateDateTriggerText();
+  setDate(input, ym);
   applyFilter();
   closeMonthPicker();
 }
@@ -293,7 +305,9 @@ function renderHero() {
   heroDate.textContent = formatDate(latest.date);
   heroTitle.textContent = latest.title || latest.date;
   heroDesc.textContent = latest.copyright || '';
-  heroDownload.onclick = () => downloadHero(latest, 'UHD');
+  const heroRes = latest.uhd === false ? '1920x1080' : 'UHD';
+  heroDownloadText.textContent = latest.uhd === false ? '下载 1080p' : '下载 UHD 4K';
+  heroDownload.onclick = () => downloadHero(latest, heroRes);
   heroView.onclick = () => openLightbox(latest);
 }
 
