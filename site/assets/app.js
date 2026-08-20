@@ -5,6 +5,7 @@ const dateTo = document.getElementById('date-to');
 const dateFromTrigger = document.getElementById('date-from-trigger');
 const dateToTrigger = document.getElementById('date-to-trigger');
 const dateClear = document.getElementById('date-clear');
+const dateSwap = document.getElementById('date-swap');
 const monthPicker = document.getElementById('month-picker');
 const mpPrev = document.getElementById('mp-prev');
 const mpNext = document.getElementById('mp-next');
@@ -112,6 +113,14 @@ function updateDateTriggerText() {
   const toText = dateToTrigger.querySelector('.month-trigger-text');
   fromText.textContent = dateFrom.value || '';
   toText.textContent = dateTo.value || '';
+}
+
+function swapDateRange() {
+  const tmp = dateFrom.value;
+  dateFrom.value = dateTo.value;
+  dateTo.value = tmp;
+  updateDateTriggerText();
+  applyFilter();
 }
 
 function openMonthPicker(target) {
@@ -423,6 +432,7 @@ dateClear.addEventListener('click', () => {
   applyFilter();
   closeMonthPicker();
 });
+dateSwap.addEventListener('click', (e) => { e.stopPropagation(); swapDateRange(); });
 
 // 点击页面其他地方关闭月份选择器弹窗
 document.addEventListener('click', (e) => {

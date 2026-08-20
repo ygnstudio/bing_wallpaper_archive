@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bing 每日壁纸归档</title>
-  <link rel="stylesheet" href="./assets/style.css?v=20260820j">
+  <link rel="stylesheet" href="./assets/style.css?v=20260820k">
 </head>
 <body>
   <nav class="topnav">
@@ -25,7 +25,7 @@
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="hero-content">
       <div class="hero-card">
-        <div class="hero-tag">今日壁纸 · <span id="hero-date"></span></div>
+        <div class="hero-tag">最新壁纸 · <span id="hero-date"></span></div>
         <h2 id="hero-title"></h2>
         <p id="hero-desc"></p>
         <div class="hero-actions">
@@ -56,7 +56,11 @@
           <span class="month-trigger-text" data-placeholder="起始年月"></span>
         </button>
         <input type="hidden" id="date-from">
-        <span class="date-range-sep">至</span>
+        <button type="button" id="date-swap" class="date-swap" aria-label="交换起始与结束日期" title="交换日期">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path fill="currentColor" d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/>
+          </svg>
+        </button>
         <button type="button" class="month-trigger" id="date-to-trigger" aria-label="选择结束年月">
           <span class="month-trigger-text" data-placeholder="结束年月"></span>
         </button>
@@ -148,6 +152,6 @@
     </div>
   </footer>
 
-  <script src="./assets/app.js?v=20260820i"></script>
+  <script src="./assets/app.js?v=20260820k"></script>
 </body>
 </html>
