@@ -166,8 +166,9 @@ async function main() {
   await copyDir(join(SRC, 'data'), join(DIST, 'data'));
 
   // 转换缩略图为 webp（仓库仍只存 jpg，构建产物含 webp）
-  if (existsSync(join(SRC, 'thumbnails'))) {
-    await convertThumbnails();
+  const thumbSrc = existsSync(join(SRC, 'thumbnails')) ? join(SRC, 'thumbnails') : join(ROOT, 'thumbnails');
+  if (existsSync(thumbSrc)) {
+    await convertThumbnails(thumbSrc);
   }
 
   console.log(jsName);
@@ -177,14 +178,15 @@ async function main() {
 }
 
 /**
- * 调用 Python 脚本将 site/thumbnails 转为 webp
+ * 调用 Python 脚本将 thumbnails 转为 webp
+ * @param {string} src
  * @returns {Promise<void>}
  */
-function convertThumbnails() {
+function convertThumbnails(src) {
   return new Promise((resolve, reject) => {
     const py = process.env.PYTHON || '/Users/rashida/.workbuddy/binaries/python/envs/default/bin/python3';
     const script = join(ROOT, 'scripts', 'convert_thumbnails.py');
-    const child = spawn(py, [script, join(SRC, 'thumbnails'), join(DIST, 'thumbnails')], {
+    const child = spawn(py, [script, src, join(DIST, 'thumbnails')], {
       stdio: 'inherit'
     });
     child.on('close', code => code === 0 ? resolve() : reject(new Error('convert_thumbnails.py exited ' + code)));
