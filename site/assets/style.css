@@ -283,8 +283,10 @@ body {
 .date-range input[type="month"] {
   padding: 7px 30px 7px 11px;
   border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(20, 22, 27, .72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: var(--fg);
   font-size: 13px;
   cursor: pointer;
@@ -296,7 +298,7 @@ body {
   background-position: right 8px center;
   background-size: 16px;
 }
-.date-range input[type="month"]:focus { border-color: var(--accent); }
+.date-range input[type="month"]:focus { border-color: var(--accent); background: rgba(20, 22, 27, .85); }
 .date-range input[type="month"]::-webkit-calendar-picker-indicator {
   position: absolute;
   right: 0;
