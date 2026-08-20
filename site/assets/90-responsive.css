@@ -73,9 +73,11 @@
   .lightbox img { max-width: 100%; max-height: 70vh; }
   .lb-meta h2 { font-size: 15px; }
   .lb-hint { display: none; }
-  /* 小屏下 batchbar 整体在右下角，返回顶部在 FAB 上方 */
+  /* 小屏下 batchbar 整体在右下角，返回顶部在 FAB 上方，尺寸与 FAB 一致 */
   .batchbar { left: auto; right: 12px; bottom: 12px; align-items: flex-end; }
   .batch-panel { width: 270px; max-width: calc(100vw - 40px); align-self: flex-end; }
+  .back-to-top { width: 52px; height: 52px; }
+  .back-to-top svg { width: 22px; height: 22px; }
   .filter-row.date-row { gap: 6px; }
   .date-range { gap: 4px; }
   .date-range-label { display: none; }
