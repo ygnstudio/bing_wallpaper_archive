@@ -45,18 +45,28 @@
   .footer { flex-direction: column; text-align: center; gap: 10px; }
   .batchbar { right: 12px; bottom: 12px; }
   .fab { width: 52px; height: 52px; }
+  .back-to-top { right: 12px; bottom: 74px; }
+  .batchbar.near-footer ~ .back-to-top { bottom: 12px; }
 }
 
 /* 小屏手机 */
 @media (max-width: 480px) {
   .topnav { padding: 10px 12px; }
   .brand-sub { display: none; }
-  .hero { height: 46vh; min-height: 260px; }
-  .hero-card { padding: 16px; }
-  #hero-title { font-size: 18px; }
-  #hero-desc { -webkit-line-clamp: 4; }
+  .hero { height: 52vh; min-height: 300px; }
+  .hero-content { padding-bottom: 18px; }
+  .hero-card {
+    width: auto;
+    min-width: 0;
+    max-width: min(92%, 340px);
+    padding: 12px 14px 14px;
+  }
+  .hero-tag { font-size: 11px; padding: 4px 8px; margin-bottom: 8px; }
+  #hero-title { font-size: 17px; margin-bottom: 6px; }
+  #hero-desc { display: none; }
   .hero-actions { gap: 8px; }
-  .hero-actions .btn-primary, .hero-actions .btn-secondary { flex: 1 1 0; }
+  .hero-actions .btn-primary, .hero-actions .btn-secondary { flex: 1 1 0; padding: 7px 12px; font-size: 12px; }
+  .hero-links { margin-top: 10px; font-size: 11px; gap: 8px; }
   .grid { gap: 10px; padding: 0 12px 28px; }
   .card .info { padding: 10px; }
   .card .title { font-size: 12px; }
@@ -68,6 +78,8 @@
   /* 批量面板在手机上变为底部抽屉 */
   .batchbar { left: 12px; right: 12px; align-items: stretch; }
   .batch-panel { width: auto; max-width: none; }
+  .back-to-top { left: 12px; right: auto; bottom: 12px; }
+  .batchbar.near-footer ~ .back-to-top { left: 12px; right: auto; bottom: 12px; }
   .filter-row.date-row { gap: 6px; }
   .date-range { gap: 4px; }
   .date-range-label { display: none; }
