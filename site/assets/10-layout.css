@@ -96,3 +96,34 @@
 .footer-links { display: flex; gap: 20px; }
 .footer-links a { color: var(--muted); text-decoration: none; }
 .footer-links a:hover { color: var(--fg); }
+
+/* ===== 返回顶部按钮 ===== */
+.back-to-top {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  z-index: 50;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(20, 22, 27, .85);
+  backdrop-filter: blur(12px);
+  color: var(--fg);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .2s, transform .2s, visibility .2s, background .15s, color .15s;
+}
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.back-to-top:hover { background: rgba(39, 42, 49, .9); color: var(--accent); }
+@media (min-width: 768px) {
+  .back-to-top { right: 28px; bottom: 98px; }
+}
