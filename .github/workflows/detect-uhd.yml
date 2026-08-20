@@ -1,9 +1,8 @@
 name: Detect UHD 4K
 
 on:
-  schedule:
-    # 每周一 09:00 北京（UTC+8）= 周一 01:00 UTC
-    - cron: '0 1 * * 1'
+  # 历史图片已全量探测，日常增量由 update.yml 兜底。
+  # 此 workflow 仅用于需要手动强制重探测全量图片时触发。
   workflow_dispatch:
     inputs:
       force_all:

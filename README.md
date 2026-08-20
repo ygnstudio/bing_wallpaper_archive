@@ -61,14 +61,15 @@ bing_wallpaper_archive/
 flowchart LR
     A[download.py<br>抓取最新壁纸] --> B[classify.py<br>打分类/颜色标签]
     B --> B2[vlm_classify.py<br>VLM 精修分类]
-    B2 --> C[generate_index.py<br>重建站点索引]
-    C --> D[update_readme_stats.py<br>同步 README 数据]
-    D --> E[check_archive.py<br>校验缩略图]
-    E --> F[提交并推送]
-    F --> G[pages.yml<br>自动部署上线]
+    B2 --> D[detect_uhd.py<br>探测 4K 可用性]
+    D --> C[generate_index.py<br>重建站点索引]
+    C --> E[update_readme_stats.py<br>同步 README 数据]
+    E --> F[check_archive.py<br>校验缩略图]
+    F --> G[提交并推送]
+    G --> H[pages.yml<br>自动部署上线]
 ```
 
-此外，每周一 09:00（北京时间）由 `detect-uhd.yml` 自动探测未标注图片的 4K 可用性，更新 `metadata.json` 与 `index.json` 后提交。
+`detect-uhd.yml` 仅在需要手动强制重探测全量图片时使用，日常增量由 `update.yml` 自动兜底。
 
 ## 分类与颜色是怎么来的
 

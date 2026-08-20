@@ -10,7 +10,7 @@
 
 import { createHash } from 'crypto';
 import { readFile, writeFile, copyFile, mkdir, readdir, rm } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -121,8 +121,89 @@ async function processHtml(name, jsHash, cssHash) {
   await writeFile(dst, html);
 }
 
+/**
+ * 校验 metadata.json 与 index.json 一致性
+ * @returns {void}
+ */
+function validateData() {
+  const metaPath = join(ROOT, 'data', 'metadata.json');
+  const idxPath = join(ROOT, 'data', 'index.json');
+
+  const meta = JSON.parse(readFileSync(metaPath, 'utf-8'));
+  const idx = JSON.parse(readFileSync(idxPath, 'utf-8'));
+
+  const errors = [];
+
+  // metadata 结构检查
+  if (typeof meta !== 'object' || meta === null || Array.isArray(meta)) {
+    errors.push('metadata.json 必须是对象');
+  } else {
+    for (const [date, item] of Object.entries(meta)) {
+      if (!/^\d{8}$/.test(date)) errors.push(`metadata 非法日期 key: ${date}`);
+      for (const f of ['title', 'url', 'urlbase']) {
+        if (!(f in item)) errors.push(`${date} 缺少字段 ${f}`);
+      }
+      if ('uhd' in item && item.uhd !== null && typeof item.uhd !== 'boolean') {
+        errors.push(`${date} 的 uhd 字段必须是 boolean 或 null`);
+      }
+    }
+  }
+
+  // index 结构检查
+  if (!Array.isArray(idx)) {
+    errors.push('index.json 必须是数组');
+  } else {
+    const seen = new Set();
+    for (const item of idx) {
+      const date = item.date;
+      if (!/^\d{8}$/.test(date)) errors.push(`index 非法日期: ${date}`);
+      if (seen.has(date)) errors.push(`index 重复日期: ${date}`);
+      seen.add(date);
+      for (const f of ['date', 'title', 'url', 'urlbase']) {
+        if (!(f in item)) errors.push(`${date} 缺少字段 ${f}`);
+      }
+      if ('uhd' in item && item.uhd !== null && typeof item.uhd !== 'boolean') {
+        errors.push(`${date} 的 uhd 字段必须是 boolean 或 null`);
+      }
+    }
+  }
+
+  // 一致性检查
+  if (typeof meta === 'object' && meta !== null && !Array.isArray(meta) && Array.isArray(idx)) {
+    const metaDates = new Set(Object.keys(meta));
+    const idxDates = new Set(idx.map(i => i.date));
+    const missingInIdx = [...metaDates].filter(d => !idxDates.has(d));
+    const missingInMeta = [...idxDates].filter(d => !metaDates.has(d));
+    if (missingInIdx.length) errors.push(`metadata 中有但 index 中缺失: ${missingInIdx.slice(0, 5).join(', ')}`);
+    if (missingInMeta.length) errors.push(`index 中有但 metadata 中缺失: ${missingInMeta.slice(0, 5).join(', ')}`);
+
+    const idxMap = new Map(idx.map(i => [i.date, i]));
+    for (const date of metaDates) {
+      const m = meta[date];
+      const i = idxMap.get(date);
+      if (!i) continue;
+      for (const k of ['title', 'copyright', 'url', 'urlbase', 'category', 'color', 'uhd']) {
+        if (m[k] !== i[k]) {
+          errors.push(`${date} 字段 ${k} 不一致: metadata=${JSON.stringify(m[k])} index=${JSON.stringify(i[k])}`);
+        }
+      }
+    }
+  }
+
+  if (errors.length) {
+    console.error('数据校验失败:');
+    for (const e of errors.slice(0, 20)) console.error(`  - ${e}`);
+    throw new Error(`validateData: ${errors.length} 处错误`);
+  }
+
+  console.log(`Data validated: metadata=${Object.keys(meta).length} index=${idx.length}`);
+}
+
 async function main() {
   console.log(isDev ? 'Building (dev)...' : 'Building (prod)...');
+
+  // 构建前校验数据一致性
+  validateData();
 
   // 清理 dist
   if (existsSync(DIST)) {
