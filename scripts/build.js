@@ -13,6 +13,7 @@ import { readFile, writeFile, copyFile, mkdir, readdir, rm } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
 
 // 本地开发走 managed workspace；CI 走项目 node_modules
 const MANAGED_NODE_MODULES = '/Users/rashida/.workbuddy/binaries/node/workspace/node_modules';
@@ -161,13 +162,34 @@ async function main() {
   await processHtml('index.html', jsHash, cssHash);
   await processHtml('about.html', jsHash, cssHash);
 
-  // 复制 data/ 和静态资源
+  // 复制 data/
   await copyDir(join(SRC, 'data'), join(DIST, 'data'));
+
+  // 转换缩略图为 webp（仓库仍只存 jpg，构建产物含 webp）
+  if (existsSync(join(SRC, 'thumbnails'))) {
+    await convertThumbnails();
+  }
 
   console.log(jsName);
   console.log(cssName);
   console.log('manifest.json');
   console.log('Build complete.');
+}
+
+/**
+ * 调用 Python 脚本将 site/thumbnails 转为 webp
+ * @returns {Promise<void>}
+ */
+function convertThumbnails() {
+  return new Promise((resolve, reject) => {
+    const py = process.env.PYTHON || '/Users/rashida/.workbuddy/binaries/python/envs/default/bin/python3';
+    const script = join(ROOT, 'scripts', 'convert_thumbnails.py');
+    const child = spawn(py, [script, join(SRC, 'thumbnails'), join(DIST, 'thumbnails')], {
+      stdio: 'inherit'
+    });
+    child.on('close', code => code === 0 ? resolve() : reject(new Error('convert_thumbnails.py exited ' + code)));
+    child.on('error', reject);
+  });
 }
 
 main().catch(err => {
