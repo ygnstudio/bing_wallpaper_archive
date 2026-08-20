@@ -276,7 +276,12 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+.filter-count {
   margin-left: auto;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
 }
 .date-range-label { font-size: 13px; color: var(--muted); }
 .date-range-sep { font-size: 13px; color: var(--muted); }
