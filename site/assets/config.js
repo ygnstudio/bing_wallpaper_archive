@@ -4,7 +4,7 @@
  */
 
 /** CSS/JS 缓存戳，每次发布前更新以强制浏览器拉新 */
-export const CACHE_BUST = '20260820u';
+export const CACHE_BUST = '20260820v';
 
 /** 瀑布流每次渲染的卡片数量 */
 export const PAGE_SIZE = 60;
