@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bing 每日壁纸归档</title>
-  <link rel="stylesheet" href="./assets/style.css?v=20260820b">
+  <link rel="stylesheet" href="./assets/style.css?v=20260820e">
 </head>
 <body>
   <nav class="topnav">
@@ -45,23 +45,18 @@
   <div class="filter-bar">
     <div class="filter-row">
       <div class="filter-group" id="cat-pills" role="tablist" aria-label="分类筛选"></div>
-      <div class="filter-extra">
-        <button id="date-toggle" class="btn-ghost" type="button">按日期浏览</button>
-        <div class="sort-wrap">
-          <select id="sort" aria-label="排序">
-            <option value="newest">最新</option>
-            <option value="oldest">最早</option>
-          </select>
-        </div>
-      </div>
     </div>
     <div class="filter-row">
       <div class="filter-group color-group" id="color-pills" role="tablist" aria-label="颜色筛选"></div>
     </div>
-    <div id="date-panel" class="date-panel" hidden>
-      <select id="year" aria-label="年份筛选"><option value="">全部年份</option></select>
-      <select id="month" aria-label="月份筛选"><option value="">全部月份</option></select>
-      <span class="panel-hint">或直接在顶部搜索框输入关键词</span>
+    <div class="filter-row">
+      <div class="date-range">
+        <span class="date-range-label">日期范围</span>
+        <input type="month" id="date-from" aria-label="起始年月">
+        <span class="date-range-sep">至</span>
+        <input type="month" id="date-to" aria-label="结束年月">
+        <button id="date-clear" class="btn-ghost" type="button">清除</button>
+      </div>
     </div>
   </div>
 
@@ -134,6 +129,6 @@
     </div>
   </footer>
 
-  <script src="./assets/app.js?v=20260820c"></script>
+  <script src="./assets/app.js?v=20260820e"></script>
 </body>
 </html>
