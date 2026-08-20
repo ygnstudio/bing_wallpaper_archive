@@ -65,7 +65,7 @@
   #hero-title { font-size: 17px; margin-bottom: 6px; }
   #hero-desc { display: none; }
   .hero-actions { gap: 8px; }
-  .hero-actions .btn-primary, .hero-actions .btn-secondary { flex: 1 1 0; padding: 7px 12px; font-size: 12px; }
+  .hero-actions .btn-primary, .hero-actions .btn-secondary { flex: 0 1 auto; padding: 7px 12px; font-size: 12px; }
   .hero-links { margin-top: 10px; font-size: 11px; gap: 8px; }
   .grid { gap: 10px; padding: 0 12px 28px; }
   .card .info { padding: 10px; }
@@ -75,9 +75,9 @@
   .lightbox img { max-width: 100%; max-height: 70vh; }
   .lb-meta h2 { font-size: 15px; }
   .lb-hint { display: none; }
-  /* 批量面板在手机上变为底部抽屉 */
-  .batchbar { left: 12px; right: 12px; align-items: stretch; }
-  .batch-panel { width: auto; max-width: none; }
+  /* 批量 FAB 放右下角，返回顶部放左下角，避免重叠 */
+  .batchbar { left: auto; right: 12px; bottom: 12px; align-items: flex-end; }
+  .batch-panel { width: 270px; max-width: calc(100vw - 40px); align-self: flex-end; }
   .back-to-top { left: 12px; right: auto; bottom: 12px; }
   .batchbar.near-footer ~ .back-to-top { left: 12px; right: auto; bottom: 12px; }
   .filter-row.date-row { gap: 6px; }

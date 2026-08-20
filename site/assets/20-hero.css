@@ -43,6 +43,7 @@
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, .08);
   box-shadow: var(--shadow);
+  text-align: center;
 }
 .hero-tag {
   display: inline-flex;
@@ -72,7 +73,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .btn-primary, .btn-secondary, .btn-ghost {
   display: inline-flex;
   align-items: center;
@@ -85,6 +86,7 @@
   cursor: pointer;
   border: 1px solid transparent;
   transition: transform .1s, filter .15s, background .15s;
+  white-space: nowrap;
 }
 .btn-primary {
   background: var(--accent);
@@ -109,6 +111,7 @@
   margin-top: 14px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   width: 100%;
