@@ -26,7 +26,8 @@
 bing_wallpaper_archive/
 ├── data/                      # 数据
 │   ├── metadata.json          #   全量元数据（标题/版权/url/urlbase/uhd/分类/颜色）
-│   └── index.json             #   站点索引（前端直接读取）
+│   ├── index.json             #   轻量站点索引（前端首屏直接读取）
+│   └── YYYY.json              #   按年份存放的完整数据（懒加载）
 ├── thumbnails/                # 缩略图（按 YYYY/MM/ 存放，480×270，webp）
 ├── site/                      # 前端源码（原生 HTML/CSS/JS）
 │   ├── index.html / about.html
@@ -76,7 +77,7 @@ flowchart LR
 - **分类**：两层流水线 ——
   - 关键词启发式（`classify.py`，最长命中 + 单字词过滤地名误伤），约 90% 准确率。
   - VLM 视觉语言模型（`vlm_classify.py`，Qwen2-VL-2B，图文一起读），每日 CI 自动跑最新图，将难例（标题/版权含动物词但图是建筑、植物词但图是桥等语义冲突）修对。
-  - 历史 3820 条由一次性回填校准，剩余「其他」约 16 条（极难判/无明显主体）。
+  - 历史数据已由一次性回填校准，剩余少量「其他」（极难判/无明显主体）。
 - **颜色**：用 Pillow 中位切分量化出主色，再按色相 / 饱和度 / 明度归到 9 色 + 多彩。这是纯像素算法，稳定可复现。
 
 ## License
