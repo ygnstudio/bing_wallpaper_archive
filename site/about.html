@@ -105,5 +105,15 @@
       <a href="https://github.com/ygnstudio/bing_wallpaper_archive" target="_blank" rel="noopener">GitHub</a>
     </div>
   </footer>
+  <script>
+    // 关于页统计数字从 index.json 自动更新
+    fetch('./data/index.json')
+      .then(r => r.json())
+      .then(items => {
+        const el = document.getElementById('stat-total');
+        if (el && Array.isArray(items)) el.textContent = items.length.toLocaleString();
+      })
+      .catch(() => {});
+  </script>
 </body>
 </html>
