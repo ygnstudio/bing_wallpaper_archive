@@ -24,6 +24,7 @@ const batchZip = document.getElementById('batch-zip');
 const batchClear = document.getElementById('batch-clear');
 const batchSelectAll = document.getElementById('batch-selectall');
 const batchProgress = document.getElementById('batch-progress');
+const batchResNote = document.getElementById('batch-res-note');
 const catPills = document.getElementById('cat-pills');
 const colorPills = document.getElementById('color-pills');
 const sortEl = document.getElementById('sort');
@@ -201,6 +202,7 @@ function formatDate(d) {
 }
 
 async function downloadHero(it, res) {
+  if (res === 'UHD' && it.uhd === false) res = '1920x1080'; // 该图无 4K，回退 1080p
   try {
     const url = buildResUrl(it.url, res) || it.url;
     const bytes = await fetchBytes(url);
@@ -348,6 +350,39 @@ function updateBatchBar() {
     : `打包下载 ZIP（${n}）`;
   batchSelectAll.disabled = filtered.length === 0;
   batchClear.disabled = n === 0;
+  refreshBatchRes();
+}
+
+// 按所选图片的 4K 可用性自动调整分辨率选择器：
+// - 全部支持 4K → 允许 4K，默认 4K
+// - 含无 4K 的图（或全部仅 1080p）→ 锁定 1080p 并禁用 4K 选项（不混用分辨率）
+function refreshBatchRes() {
+  const sel = [...selected].map(d => byDate.get(d)).filter(Boolean);
+  if (sel.length === 0) {
+    enableUhdOption(true);
+    batchResNote.hidden = true;
+    return;
+  }
+  const allUhd = sel.every(it => it.uhd !== false);
+  const allNonUhd = sel.every(it => it.uhd === false);
+  if (allUhd) {
+    enableUhdOption(true);
+    if (batchRes.value !== 'UHD') batchRes.value = 'UHD';
+    batchResNote.hidden = true;
+  } else {
+    enableUhdOption(false);
+    batchRes.value = '1920x1080';
+    batchResNote.hidden = false;
+    batchResNote.textContent = allNonUhd
+      ? '所选图片仅支持 1080p，已自动按 1080p 下载'
+      : '部分所选图片无 4K，已按 1080p 下载（不混用分辨率）';
+  }
+}
+
+function enableUhdOption(enabled) {
+  for (const opt of batchRes.options) {
+    if (opt.value === 'UHD') opt.disabled = !enabled;
+  }
 }
 
 function clearSelection() {
@@ -455,25 +490,36 @@ function buildZipStore(entries) {
   return new Blob([out], { type: 'application/zip' });
 }
 
+async function fetchWithFallback(it, res) {
+  const order = [res];
+  if (res === 'UHD') order.push('1920x1080'); // 4K 不可用时回退 1080p
+  for (const r of order) {
+    if (r === 'UHD' && it.uhd === false) continue; // 明确无 4K 则跳过
+    try {
+      const url = buildResUrl(it.url, r) || it.url;
+      const bytes = await fetchBytes(url);
+      const suffix = r === 'UHD' ? '_UHD' : '';
+      return { bytes, name: it.date + suffix + '.jpg' };
+    } catch (_) { }
+  }
+  if (it.thumbnail) {
+    try {
+      const bytes = await fetchBytes('./' + it.thumbnail);
+      return { bytes, name: it.date + '_thumb.jpg' };
+    } catch (_) { }
+  }
+  return null;
+}
+
 async function downloadSingle(date) {
   const it = byDate.get(date);
   if (!it) return;
-  const res = batchRes.value;
-  const suffix = res === 'UHD' ? '_UHD' : '';
-  let bytes = null;
-  let name = date + suffix + '.jpg';
-  try {
-    const url = buildResUrl(it.url, res) || it.url;
-    bytes = await fetchBytes(url);
-  } catch (_) { }
-  if (!bytes && it.thumbnail) {
-    try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) { }
-  }
-  if (!bytes) { batchProgress.textContent = '无可用图片，取消'; return; }
-  const blob = new Blob([bytes], { type: 'image/jpeg' });
+  const got = await fetchWithFallback(it, batchRes.value);
+  if (!got) { batchProgress.textContent = '无可用图片，取消'; return; }
+  const blob = new Blob([got.bytes], { type: 'image/jpeg' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = name;
+  a.download = got.name;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   batchProgress.textContent = '已下载这张 ✓';
@@ -489,8 +535,7 @@ async function doBatchDownload() {
   batchClear.disabled = true;
   batchSelectAll.disabled = true;
 
-  const dates = [...selected];
-  const queue = dates.slice();
+  const queue = [...selected];
   const entries = [];
   let done = 0;
   const CONC = 4;
@@ -500,17 +545,8 @@ async function doBatchDownload() {
       const date = queue.shift();
       const it = byDate.get(date);
       if (!it) { done++; continue; }
-      const suffix = res === 'UHD' ? '_UHD' : '';
-      let bytes = null;
-      let name = date + suffix + '.jpg';
-      try {
-        const url = buildResUrl(it.url, res) || it.url;
-        bytes = await fetchBytes(url);
-      } catch (_) { }
-      if (!bytes && it.thumbnail) {
-        try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) { }
-      }
-      if (bytes) entries.push({ name, data: bytes });
+      const got = await fetchWithFallback(it, res);
+      if (got) entries.push(got);
       done++;
       batchProgress.textContent = `打包中 ${done}/${n}`;
     }
@@ -546,13 +582,18 @@ updateBatchBar();
 
 function supportedResolutions(item) {
   const u = item.url || '';
-  if (/bing\.com\/th\?id=OHR/i.test(u)) {
-    return [
-      { v: 'UHD', label: 'UHD (4K)' },
-      { v: '1920x1080', label: '1080p' },
-    ];
+  const bing = /bing\.com\/th\?id=OHR/i.test(u);
+  if (!bing) {
+    return [{ v: '1920x1080', label: '1080p（已是最清）' }];
   }
-  return [{ v: '1920x1080', label: '1080p（已是最清）' }];
+  // uhd 为 false 时该图确实无 4K 源，只给 1080p
+  if (item.uhd === false) {
+    return [{ v: '1920x1080', label: '1080p（仅此分辨率）' }];
+  }
+  return [
+    { v: 'UHD', label: 'UHD (4K)' },
+    { v: '1920x1080', label: '1080p' },
+  ];
 }
 
 function buildResUrl(url, res) {
