@@ -106,11 +106,12 @@ function makeColorPill(label, value, active, parent, onClick, count) {
  * @param {Function} els.openLightbox
  */
 export async function renderHero(els) {
-  let latest = items[0];
+  // 首页 Hero 随机展示一张壁纸
+  let latest = items[Math.floor(Math.random() * items.length)];
   if (!latest) return;
   els.hero.hidden = false;
 
-  // 轻量索引没有 url，先加载最新一张的完整数据
+  // 轻量索引没有 url，先加载该张的完整数据
   latest = await ensureItemLoaded(latest);
 
   // 首屏默认加载 1080p，点击/下载再按需升级 UHD
