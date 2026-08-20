@@ -11,12 +11,16 @@ const CACHE_NAME = 'bing-wallpaper-v1';
 const CORE_URLS = [
   './',
   './index.html',
-  './about.html'
+  './about.html',
+  './manifest.json',
+  './favicon.svg',
+  './robots.txt',
+  './sitemap.xml'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    fetch('./assets/manifest.json')
+    fetch('./assets/asset-manifest.json')
       .then(r => r.ok ? r.json() : { assets: [] })
       .then(m => [...CORE_URLS, ...(m.assets || [])])
       .then(urls => caches.open(CACHE_NAME).then(cache => cache.addAll(urls)))
@@ -42,7 +46,8 @@ self.addEventListener('fetch', (event) => {
 
   if (request.method !== 'GET') return;
 
-  if (url.pathname.endsWith('/data/index.json')) {
+  // 索引与按年完整数据每日可能更新，走 Network First
+  if (url.pathname.endsWith('/data/index.json') || /\/data\/\d{4}\.json$/.test(url.pathname)) {
     event.respondWith(networkFirst(request));
     return;
   }
