@@ -97,12 +97,8 @@
 .footer-links a { color: var(--muted); text-decoration: none; }
 .footer-links a:hover { color: var(--fg); }
 
-/* ===== 返回顶部按钮 ===== */
+/* ===== 返回顶部按钮（位于 batchbar 内部，随 batchbar 整体定位） ===== */
 .back-to-top {
-  position: fixed;
-  right: 20px;
-  bottom: 90px;
-  z-index: 50;
   width: 58px;
   height: 58px;
   border-radius: 50%;
@@ -125,10 +121,12 @@
   transform: translateY(0);
 }
 .back-to-top:hover { background: rgba(39, 42, 49, .9); color: var(--accent); }
-/* 批量下载按钮隐藏（页脚进入视口）时，返回顶部回到右下角 */
-.batchbar.near-footer ~ .back-to-top { bottom: 20px; }
+/* 页脚进入视口时只隐藏批量 FAB，保留返回顶部 */
+.batchbar.near-footer .fab {
+  opacity: 0;
+  transform: translateY(24px) scale(.92);
+  pointer-events: none;
+}
 @media (min-width: 768px) {
   .batchbar { right: 28px; bottom: 28px; }
-  .back-to-top { right: 28px; bottom: 98px; }
-  .batchbar.near-footer ~ .back-to-top { bottom: 28px; }
 }
