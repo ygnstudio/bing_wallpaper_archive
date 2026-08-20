@@ -271,23 +271,37 @@ body {
 .color-dot.all {
   background: conic-gradient(from 180deg, #ef5350, #ffd54f, #46c46a, #4a9eff, #ab6bff, #ef5350);
 }
+.filter-row.date-row { flex-wrap: nowrap; }
 .date-range {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 .filter-count {
   margin-left: auto;
   font-size: 13px;
   color: var(--muted);
   white-space: nowrap;
+  flex-shrink: 0;
+  padding-left: 12px;
 }
-.date-range-label { font-size: 13px; color: var(--muted); }
-.date-range-sep { font-size: 13px; color: var(--muted); }
+.date-range-label {
+  font-size: 13px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.date-range-sep {
+  font-size: 13px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
 .month-trigger {
   position: relative;
-  min-width: 110px;
+  min-width: 0;
+  flex: 0 1 auto;
   padding: 7px 30px 7px 11px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, .08);
@@ -299,6 +313,9 @@ body {
   cursor: pointer;
   outline: none;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath fill='%239aa0a6' d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
@@ -765,7 +782,9 @@ body {
   }
   .filter-group::-webkit-scrollbar { display: none; }
   .section-header { padding: 4px 16px 14px; flex-wrap: wrap; gap: 8px; }
-  .date-range { width: 100%; margin-left: 0; }
+  .filter-row.date-row { gap: 8px; }
+  .date-range { gap: 6px; }
+  .month-trigger { padding: 7px 26px 7px 9px; background-position: right 6px center; font-size: 12px; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px 32px; }
   .footer { flex-direction: column; text-align: center; gap: 10px; }
   .batchbar { right: 12px; bottom: 12px; }
@@ -793,9 +812,19 @@ body {
   /* 批量面板在手机上变为底部抽屉 */
   .batchbar { left: 12px; right: 12px; align-items: stretch; }
   .batch-panel { width: auto; max-width: none; }
+  .filter-row.date-row { gap: 6px; }
+  .date-range { gap: 4px; }
+  .date-range-label { display: none; }
+  .date-range-sep { font-size: 12px; }
+  .month-trigger { padding: 6px 24px 6px 8px; background-size: 14px; font-size: 12px; }
+  #date-clear { padding: 6px 10px; font-size: 12px; }
+  .filter-count { font-size: 12px; padding-left: 6px; }
 }
 
 /* 超小屏 */
 @media (max-width: 360px) {
   .grid { grid-template-columns: 1fr; }
+  .filter-row.date-row { flex-wrap: wrap; }
+  .date-range { width: 100%; }
+  .filter-count { margin-left: 0; padding-left: 0; padding-top: 6px; }
 }
