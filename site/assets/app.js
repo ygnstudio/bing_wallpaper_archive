@@ -12,6 +12,7 @@ import { initMonthPicker, setupDateInputs, swapDateRange } from './picker.js';
 import { renderCategoryPills, renderColorPills, renderHero, renderMore, updateFilterCount, updateStats } from './ui.js';
 import { initLightbox, openLightbox } from './lightbox.js';
 import { initBatch, updateBatchBar } from './batch.js';
+import { initWorker, getFiltered as workerGetFiltered, countBy as workerCountBy } from './filter-worker.js';
 
 // === DOM 元素 ===
 const els = {
@@ -83,6 +84,9 @@ async function init() {
   const allYm = data.map(i => i.date.slice(0, 6)).sort();
   setDateBounds(allYm[0], allYm[allYm.length - 1]);
 
+  // 在后台初始化 Worker（失败会自动 fallback 主线程）
+  initWorker().catch(() => {});
+
   setupDateInputs(els);
   updateDateTriggerText();
   initMonthPicker({ ...els, updateDateTriggerText, applyFilter });
@@ -104,22 +108,27 @@ async function init() {
     downloadHero,
     openLightbox: (it) => openLightbox(it, els)
   });
-  applyFilter();
+  await applyFilter();
   updateStats(els.archiveStats);
 }
 
 /**
  * 应用筛选并重置渲染
  */
-function applyFilter() {
+async function applyFilter() {
   const q = els.searchEl.value;
-  const filteredData = getFiltered(q, els.dateFrom.value, els.dateTo.value);
+  const dateFrom = els.dateFrom.value;
+  const dateTo = els.dateTo.value;
+  const params = { q, dateFrom, dateTo, activeCat, activeColor };
+  const filteredData = await workerGetFiltered(params);
   setFiltered(filteredData);
   setRendered(0);
   els.grid.innerHTML = '';
   renderMore({ ...els, openLightbox: (it) => openLightbox(it, els) });
-  renderCategoryPills(els.catPills, (v) => { setActiveCat(v); applyFilter(); }, q, els.dateFrom.value, els.dateTo.value);
-  renderColorPills(els.colorPills, (v) => { setActiveColor(v); applyFilter(); }, q, els.dateFrom.value, els.dateTo.value);
+  await Promise.all([
+    renderCategoryPills(els.catPills, (v) => { setActiveCat(v); applyFilter(); }, q, dateFrom, dateTo, workerCountBy),
+    renderColorPills(els.colorPills, (v) => { setActiveColor(v); applyFilter(); }, q, dateFrom, dateTo, workerCountBy)
+  ]);
   updateFilterCount(els.filterCount);
   updateBatchBar(els);
 }
