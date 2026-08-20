@@ -104,7 +104,7 @@ async function init() {
   detectTouch();
   setupBatchbarNearFooter();
 
-  renderHero({
+  await renderHero({
     hero: els.hero,
     heroBgImg: els.heroBgImg,
     heroDate: els.heroDate,
