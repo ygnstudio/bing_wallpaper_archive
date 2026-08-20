@@ -293,11 +293,29 @@ body {
   color: var(--muted);
   flex-shrink: 0;
 }
-.date-range-sep {
-  font-size: 13px;
+.date-swap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(20, 22, 27, .72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: var(--muted);
+  cursor: pointer;
   flex-shrink: 0;
+  transition: all .15s;
 }
+.date-swap:hover {
+  color: var(--fg);
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(20, 22, 27, .85);
+}
+.date-swap:active { transform: scale(.94); }
 .month-trigger {
   position: relative;
   min-width: 0;
@@ -815,7 +833,8 @@ body {
   .filter-row.date-row { gap: 6px; }
   .date-range { gap: 4px; }
   .date-range-label { display: none; }
-  .date-range-sep { font-size: 12px; }
+  .date-swap { width: 26px; height: 26px; }
+  .date-swap svg { width: 14px; height: 14px; }
   .month-trigger { padding: 6px 24px 6px 8px; background-size: 14px; font-size: 12px; }
   #date-clear { padding: 6px 10px; font-size: 12px; }
   .filter-count { font-size: 12px; padding-left: 6px; }
