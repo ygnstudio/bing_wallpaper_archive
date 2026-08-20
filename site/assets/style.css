@@ -499,6 +499,7 @@ body {
 }
 .card:hover .sel, .card.selected .sel { opacity: 1; }
 .card .sel:hover { transform: scale(1.08); border-color: #fff; }
+.touch .card .sel { opacity: 1; }
 .card .media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
 .card .media img {
   width: 100%;

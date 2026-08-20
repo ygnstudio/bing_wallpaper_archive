@@ -813,4 +813,10 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lightbox.h
   io.observe(footer);
 })();
 
+// 触摸屏设备默认显示卡片勾选框（无 hover 时也能点选）
+(function detectTouch() {
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouch) document.body.classList.add('touch');
+})();
+
 load().catch(err => { archiveStats.textContent = '加载失败：' + err; });
