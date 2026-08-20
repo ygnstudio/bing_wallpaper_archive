@@ -280,8 +280,9 @@ body {
 }
 .date-range-label { font-size: 13px; color: var(--muted); }
 .date-range-sep { font-size: 13px; color: var(--muted); }
-.date-range input[type="month"] {
+.month-trigger {
   position: relative;
+  min-width: 110px;
   padding: 7px 30px 7px 11px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, .08);
@@ -292,25 +293,90 @@ body {
   font-size: 13px;
   cursor: pointer;
   outline: none;
-  appearance: none;
-  -webkit-appearance: none;
+  text-align: left;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath fill='%239aa0a6' d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 16px;
 }
-.date-range input[type="month"]:focus { border-color: var(--accent); background: rgba(20, 22, 27, .85); }
-.date-range input[type="month"]::-webkit-calendar-picker-indicator {
+.month-trigger:focus { border-color: var(--accent); background: rgba(20, 22, 27, .85); }
+.month-trigger-text:empty::before { content: attr(data-placeholder); color: var(--muted); }
+
+.month-picker {
   position: absolute;
-  right: 0;
-  top: 0;
-  width: 30px;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  opacity: 0;
+  z-index: 50;
+  width: 260px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: rgba(20, 22, 27, .82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, .08);
+  box-shadow: var(--shadow);
+  color: var(--fg);
+}
+.month-picker[hidden] { display: none; }
+.mp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.mp-nav {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .06);
+  color: var(--fg);
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
 }
+.mp-nav:hover { background: rgba(255, 255, 255, .12); }
+.mp-year { font-size: 15px; font-weight: 600; }
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.mp-grid button {
+  padding: 8px 0;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.mp-grid button:hover { background: rgba(255, 255, 255, .08); }
+.mp-grid button.selected {
+  background: var(--accent);
+  color: #1a1300;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.mp-grid button.out-of-range { color: var(--muted); cursor: not-allowed; }
+.mp-grid button.out-of-range:hover { background: transparent; }
+.mp-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.mp-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.mp-btn:hover { color: var(--fg); border-color: var(--muted); }
 
 /* ===== 内容区标题 ===== */
 .section-header {
