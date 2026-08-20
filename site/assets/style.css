@@ -256,10 +256,11 @@ body {
 }
 .color-pill:hover { color: var(--fg); border-color: var(--muted); }
 .color-pill.active {
-  background: rgba(255, 255, 255, .08);
-  color: var(--fg);
-  border-color: rgba(255, 255, 255, .25);
+  background: rgba(232, 185, 35, .14);
+  color: var(--accent);
+  border-color: rgba(232, 185, 35, .45);
 }
+.color-pill.active .color-dot { border-color: rgba(232, 185, 35, .45); }
 .color-dot {
   width: 16px;
   height: 16px;
@@ -305,14 +306,14 @@ body {
   background: rgba(20, 22, 27, .72);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  color: var(--muted);
+  color: var(--accent);
   cursor: pointer;
   flex-shrink: 0;
   transition: all .15s;
 }
 .date-swap:hover {
-  color: var(--fg);
-  border-color: rgba(255, 255, 255, .2);
+  color: var(--accent-hover);
+  border-color: rgba(232, 185, 35, .45);
   background: rgba(20, 22, 27, .85);
 }
 .date-swap:active { transform: scale(.94); }
