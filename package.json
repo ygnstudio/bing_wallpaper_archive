@@ -1,0 +1,17 @@
+{
+  "name": "bing-wallpaper-archive-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bing 每日壁纸归档站点构建工具",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/build.js --dev"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "csso": "^5.0.5",
+    "rollup": "^4.21.0"
+  }
+}
