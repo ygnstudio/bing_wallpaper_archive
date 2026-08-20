@@ -16,7 +16,7 @@
 
 ## 数据规模
 
-- 收录 **2016-03-05 至今** 共 **3820 张**壁纸（其中 3818 张含缩略图）。
+- 收录 **2016-03-05 至今** 共 **3820 张**壁纸（其中 3820 张含缩略图）。
 - **每日自动更新**：每天由 GitHub Actions 抓取最新壁纸入库，总量持续增长。
 - 数据源：Bing 官方 `HPImageArchive` API（`mkt=zh-CN`）。
 
@@ -24,21 +24,33 @@
 
 ```
 bing_wallpaper_archive/
-├── data/                  # 数据
-│   ├── metadata.json      #   全量元数据（标题/版权/链接/分类/颜色）
-│   └── index.json         #   站点索引（前端直接读取）
-├── thumbnails/            # 缩略图（按 YYYY/MM/ 存放，480×270）
-├── site/                  # 前端（原生 HTML/CSS/JS）
-├── scripts/               # Python 脚本
-│   ├── download.py        #   每日抓取最新壁纸
-│   ├── classify.py        #   分类 + 颜色打标（关键词启发式 + 主色提取）
-│   ├── vlm_classify.py    #   VLM 视觉语言模型分类（Qwen2-VL，图文一起读）
-│   ├── generate_index.py  #   重建 index.json
-│   ├── update_readme_stats.py # 自动同步 README 数据规模
-│   └── check_archive.py   #   校验缩略图完整性
-└── .github/workflows/     # GitHub Actions
-    ├── update.yml         #   每日自动更新
-    └── pages.yml          #   Pages 部署
+├── data/                      # 数据
+│   ├── metadata.json          #   全量元数据（标题/版权/url/urlbase/uhd/分类/颜色）
+│   └── index.json             #   站点索引（前端直接读取）
+├── thumbnails/                # 缩略图（按 YYYY/MM/ 存放，480×270，webp）
+├── site/                      # 前端源码（原生 HTML/CSS/JS）
+│   ├── index.html / about.html
+│   └── assets/                #   JS/CSS 模块、Service Worker、Web Worker
+├── scripts/                   # Python / Node 脚本
+│   ├── download.py            #   每日抓取最新壁纸并生成缩略图
+│   ├── classify.py            #   关键词分类 + Pillow 主色提取
+│   ├── vlm_classify.py        #   Qwen2-VL 视觉语言模型精修分类
+│   ├── generate_index.py      #   由 metadata.json 重建 index.json
+│   ├── detect_uhd.py          #   4K（UHD）可用性探测
+│   ├── validate.py            #   JSON Schema 数据校验
+│   ├── check_archive.py       #   缩略图完整性检查
+│   ├── convert_thumbnails.py  #   jpg → webp 批量转换（外部数据导入时用）
+│   ├── update_readme_stats.py #   自动同步 README 数据规模
+│   └── build.js               #   Rollup 构建站点到 dist/
+├── schemas/                   # JSON Schema
+│   ├── metadata.schema.json
+│   └── index.schema.json
+├── tests/                     # 单元测试
+│   └── unit.test.js
+└── .github/workflows/         # GitHub Actions
+    ├── update.yml             #   每日自动更新
+    ├── detect-uhd.yml         #   每周 4K 可用性探测
+    └── pages.yml              #   Pages 构建部署
 ```
 
 ## 自动更新流程
@@ -50,10 +62,13 @@ flowchart LR
     A[download.py<br>抓取最新壁纸] --> B[classify.py<br>打分类/颜色标签]
     B --> B2[vlm_classify.py<br>VLM 精修分类]
     B2 --> C[generate_index.py<br>重建站点索引]
-    C --> D[check_archive.py<br>校验缩略图]
-    D --> E[提交并推送]
-    E --> F[pages.yml<br>自动部署上线]
+    C --> D[update_readme_stats.py<br>同步 README 数据]
+    D --> E[check_archive.py<br>校验缩略图]
+    E --> F[提交并推送]
+    F --> G[pages.yml<br>自动部署上线]
 ```
+
+此外，每周一 09:00（北京时间）由 `detect-uhd.yml` 自动探测未标注图片的 4K 可用性，更新 `metadata.json` 与 `index.json` 后提交。
 
 ## 分类与颜色是怎么来的
 

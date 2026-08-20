@@ -28,9 +28,6 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install dependencies
-        run: pip install Pillow
-
       - name: Detect UHD availability
         run: python3 scripts/detect_uhd.py ${{ inputs.force_all == true && '--force' || '' }}
 
