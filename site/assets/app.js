@@ -1,7 +1,17 @@
 const grid = document.getElementById('grid');
 const searchEl = document.getElementById('search');
-const yearEl = document.getElementById('year');
-const monthEl = document.getElementById('month');
+const dateFrom = document.getElementById('date-from');
+const dateTo = document.getElementById('date-to');
+const dateFromTrigger = document.getElementById('date-from-trigger');
+const dateToTrigger = document.getElementById('date-to-trigger');
+const dateClear = document.getElementById('date-clear');
+const monthPicker = document.getElementById('month-picker');
+const mpPrev = document.getElementById('mp-prev');
+const mpNext = document.getElementById('mp-next');
+const mpYear = document.getElementById('mp-year');
+const mpGrid = document.getElementById('mp-grid');
+const mpClear = document.getElementById('mp-clear');
+const mpThis = document.getElementById('mp-this');
 const sentinel = document.getElementById('sentinel');
 const emptyEl = document.getElementById('empty');
 const lightbox = document.getElementById('lightbox');
@@ -27,9 +37,6 @@ const batchProgress = document.getElementById('batch-progress');
 const batchResNote = document.getElementById('batch-res-note');
 const catPills = document.getElementById('cat-pills');
 const colorPills = document.getElementById('color-pills');
-const sortEl = document.getElementById('sort');
-const dateToggle = document.getElementById('date-toggle');
-const datePanel = document.getElementById('date-panel');
 const archiveStats = document.getElementById('archive-stats');
 const hero = document.getElementById('hero');
 const heroBgImg = document.getElementById('hero-bg-img');
@@ -60,11 +67,22 @@ const COLOR_HEX = {
   '灰白': '#bcc3cc', '多彩': 'linear-gradient(135deg,#ef5350,#ffd54f,#46c46a,#4a9eff,#ab6bff)'
 };
 
+let dateMinYm = '';
+let dateMaxYm = '';
+let pickerTarget = null; // 'from' | 'to'
+let pickerYear = new Date().getFullYear();
+
 async function load() {
   const res = await fetch('./data/index.json');
   items = await res.json();
   byDate = new Map(items.map(i => [i.date, i]));
-  buildYearOptions();
+  const allYm = items.map(i => i.date.slice(0, 6)).sort();
+  dateMinYm = allYm[0];
+  dateMaxYm = allYm[allYm.length - 1];
+  const fmt = (ym) => ym.slice(0, 4) + '-' + ym.slice(4, 6);
+  dateFrom.min = dateTo.min = fmt(dateMinYm);
+  dateFrom.max = dateTo.max = fmt(dateMaxYm);
+  updateDateTriggerText();
   renderCategoryPills();
   renderColorPills();
   renderHero();
@@ -78,41 +96,114 @@ function updateStats() {
   document.title = `Bing 每日壁纸归档 · ${items.length.toLocaleString()} 张`;
 }
 
-function buildYearOptions() {
-  const years = [...new Set(items.map(i => i.date.slice(0, 4)))].sort().reverse();
-  for (const y of years) {
-    const o = document.createElement('option');
-    o.value = y;
-    o.textContent = y + ' 年';
-    yearEl.appendChild(o);
+// 日期范围筛选：空表示不限制。date 形如 YYYYMMDD，范围值为 YYYY-MM。
+function inDateRange(i) {
+  const f = dateFrom.value; // "YYYY-MM" 或 ""
+  const t = dateTo.value;
+  const ym = +i.date.slice(0, 6);
+  if (f && ym < +f.replace('-', '')) return false;
+  if (t && ym > +t.replace('-', '')) return false;
+  return true;
+}
+
+function updateDateTriggerText() {
+  const fromText = dateFromTrigger.querySelector('.month-trigger-text');
+  const toText = dateToTrigger.querySelector('.month-trigger-text');
+  fromText.textContent = dateFrom.value || '';
+  toText.textContent = dateTo.value || '';
+}
+
+function openMonthPicker(target) {
+  pickerTarget = target;
+  const currentValue = target === 'from' ? dateFrom.value : dateTo.value;
+  if (currentValue) {
+    pickerYear = +currentValue.split('-')[0];
+  } else {
+    pickerYear = new Date().getFullYear();
+  }
+  renderMonthPicker();
+  positionMonthPicker();
+  monthPicker.hidden = false;
+}
+
+function closeMonthPicker() {
+  monthPicker.hidden = true;
+  pickerTarget = null;
+}
+
+function positionMonthPicker() {
+  const trigger = pickerTarget === 'from' ? dateFromTrigger : dateToTrigger;
+  const rect = trigger.getBoundingClientRect();
+  const pickerRect = monthPicker.getBoundingClientRect();
+  let top = rect.bottom + window.scrollY + 6;
+  let left = rect.left + window.scrollX;
+  if (left + pickerRect.width > window.innerWidth - 12) {
+    left = window.innerWidth - pickerRect.width - 12;
+  }
+  monthPicker.style.top = `${top}px`;
+  monthPicker.style.left = `${left}px`;
+}
+
+function renderMonthPicker() {
+  mpYear.textContent = pickerYear;
+  mpGrid.innerHTML = '';
+  const selectedValue = pickerTarget === 'from' ? dateFrom.value : dateTo.value;
+  const selectedYear = selectedValue ? +selectedValue.split('-')[0] : null;
+  const selectedMonth = selectedValue && selectedYear === pickerYear ? selectedValue.split('-')[1] : null;
+  const minYear = +dateMinYm.slice(0, 4);
+  const minMonth = +dateMinYm.slice(4, 6);
+  const maxYear = +dateMaxYm.slice(0, 4);
+  const maxMonth = +dateMaxYm.slice(4, 6);
+
+  for (let m = 1; m <= 12; m++) {
+    const monthStr = String(m).padStart(2, '0');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = `${m}月`;
+    const tooEarly = pickerYear < minYear || (pickerYear === minYear && m < minMonth);
+    const tooLate = pickerYear > maxYear || (pickerYear === maxYear && m > maxMonth);
+    if (tooEarly || tooLate) {
+      btn.classList.add('out-of-range');
+      btn.disabled = true;
+    }
+    if (selectedMonth === monthStr) {
+      btn.classList.add('selected');
+    }
+    btn.addEventListener('click', () => {
+      const input = pickerTarget === 'from' ? dateFrom : dateTo;
+      input.value = `${pickerYear}-${monthStr}`;
+      updateDateTriggerText();
+      applyFilter();
+      closeMonthPicker();
+    });
+    mpGrid.appendChild(btn);
   }
 }
 
-function rebuildMonthOptions() {
-  const y = yearEl.value;
-  monthEl.innerHTML = '<option value="">全部月份</option>';
-  if (!y) return;
-  const months = [...new Set(
-    items.filter(i => i.date.slice(0, 4) === y).map(i => i.date.slice(4, 6))
-  )].sort();
-  for (const m of months) {
-    const o = document.createElement('option');
-    o.value = m;
-    o.textContent = m + ' 月';
-    monthEl.appendChild(o);
-  }
+function setMonthToThisMonth() {
+  const now = new Date();
+  const input = pickerTarget === 'from' ? dateFrom : dateTo;
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  input.value = ym;
+  updateDateTriggerText();
+  applyFilter();
+  closeMonthPicker();
+}
+
+function clearActiveMonth() {
+  const input = pickerTarget === 'from' ? dateFrom : dateTo;
+  input.value = '';
+  updateDateTriggerText();
+  applyFilter();
+  closeMonthPicker();
 }
 
 // 在当前「其他维度」筛选条件下，统计某个维度（category/color）某取值的数量。
-// 例如统计「动物」数量时，会应用年份、月份、颜色、搜索条件，但不限制分类本身，
-// 这样切换年月/颜色后，每个分类 pill 上的数字会实时反映可匹配的数量。
+// 例如统计「动物」数量时，会应用搜索、日期范围、另一维度条件，但不限制分类本身。
 function countBy(dim, value) {
   const q = searchEl.value.trim().toLowerCase();
-  const y = yearEl.value;
-  const m = monthEl.value;
   return items.filter(i => {
-    if (y && i.date.slice(0, 4) !== y) return false;
-    if (m && i.date.slice(4, 6) !== m) return false;
+    if (!inDateRange(i)) return false;
     if (dim !== 'category' && activeCat && i.category !== activeCat) return false;
     if (dim !== 'color' && activeColor && i.color !== activeColor) return false;
     if (q) {
@@ -219,13 +310,10 @@ async function downloadHero(it, res) {
 
 function getFiltered() {
   const q = searchEl.value.trim().toLowerCase();
-  const y = yearEl.value;
-  const m = monthEl.value;
   const cat = activeCat;
   const col = activeColor;
-  const out = items.filter(i => {
-    if (y && i.date.slice(0, 4) !== y) return false;
-    if (m && i.date.slice(4, 6) !== m) return false;
+  return items.filter(i => {
+    if (!inDateRange(i)) return false;
     if (cat && i.category !== cat) return false;
     if (col && i.color !== col) return false;
     if (q) {
@@ -234,13 +322,9 @@ function getFiltered() {
     }
     return true;
   });
-  const sort = sortEl.value;
-  if (sort === 'oldest') out.reverse();
-  return out;
 }
 
 function applyFilter() {
-  if (document.activeElement !== monthEl) rebuildMonthOptions();
   filtered = getFiltered();
   rendered = 0;
   grid.innerHTML = '';
@@ -319,14 +403,30 @@ const io = new IntersectionObserver((entries) => {
 io.observe(sentinel);
 
 searchEl.addEventListener('input', applyFilter);
-yearEl.addEventListener('change', applyFilter);
-monthEl.addEventListener('change', applyFilter);
-sortEl.addEventListener('change', applyFilter);
+dateFromTrigger.addEventListener('click', (e) => { e.stopPropagation(); openMonthPicker('from'); });
+dateToTrigger.addEventListener('click', (e) => { e.stopPropagation(); openMonthPicker('to'); });
+mpPrev.addEventListener('click', () => { pickerYear--; renderMonthPicker(); });
+mpNext.addEventListener('click', () => { pickerYear++; renderMonthPicker(); });
+mpClear.addEventListener('click', clearActiveMonth);
+mpThis.addEventListener('click', setMonthToThisMonth);
+dateClear.addEventListener('click', () => {
+  dateFrom.value = '';
+  dateTo.value = '';
+  updateDateTriggerText();
+  applyFilter();
+  closeMonthPicker();
+});
 
-dateToggle.addEventListener('click', () => {
-  const hidden = !datePanel.hidden;
-  datePanel.hidden = hidden;
-  dateToggle.classList.toggle('open', !hidden);
+// 点击页面其他地方关闭月份选择器弹窗
+document.addEventListener('click', (e) => {
+  if (!monthPicker.hidden && !monthPicker.contains(e.target) &&
+      e.target !== dateFromTrigger && !dateFromTrigger.contains(e.target) &&
+      e.target !== dateToTrigger && !dateToTrigger.contains(e.target)) {
+    closeMonthPicker();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMonthPicker();
 });
 
 grid.addEventListener('change', (e) => {

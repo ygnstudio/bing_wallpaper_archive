@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bing 每日壁纸归档</title>
-  <link rel="stylesheet" href="./assets/style.css?v=20260820g">
+  <link rel="stylesheet" href="./assets/style.css?v=20260820h">
 </head>
 <body>
   <nav class="topnav">
@@ -52,10 +52,28 @@
     <div class="filter-row">
       <div class="date-range">
         <span class="date-range-label">日期范围</span>
-        <input type="month" id="date-from" aria-label="起始年月">
+        <button type="button" class="month-trigger" id="date-from-trigger" aria-label="选择起始年月">
+          <span class="month-trigger-text" data-placeholder="起始年月"></span>
+        </button>
+        <input type="hidden" id="date-from">
         <span class="date-range-sep">至</span>
-        <input type="month" id="date-to" aria-label="结束年月">
+        <button type="button" class="month-trigger" id="date-to-trigger" aria-label="选择结束年月">
+          <span class="month-trigger-text" data-placeholder="结束年月"></span>
+        </button>
+        <input type="hidden" id="date-to">
         <button id="date-clear" class="btn-ghost" type="button">清除</button>
+      </div>
+      <div id="month-picker" class="month-picker" hidden>
+        <div class="mp-header">
+          <button type="button" id="mp-prev" class="mp-nav" aria-label="上一年">‹</button>
+          <span id="mp-year" class="mp-year">2026</span>
+          <button type="button" id="mp-next" class="mp-nav" aria-label="下一年">›</button>
+        </div>
+        <div class="mp-grid" id="mp-grid"></div>
+        <div class="mp-footer">
+          <button type="button" id="mp-clear" class="mp-btn">清除</button>
+          <button type="button" id="mp-this" class="mp-btn">本月</button>
+        </div>
       </div>
     </div>
   </div>
@@ -129,6 +147,6 @@
     </div>
   </footer>
 
-  <script src="./assets/app.js?v=20260820g"></script>
+  <script src="./assets/app.js?v=20260820h"></script>
 </body>
 </html>
