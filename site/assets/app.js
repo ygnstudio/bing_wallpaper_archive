@@ -179,13 +179,19 @@ function renderHero() {
   const latest = items[0];
   if (!latest) return;
   hero.hidden = false;
-  const full = buildResUrl(latest.url, '1920x1080') || latest.url;
+  const full = buildResUrl(latest.url, 'UHD') || latest.url;
   heroBgImg.src = full;
   heroBgImg.alt = latest.title || latest.date;
+  // UHD 不可用时（如历史镜像图）回退 1080p 原图，避免显示模糊缩略图
+  heroBgImg.onerror = () => {
+    heroBgImg.onerror = null;
+    const fb = buildResUrl(latest.url, '1920x1080') || latest.url;
+    if (heroBgImg.src !== fb) heroBgImg.src = fb;
+  };
   heroDate.textContent = formatDate(latest.date);
   heroTitle.textContent = latest.title || latest.date;
   heroDesc.textContent = latest.copyright || '';
-  heroDownload.onclick = () => downloadHero(latest, '1920x1080');
+  heroDownload.onclick = () => downloadHero(latest, 'UHD');
   heroView.onclick = () => openLightbox(latest);
 }
 
