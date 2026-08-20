@@ -14,6 +14,7 @@ import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
+import { execSync } from 'child_process';
 
 // 本地开发走 managed workspace；CI 走项目 node_modules
 const MANAGED_NODE_MODULES = '/Users/rashida/.workbuddy/binaries/node/workspace/node_modules';
@@ -179,13 +180,35 @@ async function main() {
 }
 
 /**
+ * 查找可用的 Python 可执行文件
+ * 优先级：PYTHON 环境变量 > 本地 managed venv > 系统 python3/python
+ * @returns {string}
+ */
+function findPython() {
+  if (process.env.PYTHON && existsSync(process.env.PYTHON)) {
+    return process.env.PYTHON;
+  }
+  const managedPy = '/Users/rashida/.workbuddy/binaries/python/envs/default/bin/python3';
+  if (existsSync(managedPy)) {
+    return managedPy;
+  }
+  for (const cmd of ['python3', 'python']) {
+    try {
+      const path = execSync(`command -v ${cmd}`, { shell: true, encoding: 'utf-8' }).trim();
+      if (path) return path;
+    } catch {}
+  }
+  throw new Error('No Python executable found. Set PYTHON env or install python3.');
+}
+
+/**
  * 调用 Python 脚本将 thumbnails 转为 webp
  * @param {string} src
  * @returns {Promise<void>}
  */
 function convertThumbnails(src) {
   return new Promise((resolve, reject) => {
-    const py = process.env.PYTHON || '/Users/rashida/.workbuddy/binaries/python/envs/default/bin/python3';
+    const py = findPython();
     const script = join(ROOT, 'scripts', 'convert_thumbnails.py');
     const child = spawn(py, [script, src, join(DIST, 'thumbnails')], {
       stdio: 'inherit'
