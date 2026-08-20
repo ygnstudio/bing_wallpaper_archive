@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.js",
-    "dev": "node scripts/build.js --dev"
+    "dev": "node scripts/build.js --dev",
+    "test": "node tests/unit.test.js"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
