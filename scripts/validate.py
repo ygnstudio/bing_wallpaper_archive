@@ -41,7 +41,7 @@ def validate_index(idx):
         if date in seen:
             errors.append(f"重复日期: {date}")
         seen.add(date)
-        for field in ["date", "title", "url", "urlbase"]:
+        for field in ["date", "title"]:
             if field not in item:
                 errors.append(f"{date} 缺少字段 {field}")
         if "uhd" in item and item["uhd"] not in (True, False, None):
@@ -64,7 +64,7 @@ def check_consistency(meta, idx):
     for date in meta_dates & idx_dates:
         m = meta[date]
         i = idx_map[date]
-        for k in ["title", "copyright", "url", "urlbase", "category", "color", "uhd"]:
+        for k in ["title", "copyright", "category", "color", "uhd"]:
             if m.get(k) != i.get(k):
                 errors.append(f"{date} 字段 {k} 不一致: metadata={m.get(k)!r} index={i.get(k)!r}")
     return errors

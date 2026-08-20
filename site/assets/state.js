@@ -39,6 +39,25 @@ export function setItems(value) {
 }
 
 /**
+ * 合并某一年份的完整数据到全局索引
+ * @param {Array<WallpaperItem>} yearItems
+ */
+export function mergeYearItems(yearItems) {
+  if (!yearItems || yearItems.length === 0) return;
+  for (const it of yearItems) {
+    const idx = items.findIndex(i => i.date === it.date);
+    if (idx >= 0) {
+      items[idx] = it;
+    } else {
+      items.push(it);
+    }
+    byDate.set(it.date, it);
+  }
+  // Keep newest-first order
+  items.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/**
  * @param {Array<WallpaperItem>} value
  */
 export function setFiltered(value) {

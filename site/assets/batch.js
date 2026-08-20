@@ -4,7 +4,7 @@
  */
 
 import { BATCH_LIMIT, BATCH_CONCURRENCY } from './config.js';
-import { fetchWithFallback } from './api.js';
+import { fetchWithFallback, ensureItemLoaded } from './api.js';
 import { selected, byDate, filtered } from './state.js';
 
 /**
@@ -223,8 +223,9 @@ function selectAllFiltered(els) {
  * @param {string} res
  */
 async function downloadSingle(date, res) {
-  const it = byDate.get(date);
+  let it = byDate.get(date);
   if (!it) return;
+  it = await ensureItemLoaded(it);
   const got = await fetchWithFallback(it, res);
   if (!got) return;
   const blob = new Blob([got.bytes], { type: 'image/jpeg' });
@@ -264,8 +265,9 @@ async function doBatchDownload(els) {
   async function worker() {
     while (queue.length) {
       const date = queue.shift();
-      const it = byDate.get(date);
+      let it = byDate.get(date);
       if (!it) { done++; continue; }
+      it = await ensureItemLoaded(it);
       const got = await fetchWithFallback(it, res);
       if (got) entries.push(got);
       done++;
