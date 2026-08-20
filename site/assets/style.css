@@ -593,7 +593,7 @@ body {
 .footer {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 28px 24px 120px;
+  padding: 28px 24px 130px;
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
