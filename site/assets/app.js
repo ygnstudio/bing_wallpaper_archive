@@ -66,7 +66,8 @@ const els = {
   heroDesc: document.getElementById('hero-desc'),
   heroDownload: document.getElementById('hero-download'),
   heroDownloadText: document.getElementById('hero-download-text'),
-  heroView: document.getElementById('hero-view')
+  heroView: document.getElementById('hero-view'),
+  backToTop: document.getElementById('back-to-top')
 };
 
 // === 月份选择器相关函数（需访问 DOM） ===
@@ -103,6 +104,7 @@ async function init() {
   bindEvents();
   detectTouch();
   setupBatchbarNearFooter();
+  setupBackToTop();
 
   await renderHero({
     hero: els.hero,
@@ -196,6 +198,22 @@ function setupBatchbarNearFooter() {
     }
   }, { rootMargin: '0px 0px -10% 0px', threshold: [0, 0.05, 0.2] });
   observer.observe(footer);
+}
+
+// === 返回顶部按钮 ===
+function setupBackToTop() {
+  const btn = els.backToTop;
+  if (!btn) return;
+  const showThreshold = 400;
+  const toggle = () => {
+    const scrolled = window.scrollY || document.documentElement.scrollTop;
+    btn.classList.toggle('visible', scrolled > showThreshold);
+  };
+  window.addEventListener('scroll', toggle, { passive: true });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  toggle();
 }
 
 // === 触摸屏检测 ===
