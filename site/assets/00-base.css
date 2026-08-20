@@ -1,0 +1,23 @@
+:root {
+  --bg: #0b0d10;
+  --surface: #14161b;
+  --card: #181a20;
+  --fg: #f0f2f5;
+  --muted: #9aa0a6;
+  --accent: #e8b923;
+  --accent-hover: #f0c94a;
+  --border: #272a31;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; color-scheme: dark; }
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
