@@ -4,18 +4,18 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["date", "title", "url", "urlbase"],
+    "required": ["date", "title"],
     "properties": {
       "date": { "type": "string", "pattern": "^[0-9]{8}$" },
       "title": { "type": "string", "minLength": 1 },
       "copyright": { "type": "string" },
-      "copyrightlink": { "type": "string", "format": "uri" },
-      "url": { "type": "string", "format": "uri" },
-      "urlbase": { "type": "string" },
-      "thumbnail": { "type": "string" },
       "category": { "type": "string" },
       "color": { "type": "string" },
-      "uhd": { "type": ["boolean", "null"] }
+      "thumbnail": { "type": "string" },
+      "uhd": { "type": ["boolean", "null"] },
+      "url": { "type": "string", "format": "uri" },
+      "copyrightlink": { "type": "string", "format": "uri" },
+      "urlbase": { "type": "string" }
     },
     "additionalProperties": false
   }

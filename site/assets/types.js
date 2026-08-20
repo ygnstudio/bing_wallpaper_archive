@@ -9,8 +9,8 @@
  * @property {string} title - 壁纸标题
  * @property {string} [copyright] - 版权说明
  * @property {string} [copyrightlink] - 版权链接
- * @property {string} url - 1080p 原图直链
- * @property {string} urlbase - Bing urlbase
+ * @property {string} [url] - 1080p 原图直链（轻量索引中可能缺失，按需从年份文件加载）
+ * @property {string} [urlbase] - Bing urlbase
  * @property {string} [thumbnail] - 缩略图相对路径
  * @property {string} [category] - 分类
  * @property {string} [color] - 颜色

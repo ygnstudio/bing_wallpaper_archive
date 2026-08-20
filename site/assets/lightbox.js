@@ -3,7 +3,7 @@
  * 大图查看、分辨率切换、链接复制、下载。
  */
 
-import { buildResUrl, defaultResolution, supportedResolutions } from './api.js';
+import { buildResUrl, defaultResolution, supportedResolutions, ensureItemLoaded } from './api.js';
 
 /** @type {WallpaperItem|null} */
 let current = null;
@@ -49,10 +49,10 @@ export function initLightbox(els) {
  * @param {WallpaperItem} it
  * @param {Object} els
  */
-export function openLightbox(it, els) {
-  current = it;
+export async function openLightbox(it, els) {
+  current = await ensureItemLoaded(it);
   els.lbNote.hidden = true;
-  const opts = supportedResolutions(it);
+  const opts = supportedResolutions(current);
   els.lbRes.innerHTML = '';
   for (const o of opts) {
     const el = document.createElement('option');
@@ -60,7 +60,7 @@ export function openLightbox(it, els) {
     el.textContent = o.label;
     els.lbRes.appendChild(el);
   }
-  els.lbRes.value = defaultResolution(it);
+  els.lbRes.value = defaultResolution(current);
   applyResolution(els);
   els.lightbox.hidden = false;
 }

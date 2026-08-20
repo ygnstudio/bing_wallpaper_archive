@@ -159,7 +159,7 @@ function validateData() {
       if (!/^\d{8}$/.test(date)) errors.push(`index 非法日期: ${date}`);
       if (seen.has(date)) errors.push(`index 重复日期: ${date}`);
       seen.add(date);
-      for (const f of ['date', 'title', 'url', 'urlbase']) {
+      for (const f of ['date', 'title']) {
         if (!(f in item)) errors.push(`${date} 缺少字段 ${f}`);
       }
       if ('uhd' in item && item.uhd !== null && typeof item.uhd !== 'boolean') {
@@ -182,11 +182,11 @@ function validateData() {
       const m = meta[date];
       const i = idxMap.get(date);
       if (!i) continue;
-      for (const k of ['title', 'copyright', 'url', 'urlbase', 'category', 'color', 'uhd']) {
-        if (m[k] !== i[k]) {
-          errors.push(`${date} 字段 ${k} 不一致: metadata=${JSON.stringify(m[k])} index=${JSON.stringify(i[k])}`);
-        }
+    for (const k of ['title', 'copyright', 'category', 'color', 'uhd']) {
+      if (m[k] !== i[k]) {
+        errors.push(`${date} 字段 ${k} 不一致: metadata=${JSON.stringify(m[k])} index=${JSON.stringify(i[k])}`);
       }
+    }
     }
   }
 

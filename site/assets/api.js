@@ -3,10 +3,11 @@
  * 负责 index.json 加载、分辨率 URL 构建、图片字节获取。
  */
 
-import { DEFAULT_LIGHTBOX_RES } from './config.js';
+import { DEFAULT_LIGHTBOX_RES, CACHE_BUST } from './config.js';
+import { mergeYearItems } from './state.js';
 
 /**
- * 加载索引数据
+ * 加载轻量主索引
  * @param {string} [cacheBust] - 可选缓存戳
  * @returns {Promise<Array<WallpaperItem>>}
  */
@@ -16,6 +17,48 @@ export async function loadIndex(cacheBust) {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return await res.json();
 }
+
+/** @type {Set<string>} 已加载完整数据的年份 */
+const loadedYears = new Set();
+
+/**
+ * 按需加载某一年份的完整数据（含 url/copyrightlink/urlbase），
+ * 并合并到全局 items。同一自然年内只加载一次。
+ * @param {string} year
+ * @returns {Promise<void>}
+ */
+export async function ensureYearLoaded(year) {
+  if (loadedYears.has(year)) return;
+  const base = `./data/${year}.json`;
+  const url = CACHE_BUST ? `${base}?v=${CACHE_BUST}` : base;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const yearItems = await res.json();
+  mergeYearItems(yearItems);
+  loadedYears.add(year);
+}
+
+/**
+ * 确保单张壁纸的完整数据已加载
+ * @param {WallpaperItem} it
+ * @returns {Promise<WallpaperItem>}
+ */
+export async function ensureItemLoaded(it) {
+  if (it.url) return it;
+  const year = it.date.slice(0, 4);
+  await ensureYearLoaded(year);
+  // state.mergeYearItems 会更新 byDate，返回合并后的对象
+  // 但这里原对象引用可能仍是旧的，重新从全局取最保险
+  const { byDate } = await import('./state.js');
+  return byDate.get(it.date) || it;
+}
+
+/**
+ * 根据基础 URL 和分辨率构造完整图片 URL
+ * @param {string} url
+ * @param {string} res
+ * @returns {string}
+ */
 
 /**
  * 根据基础 URL 和分辨率构造完整图片 URL

@@ -5,7 +5,7 @@
 
 import './types.js';
 import { CACHE_BUST, ROOT_MARGIN } from './config.js';
-import { loadIndex, buildResUrl, fetchBytes } from './api.js';
+import { loadIndex, buildResUrl, fetchBytes, ensureItemLoaded } from './api.js';
 import { setItems, setFiltered, setRendered, setDateBounds, setActiveCat, setActiveColor, activeCat, activeColor } from './state.js';
 import { getFiltered } from './filter.js';
 import { initMonthPicker, setupDateInputs, swapDateRange } from './picker.js';
@@ -84,6 +84,14 @@ async function init() {
   const allYm = data.map(i => i.date.slice(0, 6)).sort();
   setDateBounds(allYm[0], allYm[allYm.length - 1]);
 
+  // 后台预加载最近两年的完整数据（Hero / 当前滚动区域常用）
+  const currentYear = String(new Date().getFullYear());
+  const prevYear = String(+currentYear - 1);
+  import('./api.js').then(({ ensureYearLoaded }) => {
+    ensureYearLoaded(currentYear).catch(() => {});
+    ensureYearLoaded(prevYear).catch(() => {});
+  });
+
   // 在后台初始化 Worker（失败会自动 fallback 主线程）
   initWorker().catch(() => {});
 
@@ -142,12 +150,13 @@ async function applyFilter() {
 async function downloadHero(it, res) {
   if (res === 'UHD' && it.uhd === false) res = '1920x1080';
   try {
-    const url = buildResUrl(it.url, res) || it.url;
+    const full = await ensureItemLoaded(it);
+    const url = buildResUrl(full.url, res) || full.url;
     const bytes = await fetchBytes(url);
     const blob = new Blob([bytes], { type: 'image/jpeg' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${it.date}_${res}.jpg`;
+    a.download = `${full.date}_${res}.jpg`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   } catch (err) {
