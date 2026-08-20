@@ -1,10 +1,7 @@
 const grid = document.getElementById('grid');
-const subtitle = document.getElementById('subtitle');
 const searchEl = document.getElementById('search');
 const yearEl = document.getElementById('year');
 const monthEl = document.getElementById('month');
-const catEl = document.getElementById('category');
-const colorEl = document.getElementById('color');
 const sentinel = document.getElementById('sentinel');
 const emptyEl = document.getElementById('empty');
 const lightbox = document.getElementById('lightbox');
@@ -27,6 +24,19 @@ const batchZip = document.getElementById('batch-zip');
 const batchClear = document.getElementById('batch-clear');
 const batchSelectAll = document.getElementById('batch-selectall');
 const batchProgress = document.getElementById('batch-progress');
+const catPills = document.getElementById('cat-pills');
+const colorPills = document.getElementById('color-pills');
+const sortEl = document.getElementById('sort');
+const dateToggle = document.getElementById('date-toggle');
+const datePanel = document.getElementById('date-panel');
+const archiveStats = document.getElementById('archive-stats');
+const hero = document.getElementById('hero');
+const heroBgImg = document.getElementById('hero-bg-img');
+const heroDate = document.getElementById('hero-date');
+const heroTitle = document.getElementById('hero-title');
+const heroDesc = document.getElementById('hero-desc');
+const heroDownload = document.getElementById('hero-download');
+const heroView = document.getElementById('hero-view');
 
 const PAGE = 60;            // 每批渲染的卡片数
 const ROOT_MARGIN = '600px';
@@ -34,11 +44,14 @@ let items = [];
 let filtered = [];
 let rendered = 0;
 let current = null;         // 当前灯箱对应的数据项
-let byDate = new Map();     // date -> item，批量打包时按 date 反查
-const selected = new Set(); // 已勾选的 date 集合（与虚拟化渲染解耦）
+let byDate = new Map();     // date -> item
+const selected = new Set(); // 已勾选的 date 集合
 
-// 分类/颜色筛选的可选项顺序（仅展示数据中存在的项）
-const CATEGORY_ORDER = ['动物', '风景', '建筑', '植物', '美食', '交通', '太空', '人物', '抽象艺术', '其他'];
+let activeCat = '';
+let activeColor = '';
+
+// 分类/颜色筛选的可选项顺序
+const CATEGORY_ORDER = ['动物', '风景', '建筑', '植物', '人物', '太空', '交通', '美食', '抽象艺术', '其他'];
 const COLOR_ORDER = ['蓝', '绿', '红', '黄', '橙', '紫', '粉', '棕', '灰白', '多彩'];
 const COLOR_HEX = {
   '蓝': '#4a9eff', '绿': '#46c46a', '红': '#ef5350', '黄': '#ffd54f',
@@ -51,14 +64,17 @@ async function load() {
   items = await res.json();
   byDate = new Map(items.map(i => [i.date, i]));
   buildYearOptions();
-  buildCategoryOptions();
-  buildColorOptions();
+  renderCategoryPills();
+  renderColorPills();
+  renderHero();
   applyFilter();
+  updateStats();
+}
+
+function updateStats() {
   const withImg = items.filter(i => i.thumbnail).length;
-  const oldest = items.length ? items[items.length - 1].date : '-';
-  const newest = items.length ? items[0].date : '-';
-  subtitle.textContent =
-    `共 ${items.length} 张 · 含缩略图 ${withImg} 张 · ${oldest}–${newest} · 点开看全图（来源 Bing）`;
+  archiveStats.textContent = `已归档 ${items.length.toLocaleString()} 张 · 每日更新`;
+  document.title = `Bing 每日壁纸归档 · ${items.length.toLocaleString()} 张`;
 }
 
 function buildYearOptions() {
@@ -86,29 +102,110 @@ function rebuildMonthOptions() {
   }
 }
 
-function buildCategoryOptions() {
+// 在当前「其他维度」筛选条件下，统计某个维度（category/color）某取值的数量。
+// 例如统计「动物」数量时，会应用年份、月份、颜色、搜索条件，但不限制分类本身，
+// 这样切换年月/颜色后，每个分类 pill 上的数字会实时反映可匹配的数量。
+function countBy(dim, value) {
+  const q = searchEl.value.trim().toLowerCase();
+  const y = yearEl.value;
+  const m = monthEl.value;
+  return items.filter(i => {
+    if (y && i.date.slice(0, 4) !== y) return false;
+    if (m && i.date.slice(4, 6) !== m) return false;
+    if (dim !== 'category' && activeCat && i.category !== activeCat) return false;
+    if (dim !== 'color' && activeColor && i.color !== activeColor) return false;
+    if (q) {
+      const hay = ((i.title || '') + (i.copyright || '') + (i.date || '')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return i[dim] === value;
+  }).length;
+}
+
+function renderCategoryPills() {
   const present = new Set(items.map(i => i.category).filter(Boolean));
-  catEl.innerHTML = '<option value="">全部分类</option>';
+  catPills.innerHTML = '';
+  const allBtn = makePill('全部', '', activeCat === '', catPills, (v) => { activeCat = v; applyFilter(); });
+  allBtn.setAttribute('role', 'tab');
   for (const c of CATEGORY_ORDER) {
     if (!present.has(c)) continue;
-    const o = document.createElement('option');
-    o.value = c;
-    const n = items.filter(i => i.category === c).length;
-    o.textContent = c + `（${n}）`;
-    catEl.appendChild(o);
+    const n = countBy('category', c);
+    const btn = makePill(c, c, activeCat === c, catPills, (v) => { activeCat = v; applyFilter(); }, n);
+    btn.setAttribute('role', 'tab');
   }
 }
 
-function buildColorOptions() {
+function renderColorPills() {
   const present = new Set(items.map(i => i.color).filter(Boolean));
-  colorEl.innerHTML = '<option value="">全部颜色</option>';
+  colorPills.innerHTML = '';
+  const allBtn = makeColorPill('全部', '', activeColor === '', colorPills, (v) => { activeColor = v; applyFilter(); });
+  allBtn.setAttribute('role', 'tab');
   for (const c of COLOR_ORDER) {
     if (!present.has(c)) continue;
-    const o = document.createElement('option');
-    o.value = c;
-    const n = items.filter(i => i.color === c).length;
-    o.textContent = c + `（${n}）`;
-    colorEl.appendChild(o);
+    const n = countBy('color', c);
+    const btn = makeColorPill(c, c, activeColor === c, colorPills, (v) => { activeColor = v; applyFilter(); }, n);
+    btn.setAttribute('role', 'tab');
+  }
+}
+
+function makePill(label, value, active, parent, onClick, count) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'pill' + (active ? ' active' : '');
+  btn.textContent = count != null ? `${label} ${count}` : label;
+  btn.addEventListener('click', () => onClick(value));
+  parent.appendChild(btn);
+  return btn;
+}
+
+function makeColorPill(label, value, active, parent, onClick, count) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'color-pill' + (active ? ' active' : '');
+  const dot = document.createElement('span');
+  dot.className = 'color-dot';
+  if (value) dot.style.background = COLOR_HEX[value] || 'transparent';
+  else dot.classList.add('all');
+  btn.appendChild(dot);
+  const text = document.createElement('span');
+  text.textContent = count != null ? `${label} ${count}` : label;
+  btn.appendChild(text);
+  btn.addEventListener('click', () => onClick(value));
+  parent.appendChild(btn);
+  return btn;
+}
+
+function renderHero() {
+  const latest = items[0];
+  if (!latest) return;
+  hero.hidden = false;
+  const full = buildResUrl(latest.url, '1920x1080') || latest.url;
+  heroBgImg.src = full;
+  heroBgImg.alt = latest.title || latest.date;
+  heroDate.textContent = formatDate(latest.date);
+  heroTitle.textContent = latest.title || latest.date;
+  heroDesc.textContent = latest.copyright || '';
+  heroDownload.onclick = () => downloadHero(latest, '1920x1080');
+  heroView.onclick = () => openLightbox(latest);
+}
+
+function formatDate(d) {
+  if (!d || d.length !== 8) return d;
+  return `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6, 8)}`;
+}
+
+async function downloadHero(it, res) {
+  try {
+    const url = buildResUrl(it.url, res) || it.url;
+    const bytes = await fetchBytes(url);
+    const blob = new Blob([bytes], { type: 'image/jpeg' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${it.date}_${res}.jpg`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch (err) {
+    openLightbox(it);
   }
 }
 
@@ -116,9 +213,9 @@ function getFiltered() {
   const q = searchEl.value.trim().toLowerCase();
   const y = yearEl.value;
   const m = monthEl.value;
-  const cat = catEl.value;
-  const col = colorEl.value;
-  return items.filter(i => {
+  const cat = activeCat;
+  const col = activeColor;
+  const out = items.filter(i => {
     if (y && i.date.slice(0, 4) !== y) return false;
     if (m && i.date.slice(4, 6) !== m) return false;
     if (cat && i.category !== cat) return false;
@@ -129,6 +226,9 @@ function getFiltered() {
     }
     return true;
   });
+  const sort = sortEl.value;
+  if (sort === 'oldest') out.reverse();
+  return out;
 }
 
 function applyFilter() {
@@ -137,67 +237,63 @@ function applyFilter() {
   rendered = 0;
   grid.innerHTML = '';
   renderMore();
+  renderCategoryPills();
+  renderColorPills();
 }
 
 function renderMore() {
   const batch = filtered.slice(rendered, rendered + PAGE);
   const frag = document.createDocumentFragment();
   for (const it of batch) {
-    const a = document.createElement('a');
-    a.className = 'card';
-    a.dataset.date = it.date;
-    a.href = it.url || '#';
-    a.title = (it.title || '') + (it.copyright ? ' — ' + it.copyright : '');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.date = it.date;
+    card.title = (it.title || '') + (it.copyright ? ' — ' + it.copyright : '');
 
-    // 勾选框：用于批量打包下载（点击不触发灯箱）
     const sel = document.createElement('input');
     sel.type = 'checkbox';
     sel.className = 'sel';
     sel.dataset.date = it.date;
     sel.checked = selected.has(it.date);
     sel.title = '选择打包下载';
-    if (sel.checked) a.classList.add('selected');
-    a.appendChild(sel);
+    if (sel.checked) card.classList.add('selected');
+    card.appendChild(sel);
 
+    const media = document.createElement('div');
+    media.className = 'media';
     if (it.thumbnail) {
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.src = it.thumbnail;
       img.alt = it.title || it.date;
-      a.appendChild(img);
+      media.appendChild(img);
     } else {
-      a.classList.add('missing');
+      card.classList.add('missing');
       const ph = document.createElement('div');
       ph.className = 'ph';
       ph.textContent = it.date;
-      a.appendChild(ph);
+      media.appendChild(ph);
     }
+    card.appendChild(media);
 
-    const cap = document.createElement('div');
-    cap.className = 'cap';
-    cap.textContent = it.title || it.date;
-    a.appendChild(cap);
+    const info = document.createElement('div');
+    info.className = 'info';
+    const title = document.createElement('div');
+    title.className = 'title';
+    title.textContent = it.title || it.date;
+    info.appendChild(title);
 
-    const tags = document.createElement('div');
-    tags.className = 'tags';
-    if (it.category) {
-      const ct = document.createElement('span');
-      ct.className = 'tag tag-cat';
-      ct.textContent = it.category;
-      tags.appendChild(ct);
-    }
-    if (it.color) {
-      const cd = document.createElement('span');
-      cd.className = 'tag tag-color';
-      const dot = document.createElement('i');
-      dot.className = 'dot';
-      dot.style.background = COLOR_HEX[it.color] || 'transparent';
-      cd.appendChild(dot);
-      cd.appendChild(document.createTextNode(it.color));
-      tags.appendChild(cd);
-    }
-    a.appendChild(tags);
-    frag.appendChild(a);
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    if (it.category) tag.textContent = it.category;
+    info.appendChild(tag);
+    card.appendChild(info);
+
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.sel')) return;
+      openLightbox(it);
+    });
+    frag.appendChild(card);
   }
   grid.appendChild(frag);
   rendered += batch.length;
@@ -207,7 +303,6 @@ function renderMore() {
     : (rendered ? '已显示全部' : '');
 }
 
-// 滚动到接近底部时自动加载下一批，避免一次性把数千张卡片塞进 DOM
 const io = new IntersectionObserver((entries) => {
   for (const e of entries) {
     if (e.isIntersecting && rendered < filtered.length) renderMore();
@@ -218,19 +313,14 @@ io.observe(sentinel);
 searchEl.addEventListener('input', applyFilter);
 yearEl.addEventListener('change', applyFilter);
 monthEl.addEventListener('change', applyFilter);
-catEl.addEventListener('change', applyFilter);
-colorEl.addEventListener('change', applyFilter);
+sortEl.addEventListener('change', applyFilter);
 
-grid.addEventListener('click', (e) => {
-  if (e.target.closest('.sel')) return;   // 勾选框：交给原生 toggle，不开灯箱
-  const card = e.target.closest('.card');
-  if (!card) return;
-  e.preventDefault();
-  const it = items.find(i => i.date === card.dataset.date);
-  if (it) openLightbox(it);
+dateToggle.addEventListener('click', () => {
+  const hidden = !datePanel.hidden;
+  datePanel.hidden = hidden;
+  dateToggle.classList.toggle('open', !hidden);
 });
 
-// 勾选状态变化：维护 selected 集合并同步卡片高亮
 grid.addEventListener('change', (e) => {
   const sel = e.target.closest('.sel');
   if (!sel) return;
@@ -246,7 +336,7 @@ function updateBatchBar() {
   batchCount.textContent = String(n);
   batchBadge.textContent = String(n);
   batchBadge.hidden = n === 0;
-  batchZip.disabled = n < 1;                       // 0 张禁用；1 张直接下，≥2 张打包
+  batchZip.disabled = n < 1;
   batchZip.textContent = n === 0 ? '未选择'
     : n === 1 ? '下载这张'
     : `打包下载 ZIP（${n}）`;
@@ -274,7 +364,6 @@ async function fetchBytes(url) {
   return new Uint8Array(await r.arrayBuffer());
 }
 
-// CRC32（用于 ZIP 本地/中央目录校验）
 function crc32(buf) {
   if (!crc32.table) {
     const t = [];
@@ -290,7 +379,6 @@ function crc32(buf) {
   return (crc ^ 0xFFFFFFFF) >>> 0;
 }
 
-// 构造 STORE（无压缩）ZIP：entries = [{name, data:Uint8Array}]
 function buildZipStore(entries) {
   const enc = new TextEncoder();
   const chunks = [];
@@ -302,39 +390,39 @@ function buildZipStore(entries) {
     const crc = crc32(data);
     const local = new Uint8Array(30 + nameBytes.length);
     const lv = new DataView(local.buffer);
-    lv.setUint32(0, 0x04034b50, true);   // 本地文件头签名
-    lv.setUint16(4, 20, true);           // version needed
-    lv.setUint16(6, 0, true);            // flags
-    lv.setUint16(8, 0, true);            // method = 0 (store)
-    lv.setUint16(10, 0, true);           // mod time
-    lv.setUint16(12, 0, true);           // mod date
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true);
+    lv.setUint16(6, 0, true);
+    lv.setUint16(8, 0, true);
+    lv.setUint16(10, 0, true);
+    lv.setUint16(12, 0, true);
     lv.setUint32(14, crc, true);
-    lv.setUint32(18, data.length, true); // comp size
-    lv.setUint32(22, data.length, true); // uncomp size
+    lv.setUint32(18, data.length, true);
+    lv.setUint32(22, data.length, true);
     lv.setUint16(26, nameBytes.length, true);
-    lv.setUint16(28, 0, true);           // extra len
+    lv.setUint16(28, 0, true);
     local.set(nameBytes, 30);
     chunks.push(local, data);
 
     const cen = new Uint8Array(46 + nameBytes.length);
     const cv = new DataView(cen.buffer);
-    cv.setUint32(0, 0x02014b50, true);   // 中央目录头签名
-    cv.setUint16(4, 20, true);           // version made by
-    cv.setUint16(6, 20, true);           // version needed
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
     cv.setUint16(8, 0, true);
-    cv.setUint16(10, 0, true);           // method
-    cv.setUint16(12, 0, true);           // time
-    cv.setUint16(14, 0, true);           // date
+    cv.setUint16(10, 0, true);
+    cv.setUint16(12, 0, true);
+    cv.setUint16(14, 0, true);
     cv.setUint32(16, crc, true);
     cv.setUint32(20, data.length, true);
     cv.setUint32(24, data.length, true);
     cv.setUint16(28, nameBytes.length, true);
-    cv.setUint16(30, 0, true);           // extra
-    cv.setUint16(32, 0, true);           // comment
-    cv.setUint16(34, 0, true);           // disk
-    cv.setUint16(36, 0, true);           // internal attr
-    cv.setUint32(38, 0, true);           // external attr
-    cv.setUint32(42, offset, true);      // 本地头偏移
+    cv.setUint16(30, 0, true);
+    cv.setUint16(32, 0, true);
+    cv.setUint16(34, 0, true);
+    cv.setUint16(36, 0, true);
+    cv.setUint32(38, 0, true);
+    cv.setUint32(42, offset, true);
     cen.set(nameBytes, 46);
     central.push(cen);
 
@@ -344,7 +432,7 @@ function buildZipStore(entries) {
   for (const c of central) centralSize += c.length;
   const end = new Uint8Array(22);
   const ev = new DataView(end.buffer);
-  ev.setUint32(0, 0x06054b50, true);     // 中央目录结束签名
+  ev.setUint32(0, 0x06054b50, true);
   ev.setUint16(4, 0, true);
   ev.setUint16(6, 0, true);
   ev.setUint16(8, entries.length, true);
@@ -361,20 +449,19 @@ function buildZipStore(entries) {
   return new Blob([out], { type: 'application/zip' });
 }
 
-// 单张直接下载（不打包）：与灯箱「下载全图」一致，跨域读字节后用 Blob 触发保存
 async function downloadSingle(date) {
   const it = byDate.get(date);
   if (!it) return;
-  const res = batchRes.value;            // 沿用面板所选分辨率
+  const res = batchRes.value;
   const suffix = res === 'UHD' ? '_UHD' : '';
   let bytes = null;
   let name = date + suffix + '.jpg';
   try {
     const url = buildResUrl(it.url, res) || it.url;
     bytes = await fetchBytes(url);
-  } catch (_) { /* 原图失败，下面回退缩略图 */ }
+  } catch (_) { }
   if (!bytes && it.thumbnail) {
-    try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) {}
+    try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) { }
   }
   if (!bytes) { batchProgress.textContent = '无可用图片，取消'; return; }
   const blob = new Blob([bytes], { type: 'image/jpeg' });
@@ -389,9 +476,9 @@ async function downloadSingle(date) {
 async function doBatchDownload() {
   const n = selected.size;
   if (n === 0) return;
-  if (n === 1) { await downloadSingle([...selected][0]); return; }   // 单张：直接下载
+  if (n === 1) { await downloadSingle([...selected][0]); return; }
   if (n >= 50 && !confirm(`将打包 ${n} 张图片，文件可能较大、耗时较长，继续？`)) return;
-  const res = batchRes.value;            // '1920x1080' | 'UHD'
+  const res = batchRes.value;
   batchZip.disabled = true;
   batchClear.disabled = true;
   batchSelectAll.disabled = true;
@@ -413,9 +500,9 @@ async function doBatchDownload() {
       try {
         const url = buildResUrl(it.url, res) || it.url;
         bytes = await fetchBytes(url);
-      } catch (_) { /* 原图失败，下面回退缩略图 */ }
+      } catch (_) { }
       if (!bytes && it.thumbnail) {
-        try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) {}
+        try { bytes = await fetchBytes('./' + it.thumbnail); name = date + '_thumb.jpg'; } catch (_) { }
       }
       if (bytes) entries.push({ name, data: bytes });
       done++;
@@ -444,7 +531,6 @@ async function doBatchDownload() {
 batchZip.addEventListener('click', doBatchDownload);
 batchClear.addEventListener('click', clearSelection);
 batchSelectAll.addEventListener('click', selectAllFiltered);
-// 悬浮按钮：展开/收起选项面板；点击面板外自动收起
 batchToggle.addEventListener('click', () => { batchPanel.hidden = !batchPanel.hidden; });
 document.addEventListener('click', (e) => {
   if (batchPanel.hidden) return;
@@ -452,9 +538,6 @@ document.addEventListener('click', (e) => {
 });
 updateBatchBar();
 
-// 根据图片来源判断可选分辨率：
-//   近期 bing.com 的 OHR 图支持 UHD / 1080p；
-//   历史 cdn.bimg.cc 镜像图只有固定 1920x1080，因此只给 1080p 选项。
 function supportedResolutions(item) {
   const u = item.url || '';
   if (/bing\.com\/th\?id=OHR/i.test(u)) {
@@ -466,7 +549,6 @@ function supportedResolutions(item) {
   return [{ v: '1920x1080', label: '1080p（已是最清）' }];
 }
 
-// 按所选分辨率构造 Bing 原图 URL（与 scripts/download_full.py 的 build_url 对应）
 function buildResUrl(url, res) {
   if (!url) return '';
   if (!res || res === '1920x1080') return url;
@@ -488,7 +570,6 @@ function applyResolution() {
   const full = buildResUrl(it.url, res);
   let fellBack = false;
   lbImg.onerror = () => {
-    // 所选分辨率源不可用时回退缩略图（本地必有），并提示
     if (!fellBack && it.thumbnail) {
       fellBack = true;
       lbImg.src = it.thumbnail;
@@ -517,7 +598,6 @@ function openLightbox(it) {
     el.textContent = o.label;
     lbRes.appendChild(el);
   }
-  // 默认 1080p（UHD 仅按需选），避免点开即拉 4K 原图导致慢网首开偏重
   const def = opts.find(o => o.v === '1920x1080') || opts[0];
   lbRes.value = def.v;
   applyResolution();
@@ -528,7 +608,6 @@ lbRes.addEventListener('change', applyResolution);
 
 lbCopy.onclick = async () => {
   if (!current) return;
-  // 复制当前所选分辨率的 URL
   const url = buildResUrl(current.url, lbRes.value) || current.url || '';
   try {
     await navigator.clipboard.writeText(url);
@@ -558,4 +637,4 @@ lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.
 lbImg.addEventListener('click', () => { if (lbLink.href) window.open(lbLink.href, '_blank', 'noopener'); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lightbox.hidden = true; });
 
-load().catch(err => { subtitle.textContent = '加载失败：' + err; });
+load().catch(err => { archiveStats.textContent = '加载失败：' + err; });
