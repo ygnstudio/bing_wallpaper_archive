@@ -34,9 +34,6 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install Python dependencies
-        run: pip install Pillow
-
       - name: Validate data
         run: python3 scripts/validate.py
 
@@ -48,8 +45,6 @@ jobs:
 
       - name: Build site
         run: npm run build
-        env:
-          PYTHON: python3
 
       - name: Copy .nojekyll
         run: cp .nojekyll dist/ 2>/dev/null || true
