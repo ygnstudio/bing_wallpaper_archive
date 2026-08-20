@@ -37,6 +37,7 @@ const batchProgress = document.getElementById('batch-progress');
 const batchResNote = document.getElementById('batch-res-note');
 const catPills = document.getElementById('cat-pills');
 const colorPills = document.getElementById('color-pills');
+const filterCount = document.getElementById('filter-count');
 const archiveStats = document.getElementById('archive-stats');
 const hero = document.getElementById('hero');
 const heroBgImg = document.getElementById('hero-bg-img');
@@ -331,6 +332,12 @@ function applyFilter() {
   renderMore();
   renderCategoryPills();
   renderColorPills();
+  updateFilterCount();
+}
+
+function updateFilterCount() {
+  if (!filterCount) return;
+  filterCount.textContent = `当前筛选：${filtered.length.toLocaleString()} 张`;
 }
 
 function renderMore() {
