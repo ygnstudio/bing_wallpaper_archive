@@ -7,17 +7,70 @@
   <link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
-  <header>
-    <h1>Bing 每日壁纸归档</h1>
-    <p id="subtitle">加载中…</p>
-    <div class="controls">
-      <input id="search" type="search" placeholder="搜索标题 / 版权 / 日期…" />
+  <nav class="topnav">
+    <a class="brand" href="./" aria-label="首页">
+      <span class="logo" aria-hidden="true">B</span>
+      <span class="brand-title">Bing 每日壁纸归档</span>
+    </a>
+    <div class="nav-search">
+      <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input id="search" type="search" placeholder="搜索标题、版权、日期…" />
+    </div>
+  </nav>
+
+  <section id="hero" class="hero" hidden>
+    <div class="hero-bg">
+      <img id="hero-bg-img" alt="">
+    </div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="hero-content">
+      <div class="hero-card">
+        <div class="hero-tag">今日壁纸 · <span id="hero-date"></span></div>
+        <h2 id="hero-title"></h2>
+        <p id="hero-desc"></p>
+        <div class="hero-actions">
+          <button id="hero-download" class="btn-primary" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3v10.2l3.6-3.6 1.4 1.4L12 16 7 11l1.4-1.4L12 13.2zM5 18h14v2H5z"/></svg>
+            下载 1920×1080
+          </button>
+          <button id="hero-view" class="btn-secondary" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            查看原图
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="filter-bar">
+    <div class="filter-row">
+      <div class="filter-group" id="cat-pills" role="tablist" aria-label="分类筛选"></div>
+      <div class="filter-extra">
+        <button id="date-toggle" class="btn-ghost" type="button">按日期浏览</button>
+        <div class="sort-wrap">
+          <select id="sort" aria-label="排序">
+            <option value="newest">最新</option>
+            <option value="oldest">最早</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-group color-group" id="color-pills" role="tablist" aria-label="颜色筛选"></div>
+    </div>
+    <div id="date-panel" class="date-panel" hidden>
       <select id="year" aria-label="年份筛选"><option value="">全部年份</option></select>
       <select id="month" aria-label="月份筛选"><option value="">全部月份</option></select>
-      <select id="category" aria-label="分类筛选"><option value="">全部分类</option></select>
-      <select id="color" aria-label="颜色筛选"><option value="">全部颜色</option></select>
+      <span class="panel-hint">或直接在顶部搜索框输入关键词</span>
     </div>
-  </header>
+  </div>
+
+  <div class="section-header">
+    <h2>全部壁纸</h2>
+    <div class="section-meta">
+      <span id="archive-stats">已归档 0 张 · 每日更新</span>
+    </div>
+  </div>
 
   <main id="grid" class="grid"></main>
   <div id="sentinel" class="sentinel">加载更多…</div>
@@ -65,6 +118,20 @@
       <p class="lb-hint">原图直链来自 Bing。部分浏览器对跨域下载会改为直接打开，此时可右键图片「图片另存为」。</p>
     </div>
   </div>
+
+  <footer class="footer">
+    <a class="brand" href="./" aria-label="首页">
+      <span class="logo" aria-hidden="true">B</span>
+      <div>
+        <div class="brand-title">Bing 每日壁纸归档</div>
+        <div class="brand-sub">每日精选 · 全球风光一键收藏</div>
+      </div>
+    </a>
+    <div class="footer-links">
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">关于</a>
+      <a href="https://github.com/ygnstudio/bing_wallpaper_archive" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
 
   <script src="./assets/app.js"></script>
 </body>
