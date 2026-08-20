@@ -684,4 +684,16 @@ lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.
 lbImg.addEventListener('click', () => { if (lbLink.href) window.open(lbLink.href, '_blank', 'noopener'); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lightbox.hidden = true; });
 
+// 页脚进入视口时隐藏下载按钮，避免遮挡「关于 / GitHub」
+(function setupBatchbarNearFooter() {
+  const footer = document.querySelector('.footer');
+  if (!footer || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      batchbar.classList.toggle('near-footer', e.isIntersecting && e.intersectionRatio > 0.05);
+    }
+  }, { rootMargin: '0px 0px -10% 0px', threshold: [0, 0.05, 0.2] });
+  io.observe(footer);
+})();
+
 load().catch(err => { archiveStats.textContent = '加载失败：' + err; });
