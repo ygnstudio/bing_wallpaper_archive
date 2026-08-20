@@ -187,3 +187,10 @@ function detectTouch() {
 }
 
 init().catch(err => { els.archiveStats.textContent = '加载失败：' + err; });
+
+// 注册 Service Worker（线上环境启用缓存）
+if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+  navigator.serviceWorker.register('./assets/sw.js').catch(err => {
+    console.warn('SW registration failed:', err);
+  });
+}

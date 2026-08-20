@@ -138,18 +138,33 @@ async function main() {
 
   // 写入带 hash 的资源
   await ensureDir(join(DIST, 'assets'));
-  await writeFile(join(DIST, 'assets', `app.${jsHash}.js`), jsCode);
-  await writeFile(join(DIST, 'assets', `style.${cssHash}.css`), cssCode);
+  const jsName = `app.${jsHash}.js`;
+  const cssName = `style.${cssHash}.css`;
+  await writeFile(join(DIST, 'assets', jsName), jsCode);
+  await writeFile(join(DIST, 'assets', cssName), cssCode);
+
+  // 复制 Service Worker（不打包，保持独立）
+  await copyFile(join(SRC, 'assets', 'sw.js'), join(DIST, 'assets', 'sw.js'));
+
+  // 生成资源清单，供 SW 预缓存
+  await writeFile(join(DIST, 'assets', 'manifest.json'), JSON.stringify({
+    assets: [
+      `./assets/${jsName}`,
+      `./assets/${cssName}`,
+      `./assets/sw.js`
+    ]
+  }));
 
   // 处理 HTML
   await processHtml('index.html', jsHash, cssHash);
   await processHtml('about.html', jsHash, cssHash);
 
-  // 复制 data/ 和静态资源（assets 下非 css/js 如已有图片等，但当前没有）
+  // 复制 data/ 和静态资源
   await copyDir(join(SRC, 'data'), join(DIST, 'data'));
 
-  console.log(`app.${jsHash}.js`);
-  console.log(`style.${cssHash}.css`);
+  console.log(jsName);
+  console.log(cssName);
+  console.log('manifest.json');
   console.log('Build complete.');
 }
 
