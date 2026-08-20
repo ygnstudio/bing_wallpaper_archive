@@ -26,7 +26,7 @@ jobs:
       - name: Install VLM dependencies
         run: |
           pip install --quiet --upgrade pip
-          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install --quiet transformers qwen-vl-utils huggingface_hub
 
       - name: Cache VLM model
