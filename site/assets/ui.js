@@ -15,15 +15,16 @@ import { activeCat, activeColor, filtered, rendered, selected, setRendered, item
  * @param {string} q
  * @param {string} dateFrom
  * @param {string} dateTo
+ * @param {Function} countFn
  */
-export function renderCategoryPills(container, onClick, q, dateFrom, dateTo) {
+export async function renderCategoryPills(container, onClick, q, dateFrom, dateTo, countFn) {
   const present = new Set(items.map(i => i.category).filter(Boolean));
   container.innerHTML = '';
   const allBtn = makePill('全部', '', activeCat === '', container, onClick);
   allBtn.setAttribute('role', 'tab');
   for (const c of CATEGORY_ORDER) {
     if (!present.has(c)) continue;
-    const n = countBy('category', c, q, dateFrom, dateTo);
+    const n = await countFn({ dim: 'category', value: c, q, dateFrom, dateTo, activeCat, activeColor });
     const btn = makePill(c, c, activeCat === c, container, onClick, n);
     btn.setAttribute('role', 'tab');
   }
@@ -36,15 +37,16 @@ export function renderCategoryPills(container, onClick, q, dateFrom, dateTo) {
  * @param {string} q
  * @param {string} dateFrom
  * @param {string} dateTo
+ * @param {Function} countFn
  */
-export function renderColorPills(container, onClick, q, dateFrom, dateTo) {
+export async function renderColorPills(container, onClick, q, dateFrom, dateTo, countFn) {
   const present = new Set(items.map(i => i.color).filter(Boolean));
   container.innerHTML = '';
   const allBtn = makeColorPill('全部', '', activeColor === '', container, onClick);
   allBtn.setAttribute('role', 'tab');
   for (const c of COLOR_ORDER) {
     if (!present.has(c)) continue;
-    const n = countBy('color', c, q, dateFrom, dateTo);
+    const n = await countFn({ dim: 'color', value: c, q, dateFrom, dateTo, activeCat, activeColor });
     const btn = makeColorPill(c, c, activeColor === c, container, onClick, n);
     btn.setAttribute('role', 'tab');
   }

@@ -143,15 +143,17 @@ async function main() {
   await writeFile(join(DIST, 'assets', jsName), jsCode);
   await writeFile(join(DIST, 'assets', cssName), cssCode);
 
-  // 复制 Service Worker（不打包，保持独立）
+  // 复制 Service Worker 与 Web Worker（不打包，保持独立）
   await copyFile(join(SRC, 'assets', 'sw.js'), join(DIST, 'assets', 'sw.js'));
+  await copyFile(join(SRC, 'assets', 'worker.js'), join(DIST, 'assets', 'worker.js'));
 
   // 生成资源清单，供 SW 预缓存
   await writeFile(join(DIST, 'assets', 'manifest.json'), JSON.stringify({
     assets: [
       `./assets/${jsName}`,
       `./assets/${cssName}`,
-      `./assets/sw.js`
+      `./assets/sw.js`,
+      `./assets/worker.js`
     ]
   }));
 
