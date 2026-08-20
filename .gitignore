@@ -15,7 +15,6 @@ dist/
 
 # 构建依赖
 node_modules/
-package-lock.json
 
 # 本地预览用符号链接（仅 dev：让 site/ 下可解析 ./data 与 ./thumbnails，
 # 线上由 pages.yml 复制到 _site/，切勿提交）
