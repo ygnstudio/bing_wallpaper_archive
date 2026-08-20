@@ -1,0 +1,101 @@
+/* ===== 批量下载 ===== */
+.batchbar {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.batchbar.near-footer {
+  opacity: 0;
+  transform: translateY(24px) scale(.92);
+  pointer-events: none;
+}
+.fab {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #1a1300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 22px rgba(232, 185, 35, .28);
+  transition: transform .15s, filter .15s;
+}
+.fab:hover { transform: scale(1.05); filter: brightness(1.08); }
+.batch-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #ef5350;
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  border: 2px solid var(--bg);
+}
+.batch-panel {
+  width: 270px;
+  max-width: calc(100vw - 40px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+.batch-panel[hidden] { display: none; }
+.batch-row { font-size: 14px; color: var(--fg); }
+.batch-res {
+  color: var(--muted);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.batch-res select {
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+.batch-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.batch-actions button {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: #1a1300;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.batch-actions button.ghost { background: transparent; color: var(--fg); }
+.batch-actions button:disabled { opacity: .45; cursor: not-allowed; }
+.batch-progress { color: var(--muted); font-size: 13px; }
+.batch-note {
+  font-size: 12px;
+  color: #ffb74d;
+  background: rgba(255, 183, 77, .12);
+  border-radius: 6px;
+  padding: 6px 9px;
+  line-height: 1.45;
+}

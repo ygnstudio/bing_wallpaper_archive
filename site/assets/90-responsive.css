@@ -1,0 +1,87 @@
+/* ===== 响应式 ===== */
+/* 超宽屏：利用更大横向空间，卡片更舒展 */
+@media (min-width: 1440px) {
+  .topnav, .hero-content, .filter-bar, .section-header, .grid, .footer { max-width: 1600px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  .hero { height: min(60vh, 600px); }
+}
+
+/* 平板 / 横屏手机 */
+@media (max-width: 1024px) {
+  .hero { height: min(46vh, 460px); }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+}
+
+/* 平板竖屏 / 大手机 */
+@media (max-width: 820px) {
+  .topnav { flex-wrap: wrap; gap: 10px 12px; padding: 12px 16px; }
+  .brand { flex: 1 1 auto; }
+  .nav-search { order: 3; width: 100%; max-width: none; }
+  .hero { height: min(44vh, 380px); min-height: 300px; }
+  .hero-content { padding: 16px; padding-bottom: 24px; }
+  .hero-card { max-width: none; width: 100%; }
+  .hero-overlay {
+    background:
+      linear-gradient(to top, rgba(11, 13, 16, .96) 0%, rgba(11, 13, 16, .45) 45%, transparent 75%);
+  }
+  #hero-title { font-size: 20px; }
+  #hero-desc { -webkit-line-clamp: 3; }
+  .filter-bar { padding: 16px 16px 6px; }
+  /* 分类/颜色 pill 在小屏改为横向滚动，避免换行挤压 */
+  .filter-group {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .filter-group::-webkit-scrollbar { display: none; }
+  .section-header { padding: 4px 16px 14px; flex-wrap: wrap; gap: 8px; }
+  .filter-row.date-row { gap: 8px; }
+  .date-range { gap: 6px; }
+  .month-trigger { padding: 7px 26px 7px 9px; background-position: right 6px center; font-size: 12px; }
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px 32px; }
+  .footer { flex-direction: column; text-align: center; gap: 10px; }
+  .batchbar { right: 12px; bottom: 12px; }
+  .fab { width: 52px; height: 52px; }
+}
+
+/* 小屏手机 */
+@media (max-width: 480px) {
+  .topnav { padding: 10px 12px; }
+  .brand-sub { display: none; }
+  .hero { height: 46vh; min-height: 260px; }
+  .hero-card { padding: 16px; }
+  #hero-title { font-size: 18px; }
+  #hero-desc { -webkit-line-clamp: 4; }
+  .hero-actions { gap: 8px; }
+  .hero-actions .btn-primary, .hero-actions .btn-secondary { flex: 1 1 0; }
+  .grid { gap: 10px; padding: 0 12px 28px; }
+  .card .info { padding: 10px; }
+  .card .title { font-size: 12px; }
+  .card .tag { font-size: 10px; padding: 2px 6px; }
+  .lightbox { padding: 12px; }
+  .lightbox img { max-width: 100%; max-height: 70vh; }
+  .lb-meta h2 { font-size: 15px; }
+  .lb-hint { display: none; }
+  /* 批量面板在手机上变为底部抽屉 */
+  .batchbar { left: 12px; right: 12px; align-items: stretch; }
+  .batch-panel { width: auto; max-width: none; }
+  .filter-row.date-row { gap: 6px; }
+  .date-range { gap: 4px; }
+  .date-range-label { display: none; }
+  .date-swap { width: 26px; height: 26px; }
+  .date-swap svg { width: 14px; height: 14px; }
+  .month-trigger { padding: 6px 24px 6px 8px; background-size: 14px; font-size: 12px; }
+  #date-clear { padding: 6px 10px; font-size: 12px; }
+  .filter-count { font-size: 12px; padding-left: 6px; }
+}
+
+/* 超小屏 */
+@media (max-width: 360px) {
+  .grid { grid-template-columns: 1fr; }
+  .filter-row.date-row { flex-wrap: wrap; }
+  .date-range { width: 100%; }
+  .filter-count { margin-left: 0; padding-left: 0; padding-top: 6px; }
+}
