@@ -101,10 +101,10 @@
 .back-to-top {
   position: fixed;
   right: 20px;
-  bottom: 86px;
+  bottom: 90px;
   z-index: 50;
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: rgba(20, 22, 27, .85);
@@ -118,6 +118,7 @@
   transform: translateY(10px);
   transition: opacity .2s, transform .2s, visibility .2s, background .15s, color .15s;
 }
+.back-to-top svg { width: 24px; height: 24px; }
 .back-to-top.visible {
   opacity: 1;
   visibility: visible;
@@ -127,6 +128,7 @@
 /* 批量下载按钮隐藏（页脚进入视口）时，返回顶部回到右下角 */
 .batchbar.near-footer ~ .back-to-top { bottom: 20px; }
 @media (min-width: 768px) {
-  .back-to-top { right: 28px; bottom: 94px; }
+  .batchbar { right: 28px; bottom: 28px; }
+  .back-to-top { right: 28px; bottom: 98px; }
   .batchbar.near-footer ~ .back-to-top { bottom: 28px; }
 }

@@ -95,7 +95,7 @@ export function supportedResolutions(item) {
     return [{ v: '1920x1080', label: '1080p（仅此分辨率）' }];
   }
   return [
-    { v: 'UHD', label: 'UHD (4K)' },
+    { v: 'UHD', label: 'UHD' },
     { v: '1920x1080', label: '1080p' }
   ];
 }

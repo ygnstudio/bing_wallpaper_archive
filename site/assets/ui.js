@@ -131,7 +131,7 @@ export async function renderHero(els) {
   els.heroDesc.textContent = latest.copyright || '';
 
   const heroUhd = latest.uhd !== false;
-  els.heroDownloadText.textContent = heroUhd ? '下载 UHD 4K' : '下载 1080p';
+  els.heroDownloadText.textContent = heroUhd ? '下载 UHD' : '下载 1080p';
   els.heroDownload.onclick = () => els.downloadHero(latest, heroUhd ? 'UHD' : '1920x1080');
   els.heroView.onclick = () => {
     els.openLightbox(latest);
