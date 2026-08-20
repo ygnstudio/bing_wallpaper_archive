@@ -108,7 +108,7 @@ def build_classifier(model, processor):
 
 def thumb_path(date):
     y, mo = date[:4], date[4:6]
-    return os.path.join(ROOT, "thumbnails", y, mo, date + ".jpg")
+    return os.path.join(ROOT, "thumbnails", y, mo, date + ".webp")
 
 
 def main():

@@ -183,19 +183,12 @@ function createCard(it, openLightbox) {
     const media = document.createElement('div');
     media.className = 'media';
     if (it.thumbnail) {
-      const webpUrl = it.thumbnail.replace(/\.jpg$/i, '.webp');
-      const picture = document.createElement('picture');
-      const source = document.createElement('source');
-      source.srcset = webpUrl;
-      source.type = 'image/webp';
-      picture.appendChild(source);
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.decoding = 'async';
       img.src = it.thumbnail;
       img.alt = it.title || it.date;
-      picture.appendChild(img);
-      media.appendChild(picture);
+      media.appendChild(img);
     } else {
     card.classList.add('missing');
     const ph = document.createElement('div');

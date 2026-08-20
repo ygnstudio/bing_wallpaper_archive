@@ -100,7 +100,7 @@ export async function fetchWithFallback(it, res) {
   if (it.thumbnail) {
     try {
       const bytes = await fetchBytes('./' + it.thumbnail);
-      return { bytes, name: it.date + '_thumb.jpg' };
+      return { bytes, name: it.date + '_thumb.webp' };
     } catch (_) { }
   }
   return null;

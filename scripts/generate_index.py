@@ -20,7 +20,7 @@ def main():
     entries = []
     for date, m in meta.items():
         y, mo = date[:4], date[4:6]
-        thumb = f"thumbnails/{y}/{mo}/{date}.jpg"
+        thumb = f"thumbnails/{y}/{mo}/{date}.webp"
         entry = {
             "date": date,
             "title": m.get("title", ""),

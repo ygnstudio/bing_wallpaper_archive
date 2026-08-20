@@ -82,7 +82,7 @@ def make_thumbnail(data: bytes, dst: Path):
     with Image.open(io.BytesIO(data)) as im:
         im = ImageOps.exif_transpose(im).convert("RGB")
         im = im.resize((THUMB_W, THUMB_H), Image.LANCZOS)
-        im.save(dst, "JPEG", quality=85, optimize=True)
+        im.save(dst, "WEBP", quality=80, method=4)
 
 
 def probe_uhd(urlbase):
@@ -110,7 +110,7 @@ def main():
     meta = fetch_metadata()
     url = build_url(meta)
     key = date_key(meta)
-    thumb = ROOT / "thumbnails" / key[:4] / key[4:6] / f"{key}.jpg"
+    thumb = ROOT / "thumbnails" / key[:4] / key[4:6] / f"{key}.webp"
 
     try:
         req = Request(url, headers=HEADERS)
