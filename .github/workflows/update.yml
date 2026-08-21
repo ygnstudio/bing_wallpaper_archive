@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update:
@@ -63,8 +64,23 @@ jobs:
         run: python scripts/check_archive.py
 
       - name: Commit and push
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data thumbnails site README.md
-          git diff --cached --quiet && echo "no changes" || (git commit -m "daily: update wallpaper" && git pull --rebase --autostash && git push)
+          if git diff --cached --quiet; then
+            echo "no changes"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "daily: update wallpaper"
+            git pull --rebase --autostash
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Pages deployment
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run pages.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
