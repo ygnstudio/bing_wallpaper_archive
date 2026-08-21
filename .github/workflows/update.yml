@@ -2,7 +2,9 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: "0 1 * * *"   # 01:00 UTC = 09:00 Beijing：Bing 换图(~北京时间次日凌晨)之后抓最新已发布图，当天早间入库
+    - cron: "0 1 * * *"   # 09:00 Beijing：主调度，Bing 换图后早间入库
+    - cron: "0 2 * * *"   # 10:00 Beijing：兜底，避免 GitHub schedule 延迟/跳过
+    - cron: "0 6 * * *"   # 14:00 Beijing：二次兜底，确保当天入库
   workflow_dispatch:
 
 permissions:
