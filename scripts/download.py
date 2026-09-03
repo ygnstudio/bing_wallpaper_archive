@@ -64,12 +64,18 @@ def date_key(meta):
 
 
 def load_json(p: Path):
+    """读取 JSON 数据文件。
+
+    文件损坏时直接抛错中止，而不是返回 {}：
+    下游会把新记录合并进返回值后整体写回，若此处静默返回空对象，
+    一次损坏 + 一次成功写入就会清空全部历史数据。
+    """
     if not p.exists():
         return {}
     try:
         return json.loads(p.read_text(encoding="utf-8") or "{}")
-    except json.JSONDecodeError:
-        return {}
+    except json.JSONDecodeError as e:
+        raise ValueError(f"{p} 内容损坏，中止以防覆盖清空历史数据（请手工修复或恢复该文件）：{e}") from e
 
 
 def save_json(p: Path, obj):

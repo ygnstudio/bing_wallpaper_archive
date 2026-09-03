@@ -14,14 +14,26 @@ import { existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// 本地开发走 managed workspace；CI 走项目 node_modules
-const MANAGED_NODE_MODULES = '/Users/rashida/.workbuddy/binaries/node/workspace/node_modules';
-const MODULE_BASE = existsSync(MANAGED_NODE_MODULES) ? MANAGED_NODE_MODULES : join(dirname(fileURLToPath(import.meta.url)), '..', 'node_modules');
+// 依赖解析：标准 Node 解析（项目 node_modules，CI/本机 npm install 后均命中），
+// 特殊环境可通过 NPM_MODULE_BASE 环境变量指定额外 node_modules 目录。
+// 不再硬编码个人机器路径（此前写死 /Users/... 导致其他环境无法构建）。
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
-const { rollup } = await import(join(MODULE_BASE, 'rollup', 'dist', 'rollup.js'));
-const { nodeResolve } = await import(join(MODULE_BASE, '@rollup', 'plugin-node-resolve', 'dist', 'es', 'index.js'));
-const terser = (await import(join(MODULE_BASE, '@rollup', 'plugin-terser', 'dist', 'es', 'index.js'))).default;
-const { minify: minifyCss } = await import(join(MODULE_BASE, 'csso', 'lib', 'index.js'));
+function resolveModule(name) {
+  try {
+    return require.resolve(name);
+  } catch {
+    const base = process.env.NPM_MODULE_BASE;
+    if (base) return require.resolve(join(base, name));
+    throw new Error(`无法解析依赖 ${name}：请先在项目根目录执行 npm install，或通过 NPM_MODULE_BASE 环境变量指定 node_modules 路径`);
+  }
+}
+
+const { rollup } = await import(resolveModule('rollup'));
+const { nodeResolve } = await import(resolveModule('@rollup/plugin-node-resolve'));
+const terser = (await import(resolveModule('@rollup/plugin-terser'))).default;
+const { minify: minifyCss } = await import(resolveModule('csso'));
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
