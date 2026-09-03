@@ -4,18 +4,17 @@
 由 .github/workflows/update.yml 在每日 commit 前调用，让 README 的数字随数据变动自动同步。
 只精确替换「收录 ... 共 ... 张壁纸（其中 ... 张含缩略图）」这一行，不碰其他内容（幂等安全）。
 """
-import json
 import re
 import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+from lib import ROOT, load_json
+
 INDEX = ROOT / "data" / "index.json"
 README = ROOT / "README.md"
 
 
 def main():
-    idx = json.loads(INDEX.read_text(encoding="utf-8"))
+    idx = load_json(INDEX, default=[])
     dates = sorted(e["date"] for e in idx)
     total = len(idx)
     with_thumb = sum(1 for e in idx if e.get("thumbnail"))

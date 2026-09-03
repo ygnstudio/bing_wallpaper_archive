@@ -1,55 +1,39 @@
 #!/usr/bin/env python3
-"""校验 metadata.json 与 index.json 的结构一致性。"""
+"""校验 metadata.json 与 index.json 的结构一致性与数据一致性。
 
-import json
+结构校验统一消费 schemas/*.schema.json（与 build.js 的 ajv 同源），
+不再手写逐字段检查；跨文件一致性（日期集合、字段值）为业务检查，
+schema 表达不了，保留在本文件。
+
+依赖：pip install jsonschema（见 requirements.txt）
+"""
+
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+from jsonschema import Draft7Validator
+
+from lib import ROOT, load_json, load_schema
+
+DATA = ROOT / "data"
 
 
-def load_json(path):
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+def validate_against_schema(name: str, data) -> list[str]:
+    """按 schema 校验数据，返回错误列表。
+
+    format_checker 与 build.js 的 ajv+ajv-formats 行为对齐
+    （否则 format: uri 只在 JS 端生效，两端结果不一致）。
+    """
+    schema = load_schema(name)
+    validator = Draft7Validator(schema, format_checker=Draft7Validator.FORMAT_CHECKER)
+    return [
+        f"{name}: {list(e.absolute_path) or '<root>'}: {e.message}"
+        for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))
+    ]
 
 
-def validate_metadata(meta):
-    errors = []
-    if not isinstance(meta, dict):
-        return ["metadata.json 必须是对象"]
-    for date, item in meta.items():
-        if not isinstance(date, str) or len(date) != 8 or not date.isdigit():
-            errors.append(f"非法日期 key: {date}")
-            continue
-        for field in ["title", "url", "urlbase"]:
-            if field not in item:
-                errors.append(f"{date} 缺少字段 {field}")
-        if "uhd" in item and item["uhd"] not in (True, False, None):
-            errors.append(f"{date} 的 uhd 字段必须是 boolean 或 null")
-    return errors
-
-
-def validate_index(idx):
-    errors = []
-    if not isinstance(idx, list):
-        return ["index.json 必须是数组"]
-    seen = set()
-    for item in idx:
-        date = item.get("date")
-        if not date or len(date) != 8 or not date.isdigit():
-            errors.append(f"非法日期: {date}")
-        if date in seen:
-            errors.append(f"重复日期: {date}")
-        seen.add(date)
-        for field in ["date", "title"]:
-            if field not in item:
-                errors.append(f"{date} 缺少字段 {field}")
-        if "uhd" in item and item["uhd"] not in (True, False, None):
-            errors.append(f"{date} 的 uhd 字段必须是 boolean 或 null")
-    return errors
-
-
-def check_consistency(meta, idx):
+def check_consistency(meta, idx) -> list[str]:
+    """跨文件一致性：日期集合互相对齐、共有字段值相等。"""
     errors = []
     meta_dates = set(meta.keys())
     idx_dates = {item["date"] for item in idx}
@@ -71,20 +55,18 @@ def check_consistency(meta, idx):
 
 
 def main():
-    meta_path = ROOT / "data" / "metadata.json"
-    idx_path = ROOT / "data" / "index.json"
-
     try:
-        meta = load_json(meta_path)
-        idx = load_json(idx_path)
+        meta = load_json(DATA / "metadata.json", default=None)
+        idx = load_json(DATA / "index.json", default=None)
     except Exception as e:
         print(f"加载 JSON 失败: {e}", file=sys.stderr)
         return 1
 
     errors = []
-    errors.extend(validate_metadata(meta))
-    errors.extend(validate_index(idx))
-    errors.extend(check_consistency(meta, idx))
+    errors.extend(validate_against_schema("metadata.schema.json", meta))
+    errors.extend(validate_against_schema("index.schema.json", idx))
+    if not errors:  # 结构不合法时一致性比较无意义
+        errors.extend(check_consistency(meta, idx))
 
     if errors:
         print(f"发现 {len(errors)} 处错误:")

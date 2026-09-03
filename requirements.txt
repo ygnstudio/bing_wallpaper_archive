@@ -1,1 +1,5 @@
 Pillow>=10.0
+# scripts/validate.py 的结构校验依赖（schemas/*.schema.json 单一事实来源）
+jsonschema>=4.0
+# jsonschema 的 format: uri 校验依赖此可选包，缺了会被静默跳过（与 ajv 行为对齐）
+rfc3986_validator>=0.1

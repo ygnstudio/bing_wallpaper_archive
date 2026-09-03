@@ -16,14 +16,14 @@
 
 模型：默认用本地 ModelScope 缓存；环境变量 VLM_MODEL_DIR 可覆盖（CI 用）。
 """
-import json
 import os
 import sys
 import warnings
 
 warnings.filterwarnings("ignore")
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from lib import ROOT, load_json, save_json  # noqa: E402
+
 META_PATH = os.path.join(ROOT, "data", "metadata.json")
 
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -122,8 +122,7 @@ def main():
     if "--date" in args:
         only_date = args[args.index("--date") + 1]
 
-    with open(META_PATH, encoding="utf-8") as f:
-        meta = json.load(f)
+    meta = load_json(META_PATH)
 
     # 选目标
     if mode_latest:
@@ -166,8 +165,7 @@ def main():
         if i % 20 == 0 or i == len(targets):
             print(f"  {i}/{len(targets)}  已改 {changed}", flush=True)
 
-    with open(META_PATH, "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=1)
+    save_json(META_PATH, meta)
 
     from collections import Counter
     dist = Counter(m.get("category", "其他") for m in meta.values())

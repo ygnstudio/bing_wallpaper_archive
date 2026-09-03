@@ -11,11 +11,10 @@
 
 保留 cdn.bimg.cc 等已经标准的 URL 不变。
 """
-import json
 import re
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+from lib import ROOT, load_json, save_json
+
 META_PATH = ROOT / "data" / "metadata.json"
 
 
@@ -34,8 +33,7 @@ def normalize_url(urlbase: str, url: str) -> str | None:
 
 
 def main():
-    with open(META_PATH, "r", encoding="utf-8") as f:
-        meta = json.load(f)
+    meta = load_json(META_PATH)
 
     changed = 0
     skipped = 0
@@ -50,8 +48,8 @@ def main():
             skipped += 1
             print(f"WARN: {date} could not normalize: {url}")
 
-    with open(META_PATH, "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=2)
+    # 统一走 lib.save_json（indent=1），与其他脚本及仓库现有格式一致
+    save_json(META_PATH, meta)
 
     print(f"Normalized {changed} URLs, skipped {skipped}.")
 

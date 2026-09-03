@@ -9,20 +9,19 @@ Output:
 
 Run after download.py / classify.py update metadata.json / thumbnails/.
 """
-import json
 import os
 from collections import defaultdict
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, "data")
+from lib import ROOT, load_json, save_json
+
+DATA = ROOT / "data"
 
 LIGHT_FIELDS = ("date", "title", "copyright", "category", "color", "thumbnail", "uhd")
 FULL_FIELDS = LIGHT_FIELDS + ("url", "copyrightlink", "urlbase")
 
 
 def main():
-    with open(os.path.join(DATA, "metadata.json"), encoding="utf-8") as f:
-        meta = json.load(f)
+    meta = load_json(DATA / "metadata.json")
 
     light_entries = []
     by_year = defaultdict(list)
@@ -54,14 +53,12 @@ def main():
     light_entries.sort(key=lambda e: e["date"], reverse=True)
 
     # Write light-weight master index
-    with open(os.path.join(DATA, "index.json"), "w", encoding="utf-8") as f:
-        json.dump(light_entries, f, ensure_ascii=False, indent=1)
+    save_json(DATA / "index.json", light_entries)
 
     # Write per-year full indices
     for y, entries in by_year.items():
         entries.sort(key=lambda e: e["date"], reverse=True)
-        with open(os.path.join(DATA, f"{y}.json"), "w", encoding="utf-8") as f:
-            json.dump(entries, f, ensure_ascii=False, indent=1)
+        save_json(DATA / f"{y}.json", entries)
 
     with_thumb = sum(1 for e in light_entries if e["thumbnail"])
     print(f"index.json: {len(light_entries)} entries, {with_thumb} with thumbnail, "
