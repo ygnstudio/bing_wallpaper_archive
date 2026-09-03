@@ -10,7 +10,6 @@
 默认只给缺失标签的条目补标（幂等、可重复跑）；--force 全量重算。
 分类/颜色写回 metadata.json；随后由 generate_index.py 透传到 index.json 供前端筛选。
 """
-import json
 import os
 import re
 import sys
@@ -20,9 +19,10 @@ from urllib.parse import urlparse, parse_qs, unquote
 from PIL import Image
 import colorsys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, "data")
-META_PATH = os.path.join(DATA, "metadata.json")
+from lib import ROOT, load_json, save_json
+
+DATA = ROOT / "data"
+META_PATH = DATA / "metadata.json"
 
 # 分类关键词（按优先级从高到低；实际判定用「最长命中」，见 classify_category）
 CATEGORY_RULES = [
@@ -152,8 +152,7 @@ def thumb_path(date):
 
 def main():
     force = "--force" in sys.argv[1:]
-    with open(META_PATH, encoding="utf-8") as f:
-        meta = json.load(f)
+    meta = load_json(META_PATH)
 
     # 分类（主进程，快）
     cat_done = 0
@@ -179,8 +178,7 @@ def main():
             m["color"] = color_map[date]
             color_done += 1
 
-    with open(META_PATH, "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=1)
+    save_json(META_PATH, meta)
 
     cat_counter = Counter(m.get("category", "其他") for m in meta.values())
     col_counter = Counter((m.get("color") or "无缩略图") for m in meta.values())

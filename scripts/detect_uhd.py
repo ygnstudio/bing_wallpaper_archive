@@ -11,15 +11,13 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Lock, Semaphore
 
-ROOT = Path(__file__).resolve().parent.parent
+from lib import HEADERS, ROOT, load_json, save_json
+
 META = ROOT / "data" / "metadata.json"
-H = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-    "Referer": "https://www.bing.com/"
-}
+H = HEADERS
 CONC = 2
 MIN_GAP = 1.0
-TIMEOUT = 15
+TIMEOUT = 15  # 探测场景刻意用短超时，与 lib.TIMEOUT(30) 不同
 MAX_RETRY = 4
 SAVE_EVERY = 100
 
@@ -70,13 +68,11 @@ def probe(urlbase):
 
 
 def load_meta():
-    if not META.exists():
-        return {}
-    return json.loads(META.read_text(encoding="utf-8") or "{}")
+    return load_json(META)
 
 
 def save_meta(meta):
-    META.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json(META, meta)
 
 
 def stats(meta):

@@ -9,7 +9,7 @@
       "properties": {
         "title": { "type": "string", "minLength": 1 },
         "copyright": { "type": "string" },
-        "copyrightlink": { "type": "string", "format": "uri" },
+        "copyrightlink": { "type": "string" },
         "url": { "type": "string", "format": "uri" },
         "urlbase": { "type": "string" },
         "thumbnail": { "type": "string" },

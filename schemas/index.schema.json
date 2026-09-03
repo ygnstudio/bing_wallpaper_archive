@@ -14,7 +14,7 @@
       "thumbnail": { "type": "string" },
       "uhd": { "type": ["boolean", "null"] },
       "url": { "type": "string", "format": "uri" },
-      "copyrightlink": { "type": "string", "format": "uri" },
+      "copyrightlink": { "type": "string" },
       "urlbase": { "type": "string" }
     },
     "additionalProperties": false

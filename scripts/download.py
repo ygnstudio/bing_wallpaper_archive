@@ -21,13 +21,11 @@ from urllib.request import Request, urlopen
 
 from PIL import Image, ImageOps
 
+from lib import HEADERS, ROOT, TIMEOUT, UA, load_json, save_json
+
 BING_API = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN&uhd=1"
 BING_BASE = "https://www.bing.com"
-ROOT = Path(__file__).resolve().parents[1]
-TIMEOUT = 30
 THUMB_W, THUMB_H = 480, 270
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
-HEADERS = {"User-Agent": UA, "Referer": "https://www.bing.com/"}
 
 
 def fetch_metadata():
@@ -63,24 +61,7 @@ def date_key(meta):
     return date.today().strftime("%Y%m%d")
 
 
-def load_json(p: Path):
-    """读取 JSON 数据文件。
-
-    文件损坏时直接抛错中止，而不是返回 {}：
-    下游会把新记录合并进返回值后整体写回，若此处静默返回空对象，
-    一次损坏 + 一次成功写入就会清空全部历史数据。
-    """
-    if not p.exists():
-        return {}
-    try:
-        return json.loads(p.read_text(encoding="utf-8") or "{}")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"{p} 内容损坏，中止以防覆盖清空历史数据（请手工修复或恢复该文件）：{e}") from e
-
-
-def save_json(p: Path, obj):
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(obj, ensure_ascii=False, indent=1), encoding="utf-8")
+# load_json / save_json 已上移 scripts/lib.py（损坏保护 + 原子写）
 
 
 def make_thumbnail(data: bytes, dst: Path):
