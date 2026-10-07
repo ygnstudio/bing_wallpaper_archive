@@ -1,3 +1,10 @@
+import { enhanceChoices, refreshChoices } from './choices.js';
+import { reveal } from './motion.js';
+import { t, setMessage } from './i18n.js';
+import { saveBlob } from './download.js';
+let busy = false;
+let retryDates = [];
+let syncPanel = () => {};
 /**
  * 批量下载组件
  * 选择管理、分辨率锁定、前端 ZIP 打包。
@@ -39,7 +46,7 @@ function buildZipStore(entries) {
   let offset = 0;
   for (const e of entries) {
     const nameBytes = enc.encode(e.name);
-    const data = e.data;
+    const data = e.bytes;
     const c = crc32(data);
     const local = new Uint8Array(30 + nameBytes.length);
     const lv = new DataView(local.buffer);
@@ -119,11 +126,27 @@ function buildZipStore(entries) {
  * @param {HTMLElement} els.batchProgress
  */
 export function initBatch(els) {
+  enhanceChoices(els.batchRes);
+  // Reserve the actual bar height after wrapping, text zoom, or orientation changes.
+  const syncBatchSpace = () => {
+    const height = els.batchPanel.hidden ? 0 : Math.ceil(els.batchPanel.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--batch-height', `${height}px`);
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(syncBatchSpace).observe(els.batchPanel);
+  window.addEventListener('resize', syncBatchSpace, { passive: true });
   els.grid.addEventListener('change', (e) => {
     const sel = e.target.closest('.sel');
     if (!sel) return;
+    if (busy) { sel.checked=selected.has(sel.dataset.date); return; }
+    retryDates=[];
     const date = sel.dataset.date;
+    if (sel.checked && selected.size >= BATCH_LIMIT) {
+      sel.checked = false;
+      setMessage(els.batchProgress,'一次最多选择 {n} 张',{n:BATCH_LIMIT});
+      return;
+    }
     if (sel.checked) selected.add(date); else selected.delete(date);
+    setMessage(els.batchProgress,'');
     sel.closest('.card').classList.toggle('selected', sel.checked);
     updateBatchBar(els);
   });
@@ -131,10 +154,26 @@ export function initBatch(els) {
   els.batchZip.addEventListener('click', () => doBatchDownload(els));
   els.batchClear.addEventListener('click', () => clearSelection(els));
   els.batchSelectAll.addEventListener('click', () => selectAllFiltered(els));
-  els.batchToggle.addEventListener('click', () => { els.batchPanel.hidden = !els.batchPanel.hidden; });
-  document.addEventListener('click', (e) => {
-    if (els.batchPanel.hidden) return;
-    if (!els.batchbar.contains(e.target)) els.batchPanel.hidden = true;
+  syncPanel = () => {
+    const open = document.body.classList.contains('selection-mode') || selected.size > 0 || busy;
+    reveal(els.batchPanel,open);
+    document.body.classList.toggle('batch-visible',open);
+    els.batchDone.hidden = !document.body.classList.contains('selection-mode');
+    els.batchPanel.querySelector('.batch-help').hidden = els.batchDone.hidden;
+    syncBatchSpace();
+  };
+  function setSelectionMode(open) {
+    document.body.classList.toggle('selection-mode', open);
+    els.batchToggle.setAttribute('aria-pressed', String(open));
+    els.batchToggleText.textContent = t(open ? '正在选择' : '批量选择');
+    syncPanel();
+  }
+  els.batchToggle.addEventListener('click', () => setSelectionMode(!document.body.classList.contains('selection-mode')));
+  els.batchDone.addEventListener('click', () => { setSelectionMode(false); els.batchToggle.focus({ preventScroll: true }); });
+  document.addEventListener('keydown', e => {
+    if (!e.defaultPrevented && e.key === 'Escape' && !els.batchPanel.hidden && els.lightbox.hidden) {
+      setSelectionMode(false); els.batchToggle.focus({ preventScroll: true });
+    }
   });
   updateBatchBar(els);
 }
@@ -148,13 +187,15 @@ export function updateBatchBar(els) {
   els.batchCount.textContent = String(n);
   els.batchBadge.textContent = String(n);
   els.batchBadge.hidden = n === 0;
-  els.batchZip.disabled = n < 1;
-  els.batchZip.textContent = n === 0 ? '未选择'
-    : n === 1 ? '下载这张'
-    : `打包下载 ZIP（${n}）`;
-  els.batchSelectAll.disabled = filtered.length === 0;
-  els.batchClear.disabled = n === 0;
+  els.batchZip.disabled = busy || n < 1;
+  els.batchZip.textContent = t(retryDates.length ? '重试下载' : n === 0 ? '未选择' : n === 1 ? '下载这张' : '打包下载 ZIP（{n}）',{n});
+  els.batchSelectAll.disabled = busy || filtered.length === 0;
+  els.batchSelectAll.textContent = t('选择前 {n} 张',{n:Math.min(filtered.length,BATCH_LIMIT)});
+  els.batchClear.disabled = busy || n === 0;
+  els.batchRes.disabled = busy;
+  syncPanel();
   refreshBatchRes(els);
+  refreshChoices(els.batchRes);
 }
 
 /**
@@ -172,15 +213,15 @@ function refreshBatchRes(els) {
   const allNonUhd = sel.every(it => it.uhd === false);
   if (allUhd) {
     enableUhdOption(els.batchRes, true);
-    if (els.batchRes.value !== 'UHD') els.batchRes.value = 'UHD';
+    // A valid user-selected resolution must survive selection and filter changes.
     els.batchResNote.hidden = true;
   } else {
     enableUhdOption(els.batchRes, false);
     els.batchRes.value = '1920x1080';
     els.batchResNote.hidden = false;
     els.batchResNote.textContent = allNonUhd
-      ? '所选图片仅支持 1080p，已自动按 1080p 下载'
-      : '部分所选图片无 4K，已按 1080p 下载（不混用分辨率）';
+      ? t('所选图片仅支持 1080p，已自动按 1080p 下载')
+      : t('部分所选图片无 4K，已按 1080p 下载（不混用分辨率）');
   }
 }
 
@@ -200,7 +241,10 @@ function enableUhdOption(select, enabled) {
  * @param {Object} els
  */
 function clearSelection(els) {
+  if (busy) return;
+  retryDates=[];
   selected.clear();
+  setMessage(els.batchProgress,'');
   els.grid.querySelectorAll('.sel').forEach(cb => { cb.checked = false; });
   els.grid.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
   updateBatchBar(els);
@@ -211,94 +255,54 @@ function clearSelection(els) {
  * @param {Object} els
  */
 function selectAllFiltered(els) {
-  for (const it of filtered) selected.add(it.date);
+  if (busy) return;
+  retryDates=[];
+  for (const it of filtered) {
+    if (selected.size >= BATCH_LIMIT) break;
+    selected.add(it.date);
+  }
   els.grid.querySelectorAll('.sel').forEach(cb => { cb.checked = selected.has(cb.dataset.date); });
   els.grid.querySelectorAll('.card').forEach(c => c.classList.toggle('selected', selected.has(c.dataset.date)));
   updateBatchBar(els);
 }
 
-/**
- * 下载单张图片
- * @param {string} date
- * @param {string} res
- */
-async function downloadSingle(date, res) {
-  let it = byDate.get(date);
-  if (!it) return;
-  it = await ensureItemLoaded(it);
-  const got = await fetchWithFallback(it, res);
-  if (!got) return;
-  const blob = new Blob([got.bytes], { type: 'image/jpeg' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = got.name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-}
-
-/**
- * 执行批量下载
- * @param {Object} els
- */
+/** Download a stable selection, report failures, and always release controls. */
 async function doBatchDownload(els) {
-  const n = selected.size;
-  if (n === 0) return;
-  if (n === 1) {
-    await downloadSingle([...selected][0], els.batchRes.value);
-    return;
-  }
-  if (n > BATCH_LIMIT) {
-    els.batchProgress.textContent = `一次最多打包 ${BATCH_LIMIT} 张，请减少选择`;
-    return;
-  }
-  if (n >= 20 && !confirm(`将打包 ${n} 张图片，文件可能较大、耗时较长，继续？`)) return;
-
-  const res = els.batchRes.value;
-  els.batchZip.disabled = true;
-  els.batchClear.disabled = true;
-  els.batchSelectAll.disabled = true;
-
-  const queue = [...selected];
-  const entries = [];
-  let done = 0;
-
-  async function worker() {
-    while (queue.length) {
-      const date = queue.shift();
-      let it = byDate.get(date);
-      if (!it) { done++; continue; }
-      it = await ensureItemLoaded(it);
-      const got = await fetchWithFallback(it, res);
-      if (got) entries.push(got);
-      done++;
-      els.batchProgress.textContent = `打包中 ${done}/${n}`;
+  if (busy || !selected.size) return;
+  const dates=retryDates.length ? [...retryDates] : [...selected];
+  const res=els.batchRes.value, entries=[], failed=[];
+  let done=0;
+  busy=true;
+  updateBatchBar(els);
+  setMessage(els.batchProgress,'正在准备下载…');
+  const queue=[...dates];
+  try {
+    async function worker() {
+      while(queue.length) {
+        const date=queue.shift();
+        try {
+          const item=await ensureItemLoaded(byDate.get(date));
+          const got=await fetchWithFallback(item,res);
+          if (!got) throw new Error('Unavailable');
+          entries.push(got);
+        } catch { failed.push(date); }
+        done++;
+        setMessage(els.batchProgress,'打包中 {done}/{n}',{done,n:dates.length});
+      }
     }
-  }
-
-  await Promise.all(Array.from({ length: Math.min(BATCH_CONCURRENCY, n) }, worker));
-
-  if (!entries.length) {
-    els.batchProgress.textContent = '无可用图片，打包取消';
-    resetButtons(els);
-    return;
-  }
-  const stamp = new Date().toISOString().slice(0, 10);
-  const blob = buildZipStore(entries);
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `bing_wallpapers_${res}_${stamp}_${entries.length}.zip`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  els.batchProgress.textContent = `已下载 ${entries.length} 张 ✓`;
-  resetButtons(els);
-}
-
-/**
- * 重置批量面板按钮状态
- * @param {Object} els
- */
-function resetButtons(els) {
-  els.batchZip.disabled = false;
-  els.batchClear.disabled = false;
-  els.batchSelectAll.disabled = filtered.length === 0;
+    await Promise.all(Array.from({length:Math.min(BATCH_CONCURRENCY,dates.length)},worker));
+    retryDates=failed;
+    if (!entries.length) { setMessage(els.batchProgress,'无可用图片，请重试或打开原图'); return; }
+    if (dates.length===1) {
+      const item=entries[0];
+      saveBlob(new Blob([item.bytes],{type:item.thumbnail?'image/webp':'image/jpeg'}),item.name);
+    } else {
+      saveBlob(buildZipStore(entries),`bing_wallpapers_${res}_${new Date().toISOString().slice(0,10)}_${entries.length}.zip`);
+    }
+    const low=entries.filter(entry=>entry.resolution!==res).length;
+    setMessage(els.batchProgress,failed.length || low ? '已发起 {n} 张下载；失败 {failed} 张，降级 {low} 张' : '已发起 {n} 张下载',{n:entries.length,failed:failed.length,low});
+  } catch {
+    retryDates=dates;
+    setMessage(els.batchProgress,'下载失败，请重试或打开原图');
+  } finally { busy=false; updateBatchBar(els); }
 }

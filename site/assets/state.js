@@ -27,11 +27,11 @@ export let activeCat = '';
 /** @type {string} 当前激活的颜色 */
 export let activeColor = '';
 
-/** @type {string} 最小年月 YYYYMM */
-export let dateMinYm = '';
+/** @type {string} 最小日期 YYYYMMDD */
+export let dateMin = '';
 
-/** @type {string} 最大年月 YYYYMM */
-export let dateMaxYm = '';
+/** @type {string} 最大日期 YYYYMMDD */
+export let dateMax = '';
 
 /**
  * @param {Array<WallpaperItem>} value
@@ -98,6 +98,6 @@ export function setActiveColor(value) {
  * @param {string} max
  */
 export function setDateBounds(min, max) {
-  dateMinYm = min;
-  dateMaxYm = max;
+  dateMin = min;
+  dateMax = max;
 }
