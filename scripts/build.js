@@ -246,6 +246,7 @@ async function main() {
   // 复制 Service Worker 与 Web Worker（不打包，保持独立）
   await copyFile(join(SRC, 'assets', 'sw.js'), join(DIST, 'assets', 'sw.js'));
   await copyFile(join(SRC, 'assets', 'worker.js'), join(DIST, 'assets', 'worker.js'));
+  await copyFile(join(SRC, 'assets', 'theme.js'), join(DIST, 'assets', 'theme.js'));
 
   // 生成资源清单，供 SW 预缓存（注意与 PWA manifest.json 区分）
   await writeFile(join(DIST, 'assets', 'asset-manifest.json'), JSON.stringify({
@@ -253,7 +254,8 @@ async function main() {
       `./assets/${jsName}`,
       `./assets/${cssName}`,
       `./assets/sw.js`,
-      `./assets/worker.js`
+      `./assets/worker.js`,
+      `./assets/theme.js`
     ]
   }));
 

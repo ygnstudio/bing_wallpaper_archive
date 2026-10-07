@@ -22,15 +22,16 @@
   border-radius: 50%;
   border: none;
   background: var(--accent);
-  color: #1a1300;
+  color: var(--on-accent);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 22px rgba(232, 185, 35, .28);
-  transition: transform .15s, filter .15s;
+  box-shadow: var(--shadow-fab);
+  transition: transform .12s, background .15s;
 }
-.fab:hover { transform: scale(1.05); filter: brightness(1.08); }
+.fab:hover { background: var(--accent-hover); }
+.fab:active { transform: scale(.92); }
 .batch-badge {
   position: absolute;
   top: -3px;
@@ -81,20 +82,24 @@
   flex: 1 1 auto;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent);
   background: var(--accent);
-  color: #1a1300;
+  color: var(--on-accent);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s, transform .1s;
 }
-.batch-actions button.ghost { background: transparent; color: var(--fg); }
-.batch-actions button:disabled { opacity: .45; cursor: not-allowed; }
+.batch-actions button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.batch-actions button:active { transform: scale(.96); }
+.batch-actions button.ghost { background: transparent; color: var(--fg); border-color: var(--border); }
+.batch-actions button.ghost:hover { background: transparent; border-color: var(--muted); }
+.batch-actions button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .batch-progress { color: var(--muted); font-size: 13px; }
 .batch-note {
   font-size: 12px;
-  color: #ffb74d;
-  background: rgba(255, 183, 77, .12);
+  color: var(--warn-fg);
+  background: var(--warn-bg);
   border-radius: 6px;
   padding: 6px 9px;
   line-height: 1.45;

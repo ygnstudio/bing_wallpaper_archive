@@ -1,9 +1,23 @@
 /* ===== Hero ===== */
+/* Hero 压在壁纸照片 + 暗色渐变上，双主题下恒用暗场令牌 */
 .hero {
   position: relative;
   height: min(56vh, 520px);
   min-height: 340px;
   overflow: hidden;
+  --surface: #14161b;
+  --card: #181a20;
+  --fg: #f0f2f5;
+  --muted: #9aa0a6;
+  --accent: #e8b923;
+  --accent-hover: #f0c94a;
+  --on-accent: #1a1300;
+  --accent-soft: rgba(232, 185, 35, .14);
+  --accent-border: rgba(232, 185, 35, .45);
+  --border: rgba(255, 255, 255, .14);
+  --border-soft: rgba(255, 255, 255, .08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  color-scheme: dark;
 }
 .hero-bg {
   position: absolute;
@@ -45,9 +59,8 @@
   max-width: 460px;
   padding: 22px;
   border-radius: var(--radius);
-  background: rgba(20, 22, 27, .72);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, .08);
+  background: var(--card);
+  border: 1px solid var(--border-soft);
   box-shadow: var(--shadow);
   text-align: center;
   animation: hero-in .5s cubic-bezier(.22, .61, .36, 1) .12s backwards;
@@ -60,9 +73,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(232, 185, 35, .15);
+  background: transparent;
+  border: 1px solid var(--accent-border);
   color: var(--accent);
   font-size: 12px;
   font-weight: 500;
@@ -73,10 +87,12 @@
   font-size: 26px;
   font-weight: 700;
   line-height: 1.25;
+  font-family: var(--font-display);
+  letter-spacing: .3px;
 }
 #hero-desc {
   margin: 0 0 18px;
-  color: #c2c6cd;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
   display: -webkit-box;
@@ -96,21 +112,22 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform .1s, filter .15s, background .15s;
+  transition: background .15s, border-color .15s, color .15s, transform .1s;
   white-space: nowrap;
 }
+.btn-primary:active, .btn-secondary:active, .btn-ghost:active { transform: scale(.96); }
 .btn-primary {
   background: var(--accent);
-  color: #1a1300;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
-.btn-primary:hover { filter: brightness(1.08); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .btn-secondary {
   background: rgba(255, 255, 255, .08);
-  color: var(--fg);
-  border-color: rgba(255, 255, 255, .12);
+  color: #f0f2f5;
+  border-color: rgba(255, 255, 255, .14);
 }
-.btn-secondary:hover { background: rgba(255, 255, 255, .14); }
+.btn-secondary:hover { background: rgba(255, 255, 255, .15); }
 .btn-ghost {
   background: transparent;
   color: var(--muted);

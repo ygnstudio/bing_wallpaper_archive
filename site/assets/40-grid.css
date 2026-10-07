@@ -13,10 +13,15 @@
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border);
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  transition: border-color .18s ease, transform .1s ease;
   cursor: pointer;
   animation: card-in .45s cubic-bezier(.22, .61, .36, 1) backwards;
 }
+/* 筛选重渲染时免进场动画，避免快速连点读作噪音 */
+.card.snap { animation: none; }
+.card:hover { border-color: var(--accent-border); }
+.card.selected { border-color: var(--accent); }
+.card:active { transform: scale(.98); }
 @keyframes card-in {
   from { opacity: 0; transform: translateY(14px) scale(.985); }
   to { opacity: 1; transform: none; }
@@ -26,7 +31,6 @@
   box-shadow: var(--shadow);
   border-color: rgba(255, 255, 255, .12);
 }
-.card.selected { outline: 2px solid var(--accent); outline-offset: -2px; }
 .card .sel {
   position: absolute;
   top: 12px;
@@ -66,7 +70,7 @@
 .card:hover .sel, .card.selected .sel { opacity: 1; }
 .card .sel:hover { transform: scale(1.08); border-color: #fff; }
 .touch .card .sel { opacity: 1; }
-.card .media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: linear-gradient(110deg, #1a1d24 30%, #22262e 45%, #1a1d24 60%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+.card .media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: linear-gradient(110deg, var(--skeleton-a) 30%, var(--skeleton-b) 45%, var(--skeleton-a) 60%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
@@ -100,7 +104,7 @@
   justify-content: center;
   color: var(--muted);
   font-size: 12px;
-  background: repeating-linear-gradient(45deg, #1a1d24, #1a1d24 10px, #20242c 10px, #20242c 20px);
+  background: repeating-linear-gradient(45deg, var(--skeleton-a), var(--skeleton-a) 10px, var(--skeleton-b) 10px, var(--skeleton-b) 20px);
 }
 .card .info {
   position: absolute;
@@ -132,11 +136,10 @@
 .card .tag {
   flex-shrink: 0;
   font-size: 11px;
-  color: rgba(255,255,255,.85);
-  background: rgba(255,255,255,.16);
+  color: rgba(255,255,255,.88);
+  background: rgba(17, 19, 23, .62);
   padding: 3px 8px;
   border-radius: 999px;
-  backdrop-filter: blur(4px);
 }
 
 /* ===== 加载/空态 ===== */

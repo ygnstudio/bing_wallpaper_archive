@@ -164,6 +164,9 @@ export async function renderHero(els) {
   };
 }
 
+/** 是否已完成首次渲染（首次交错进场，之后筛选重渲染免动画） */
+let firstRenderDone = false;
+
 /**
  * 渲染一批卡片
  * @param {Object} els
@@ -175,13 +178,19 @@ export async function renderHero(els) {
  */
 export function renderMore(els) {
   const batch = filtered.slice(rendered, rendered + PAGE_SIZE);
+  const isFilterRerender = rendered === 0 && firstRenderDone;
   const frag = document.createDocumentFragment();
   batch.forEach((it, i) => {
     const card = createCard(it, els.openLightbox);
-    // 批内交错进场（上限 480ms），避免长队列延迟
-    card.style.animationDelay = `${Math.min(i * 16, 480)}ms`;
+    if (!firstRenderDone) {
+      // 首屏批内交错进场（上限 480ms）
+      card.style.animationDelay = `${Math.min(i * 16, 480)}ms`;
+    } else if (isFilterRerender) {
+      card.classList.add('snap');
+    }
     frag.appendChild(card);
   });
+  firstRenderDone = true;
   els.grid.appendChild(frag);
   const newRendered = rendered + batch.length;
   setRendered(newRendered);

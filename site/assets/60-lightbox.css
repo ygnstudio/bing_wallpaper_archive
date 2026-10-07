@@ -1,4 +1,5 @@
 /* ===== 灯箱 ===== */
+/* 看图需要暗环境：双主题下灯箱内部恒为暗场（局部覆盖令牌） */
 .lightbox {
   position: fixed;
   inset: 0;
@@ -9,6 +10,18 @@
   justify-content: center;
   padding: 24px;
   z-index: 50;
+  --surface: #14161b;
+  --card: #181a20;
+  --fg: #f0f2f5;
+  --muted: #9aa0a6;
+  --accent: #e8b923;
+  --accent-hover: #f0c94a;
+  --on-accent: #1a1300;
+  --accent-border: rgba(232, 185, 35, .45);
+  --border: rgba(255, 255, 255, .18);
+  --border-soft: rgba(255, 255, 255, .08);
+  color-scheme: dark;
+  color: var(--fg);
 }
 .lightbox[hidden] { display: none; }
 .lightbox:not([hidden]) { animation: lb-in .22s ease; }
@@ -38,6 +51,7 @@
   backdrop-filter: blur(6px);
 }
 .lb-nav:hover { background: rgba(255, 255, 255, .18); transform: translateY(-50%) scale(1.06); }
+.lb-nav:active { transform: translateY(-50%) scale(.9); }
 .lb-nav[hidden] { display: none; }
 .lb-nav-prev { left: 18px; }
 .lb-nav-next { right: 18px; }
@@ -47,7 +61,7 @@
   .lb-nav-next { right: calc(50% - 56px); }
 }
 .lb-meta { margin-top: 14px; text-align: center; max-width: 92vw; }
-.lb-meta h2 { margin: 0 0 4px; font-size: 17px; }
+.lb-meta h2 { margin: 0 0 4px; font-size: 17px; font-family: var(--font-display); letter-spacing: .3px; }
 .lb-meta p { margin: 0 0 6px; color: var(--muted); font-size: 13px; }
 .lb-meta a { color: var(--accent); font-size: 13px; }
 .lb-note {
@@ -80,8 +94,10 @@
   padding: 6px 12px;
   cursor: pointer;
   text-decoration: none;
+  transition: border-color .15s, color .15s, transform .1s;
 }
 .lb-actions a:hover, .lb-actions button:hover { border-color: var(--accent); }
+.lb-actions a:active, .lb-actions button:active { transform: scale(.95); }
 #close {
   position: absolute;
   top: 16px;
@@ -97,8 +113,10 @@
   line-height: 1;
   display: grid;
   place-items: center;
+  transition: background .15s, transform .1s;
 }
 #close:hover { background: rgba(255,255,255,.16); }
+#close:active { transform: scale(.9); }
 
 /* ===== 动效守卫 ===== */
 @media (prefers-reduced-motion: reduce) {

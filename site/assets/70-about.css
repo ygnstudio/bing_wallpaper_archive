@@ -6,10 +6,11 @@
   padding: 7px 13px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  transition: all .15s;
+  transition: color .15s, border-color .15s, transform .1s;
   white-space: nowrap;
 }
 .nav-back:hover { color: var(--fg); border-color: var(--muted); }
+.nav-back:active { transform: scale(.95); }
 .about-wrap {
   max-width: 880px;
   margin: 0 auto;
@@ -18,17 +19,15 @@
 .about-hero {
   padding: 34px 32px;
   border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, .08);
-  background: rgba(20, 22, 27, .72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-soft);
+  background: var(--card);
   box-shadow: var(--shadow);
 }
 .about-tag {
   display: inline-block;
   font-size: 12px;
   color: var(--accent);
-  border: 1px solid rgba(232, 185, 35, .45);
+  border: 1px solid var(--accent-border);
   border-radius: 999px;
   padding: 3px 10px;
   margin-bottom: 14px;
@@ -38,6 +37,7 @@
   font-size: 28px;
   line-height: 1.3;
   letter-spacing: .3px;
+  font-family: var(--font-display);
 }
 .about-lead {
   margin: 0 0 22px;
@@ -58,8 +58,8 @@
   gap: 4px;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, .08);
-  background: rgba(11, 13, 16, .5);
+  border: 1px solid var(--border-soft);
+  background: var(--surface);
 }
 .stat-num {
   font-size: 22px;
@@ -89,7 +89,7 @@
   font-family: "SF Mono", Menlo, Consolas, monospace;
   font-size: 12.5px;
   color: var(--accent);
-  background: rgba(232, 185, 35, .1);
+  background: var(--accent-soft);
   border-radius: 5px;
   padding: 2px 6px;
 }
@@ -101,11 +101,11 @@
 .feature-card {
   padding: 18px 20px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, .08);
+  border: 1px solid var(--border-soft);
   background: var(--card);
   transition: border-color .15s;
 }
-.feature-card:hover { border-color: rgba(232, 185, 35, .4); }
+.feature-card:hover { border-color: var(--accent-border); }
 .feature-card h3 {
   margin: 0 0 8px;
   font-size: 15px;
@@ -126,11 +126,12 @@
   font-size: 14px;
   text-decoration: none;
   padding: 8px 16px;
-  border: 1px solid rgba(232, 185, 35, .45);
+  border: 1px solid var(--accent-border);
   border-radius: 999px;
-  transition: all .15s;
+  transition: background .15s, border-color .15s, transform .1s;
 }
-.about-links a:hover { background: rgba(232, 185, 35, .12); }
+.about-links a:hover { background: var(--accent-soft); }
+.about-links a:active { transform: scale(.96); }
 
 @media (max-width: 640px) {
   .about-hero { padding: 26px 20px; }
