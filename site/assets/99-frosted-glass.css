@@ -1,23 +1,23 @@
 /* Shared CSS-only frosted material. No copied images, refraction or moving lenses. */
 :root {
- --glass:rgba(30,32,36,.58);
- --glass-border:rgba(255,255,255,.14);
- --glass-active:rgba(255,255,255,.10);
- --glass-shadow:0 8px 24px rgba(0,0,0,.16);
- --control-surface:rgba(20,22,26,.28);
- --control-accent:color-mix(in srgb,var(--accent) 90%,transparent);
- --selection-fill:rgba(0,0,0,.32);
- --frosted-track:rgba(0,0,0,.08);
- --frosted-selected:rgba(255,255,255,.13);
+ --glass:rgba(30,32,36,.32);
+ --glass-border:rgba(255,255,255,.12);
+ --glass-active:rgba(255,255,255,.08);
+ --glass-shadow:0 8px 24px rgba(0,0,0,.12);
+ --control-surface:rgba(20,22,26,.16);
+ --control-accent:color-mix(in srgb,var(--accent) 85%,transparent);
+ --selection-fill:rgba(0,0,0,.20);
+ --frosted-track:rgba(0,0,0,.05);
+ --frosted-selected:rgba(255,255,255,.10);
 }
 html[data-theme="light"] {
- --glass:rgba(250,250,252,.64);
- --glass-border:rgba(255,255,255,.42);
+ --glass:rgba(250,250,252,.40);
+ --glass-border:rgba(255,255,255,.26);
  --glass-active:rgba(0,0,0,.045);
  --glass-shadow:0 8px 24px rgba(20,24,30,.1);
- --control-surface:rgba(255,255,255,.38);
+ --control-surface:rgba(255,255,255,.22);
  --frosted-track:rgba(0,0,0,.025);
- --frosted-selected:rgba(255,255,255,.68);
+ --frosted-selected:rgba(255,255,255,.42);
 }
 .glass-control,.hero-actions button,#hero-shuffle,.preferences-panel,.nav-sheet,.batch-panel,#close,.lb-nav {
  background:var(--glass);
@@ -35,7 +35,7 @@ html[data-theme="light"] {
 /* Keep text/icons opaque; only the control material becomes more translucent. */
 .nav-sheet #search,.month-trigger,.month-picker { background:var(--control-surface); }
 .date-panel { background:transparent; }
-.btn-primary,.lb-actions #lb-download,.batch-actions button:not(.ghost),.month-grid button[aria-pressed="true"],.card .sel:checked { background-color:var(--control-accent); }
+.btn-primary,.batch-badge,.lb-actions #lb-download,.batch-actions button:not(.ghost),.month-grid button[aria-pressed="true"],.card .sel:checked { background-color:var(--control-accent); }
 /* The hero uses neutral frosted material even for its primary action. */
 .hero-actions button { background:var(--glass); }
 .card .sel:not(:checked) { background:var(--selection-fill); }
