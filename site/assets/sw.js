@@ -6,7 +6,10 @@
  * - 缩略图：Cache First，长期缓存
  */
 
-const CACHE_NAME = 'bing-wallpaper-v2';
+// scope 区分同域名下的其他项目；版本随部署变化，防止旧页面长期滞留。
+const CACHE_PREFIX = `bing-wallpaper:${self.registration.scope}:`;
+const CACHE_NAME = `${CACHE_PREFIX}__BUILD_REVISION__`;
+const siteUrl = path => new URL(path, self.registration.scope).href;
 
 const CORE_URLS = [
   './',
@@ -20,10 +23,10 @@ const CORE_URLS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    fetch('./assets/asset-manifest.json')
+    fetch(siteUrl('./assets/asset-manifest.json'), { cache: 'no-cache' })
       .then(r => r.ok ? r.json() : { assets: [] })
       .then(m => [...CORE_URLS, ...(m.assets || [])])
-      .then(urls => caches.open(CACHE_NAME).then(cache => cache.addAll(urls)))
+      .then(urls => caches.open(CACHE_NAME).then(cache => cache.addAll(urls.map(siteUrl))))
       .then(() => self.skipWaiting())
       .catch(err => {
         console.warn('[SW] precache failed', err);
@@ -35,7 +38,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -44,7 +47,14 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  if (request.method !== 'GET') return;
+  if (request.method !== 'GET' || url.origin !== self.location.origin ||
+      !url.href.startsWith(self.registration.scope)) return;
+
+  // 页面优先联网，使新版本能及时生效；离线时仍使用已缓存页面。
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request));
+    return;
+  }
 
   // 索引与按年完整数据每日可能更新，走 Network First
   if (url.pathname.endsWith('/data/index.json') || /\/data\/\d{4}\.json$/.test(url.pathname)) {

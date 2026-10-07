@@ -269,7 +269,7 @@ init().catch(err => { els.archiveStats.textContent = t('加载失败，请刷新
 
 // 注册 Service Worker（线上环境启用缓存）
 if ('serviceWorker' in navigator && !['localhost', '127.0.0.1'].includes(location.hostname)) {
-  navigator.serviceWorker.register('./assets/sw.js').catch(err => {
+  navigator.serviceWorker.register('./sw.js').catch(err => {
     console.warn('SW registration failed:', err);
   });
 }
