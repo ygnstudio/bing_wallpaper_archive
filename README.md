@@ -108,3 +108,7 @@ npm run build
 每次成功检查的 `.archive-update/report.json` 包含检查时间（UTC）、官方归档日期、原始 `fullstartdate` / `enddate`、新增和缺图列表，作为 Actions artifact 保存 90 天。`data/first-seen.json` 持久记录每张图首次被本检查器观察到的时间，并注明当时是否已经在库；首次启用时的历史条目不会伪装成刚发布。**首次观察时间不是 Bing 发布时间。** 无新数据时只上传检查报告；首次新增观察记录可单独提交，不触发 Pages 部署。
 
 本地可用 `python3 scripts/download.py --apply-report .archive-update/report.json` 处理已检查的待办，再按前述命令分类、重建和校验。工作流使用 `--dates-file .archive-update/report.json` 让视觉模型处理全部新图。缺失缩略图字段、空文件、文件不存在或缺失日期都会使校验失败。
+
+### Cloudflare Pages
+
+站点支持 Cloudflare Pages 根目录部署，并保留 GitHub Pages 项目路径作为备用。配置使用 `None` / `main` / `npm run build` / `dist`，通过 `SITE_URL` 设置正式地址。详见 [部署、验证与回滚说明](docs/cloudflare-pages.md)。
