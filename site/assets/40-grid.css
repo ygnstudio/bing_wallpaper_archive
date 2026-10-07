@@ -15,6 +15,11 @@
   border: 1px solid var(--border);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   cursor: pointer;
+  animation: card-in .45s cubic-bezier(.22, .61, .36, 1) backwards;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(14px) scale(.985); }
+  to { opacity: 1; transform: none; }
 }
 .card:hover {
   transform: translateY(-4px);
@@ -61,14 +66,21 @@
 .card:hover .sel, .card.selected .sel { opacity: 1; }
 .card .sel:hover { transform: scale(1.08); border-color: #fff; }
 .touch .card .sel { opacity: 1; }
-.card .media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
+.card .media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: linear-gradient(110deg, #1a1d24 30%, #22262e 45%, #1a1d24 60%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
 .card .media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform .4s ease;
+  opacity: 0;
+  transition: opacity .35s ease, transform .4s ease;
 }
+.card .media img.loaded { opacity: 1; }
+.card .media:has(img.loaded) { animation: none; }
 .card:hover .media img { transform: scale(1.04); }
 .card .media::after {
   content: '';
@@ -105,6 +117,8 @@
   transition: opacity .15s;
 }
 .card:hover .info, .card.selected .info { opacity: 1; }
+/* 触摸设备无 hover：始终显示标题/分类 */
+.touch .card .info, .touch .card .media::after { opacity: 1; }
 .card .title {
   font-size: 14px;
   font-weight: 500;
@@ -134,3 +148,11 @@
   min-height: 20px;
 }
 .empty { text-align: center; color: var(--muted); padding: 50px 0; }
+
+/* ===== 动效守卫 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+  .card .media { animation: none; }
+  .card .media img { transition: none; opacity: 1; }
+  .touch .card .info, .touch .card .media::after { opacity: 1; }
+}

@@ -6,13 +6,14 @@
 import './types.js';
 import { CACHE_BUST, ROOT_MARGIN } from './config.js';
 import { loadIndex, buildResUrl, fetchBytes, ensureItemLoaded } from './api.js';
-import { setItems, setFiltered, setRendered, setDateBounds, setActiveCat, setActiveColor, activeCat, activeColor } from './state.js';
+import { setItems, setFiltered, setRendered, setDateBounds, setActiveCat, setActiveColor, activeCat, activeColor, byDate } from './state.js';
 import { getFiltered } from './filter.js';
 import { initMonthPicker, setupDateInputs, swapDateRange } from './picker.js';
 import { renderCategoryPills, renderColorPills, renderHero, renderMore, updateFilterCount, updateStats } from './ui.js';
 import { initLightbox, openLightbox } from './lightbox.js';
 import { initBatch, updateBatchBar } from './batch.js';
 import { initWorker, getFiltered as workerGetFiltered, countBy as workerCountBy } from './filter-worker.js';
+import { readStateFromUrl, syncFiltersToUrl } from './urlstate.js';
 
 // === DOM 元素 ===
 const els = {
@@ -44,6 +45,8 @@ const els = {
   lbDownload: /** @type {HTMLAnchorElement} */ (document.getElementById('lb-download')),
   lbCopy: document.getElementById('lb-copy'),
   lbCopyMd: document.getElementById('lb-copy-md'),
+  lbPrev: document.getElementById('lb-prev'),
+  lbNext: document.getElementById('lb-next'),
   batchbar: document.getElementById('batchbar'),
   batchPanel: document.getElementById('batch-panel'),
   batchToggle: document.getElementById('batch-toggle'),
@@ -85,6 +88,16 @@ async function init() {
   const allYm = data.map(i => i.date.slice(0, 6)).sort();
   setDateBounds(allYm[0], allYm[allYm.length - 1]);
 
+  // 从 URL 恢复筛选状态（分享链接 / 刷新保持）
+  const urlState = readStateFromUrl();
+  if (urlState.q) els.searchEl.value = urlState.q;
+  if (urlState.from && /^\d{4}-\d{2}$/.test(urlState.from)) els.dateFrom.value = urlState.from;
+  if (urlState.to && /^\d{4}-\d{2}$/.test(urlState.to)) els.dateTo.value = urlState.to;
+  const presentCats = new Set(data.map(i => i.category).filter(Boolean));
+  const presentColors = new Set(data.map(i => i.color).filter(Boolean));
+  if (urlState.cat && presentCats.has(urlState.cat)) setActiveCat(urlState.cat);
+  if (urlState.col && presentColors.has(urlState.col)) setActiveColor(urlState.col);
+
   // 后台预加载最近两年的完整数据（Hero / 当前滚动区域常用）
   const currentYear = String(new Date().getFullYear());
   const prevYear = String(+currentYear - 1);
@@ -120,6 +133,12 @@ async function init() {
   });
   await applyFilter();
   updateStats(els.archiveStats);
+
+  // URL 带 d 参数时直接打开对应灯箱（分享直达）
+  if (urlState.d) {
+    const it = byDate.get(urlState.d);
+    if (it) openLightbox(it, els, { fromUrl: true });
+  }
 }
 
 /**
@@ -141,6 +160,7 @@ async function applyFilter() {
   ]);
   updateFilterCount(els.filterCount);
   updateBatchBar(els);
+  syncFiltersToUrl({ q, dateFrom, dateTo, cat: activeCat, col: activeColor });
 }
 
 // === Hero 下载 ===
@@ -168,7 +188,12 @@ async function downloadHero(it, res) {
 
 // === 事件绑定 ===
 function bindEvents() {
-  els.searchEl.addEventListener('input', applyFilter);
+  // 搜索防抖：停止输入 250ms 后再触发筛选，避免逐键全量重算
+  let searchTimer = 0;
+  els.searchEl.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applyFilter, 250);
+  });
   els.dateClear.addEventListener('click', () => {
     els.dateFrom.value = '';
     els.dateTo.value = '';
