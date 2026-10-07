@@ -9,7 +9,7 @@
   function applyTheme(t) {
     root.dataset.theme = t;
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', t === 'light' ? '#faf7f2' : '#0f172a');
+    if (meta) meta.setAttribute('content', t === 'light' ? '#faf7f2' : '#0b0d10');
   }
 
   var btn = document.getElementById('theme-toggle');

@@ -1,26 +1,16 @@
 /* ===== 灯箱 ===== */
-/* 看图需要暗环境：双主题下灯箱内部恒为暗场（局部覆盖令牌） */
+/* 背景色随主题令牌（--lightbox-bg），控件颜色随主题令牌；
+   位置、尺寸、圆角、模糊等质感两主题完全一致 */
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .92);
+  background: var(--lightbox-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
   z-index: 50;
-  --surface: #14161b;
-  --card: #181a20;
-  --fg: #f0f2f5;
-  --muted: #9aa0a6;
-  --accent: #e8b923;
-  --accent-hover: #f0c94a;
-  --on-accent: #1a1300;
-  --accent-border: rgba(232, 185, 35, .45);
-  --border: rgba(255, 255, 255, .18);
-  --border-soft: rgba(255, 255, 255, .08);
-  color-scheme: dark;
   color: var(--fg);
 }
 .lightbox[hidden] { display: none; }
@@ -42,15 +32,15 @@
   height: 46px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .08);
-  color: #fff;
+  background: var(--surface);
+  color: var(--fg);
   cursor: pointer;
   display: grid;
   place-items: center;
   transition: background .15s, transform .15s;
   backdrop-filter: blur(6px);
 }
-.lb-nav:hover { background: rgba(255, 255, 255, .18); transform: translateY(-50%) scale(1.06); }
+.lb-nav:hover { background: var(--accent-soft); transform: translateY(-50%) scale(1.06); }
 .lb-nav:active { transform: translateY(-50%) scale(.9); }
 .lb-nav[hidden] { display: none; }
 .lb-nav-prev { left: 18px; }
@@ -65,9 +55,9 @@
 .lb-meta p { margin: 0 0 6px; color: var(--muted); font-size: 13px; }
 .lb-meta a { color: var(--accent); font-size: 13px; }
 .lb-note {
-  color: #ffb74d;
+  color: var(--warn-fg);
   font-size: 12px;
-  background: rgba(255, 183, 77, .12);
+  background: var(--warn-bg);
   border-radius: 6px;
   padding: 4px 8px;
   display: inline-block;
@@ -102,9 +92,9 @@
   position: absolute;
   top: 16px;
   right: 20px;
-  background: rgba(255,255,255,.08);
+  background: var(--surface);
   border: none;
-  color: #fff;
+  color: var(--fg);
   font-size: 26px;
   width: 38px;
   height: 38px;
@@ -115,7 +105,7 @@
   place-items: center;
   transition: background .15s, transform .1s;
 }
-#close:hover { background: rgba(255,255,255,.16); }
+#close:hover { background: var(--card); }
 #close:active { transform: scale(.9); }
 
 /* ===== 动效守卫 ===== */

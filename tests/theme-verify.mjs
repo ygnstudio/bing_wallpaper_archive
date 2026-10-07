@@ -36,6 +36,17 @@ ok('深色背景正确', await dark.evaluate(() => getComputedStyle(document.bod
 ok('深色强调金色', await dark.evaluate(() => getComputedStyle(document.querySelector('.logo')).backgroundColor) === 'rgb(232, 185, 35)');
 await dark.screenshot({ path: '/tmp/theme-dark-desktop.png' });
 
+// 深色侧：Hero 暗卡 + 灯箱黑场 + 关闭按钮几何基准
+const heroCardBgDark = await dark.evaluate(() => getComputedStyle(document.querySelector('.hero-card')).backgroundColor);
+ok('Hero 卡深色下为暗卡', heroCardBgDark === 'rgb(24, 26, 32)', heroCardBgDark);
+await dark.locator('.card').first().click();
+await dark.waitForTimeout(800);
+const closeRectDark = await dark.evaluate(() => { const r = document.getElementById('close').getBoundingClientRect(); return [r.width, r.height]; });
+const lbBgDark = await dark.evaluate(() => getComputedStyle(document.querySelector('.lightbox')).backgroundColor);
+ok('灯箱深色背景为黑场', lbBgDark === 'rgba(0, 0, 0, 0.92)', lbBgDark);
+await dark.keyboard.press('Escape');
+await dark.waitForTimeout(400);
+
 // 切换到浅色
 await dark.click('#theme-toggle');
 await dark.waitForTimeout(400);
@@ -49,15 +60,17 @@ await dark.waitForTimeout(800);
 ok('刷新后浅色保持', await dark.evaluate(() => document.documentElement.dataset.theme) === 'light');
 await dark.screenshot({ path: '/tmp/theme-light-desktop.png' });
 
-// Hero 恒暗场
-const heroCardBg = await dark.evaluate(() => getComputedStyle(document.querySelector('.hero-card')).backgroundColor);
-ok('Hero 卡恒暗场', heroCardBg === 'rgb(24, 26, 32)', heroCardBg);
-
-// 灯箱恒暗场（浅色主题下打开）
+// 浅色侧：Hero 卡变纸白卡（同几何），灯箱背景纸色、标题墨色
+const heroCardBgLight = await dark.evaluate(() => getComputedStyle(document.querySelector('.hero-card')).backgroundColor);
+ok('Hero 卡浅色下为纸白卡', heroCardBgLight === 'rgb(255, 255, 255)', heroCardBgLight);
 await dark.locator('.card').first().click();
 await dark.waitForTimeout(800);
+const lbBg = await dark.evaluate(() => getComputedStyle(document.querySelector('.lightbox')).backgroundColor);
+ok('灯箱浅色背景为纸色', lbBg === 'rgba(250, 247, 242, 0.96)', lbBg);
 const lbColor = await dark.evaluate(() => getComputedStyle(document.querySelector('.lb-meta h2')).color);
-ok('灯箱标题恒亮色', lbColor === 'rgb(240, 242, 245)', lbColor);
+ok('灯箱标题浅色下为墨色', lbColor === 'rgb(31, 28, 23)', lbColor);
+const closeRectLight = await dark.evaluate(() => { const r = document.getElementById('close').getBoundingClientRect(); return [r.width, r.height]; });
+ok('灯箱关闭按钮几何两主题一致', JSON.stringify(closeRectLight) === JSON.stringify(closeRectDark), `${closeRectDark} vs ${closeRectLight}`);
 await dark.screenshot({ path: '/tmp/theme-light-lightbox.png' });
 await dark.close();
 
