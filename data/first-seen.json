@@ -62,5 +62,13 @@
   "urlbase": "/th?id=OHR.ForestofDean_ZH-CN2654753621",
   "first_seen_at": "2026-10-07T07:29:24+00:00",
   "already_archived_at_first_seen": true
+ },
+ "20261007": {
+  "date": "20261007",
+  "fullstartdate": "202610071600",
+  "enddate": "20261008",
+  "urlbase": "/th?id=OHR.MayotteOctopus_ZH-CN2837659998",
+  "first_seen_at": "2026-10-07T19:04:17+00:00",
+  "already_archived_at_first_seen": false
  }
 }
