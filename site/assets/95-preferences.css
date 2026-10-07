@@ -1,0 +1,45 @@
+.preferences { position:relative; z-index:45; flex-shrink:0; }
+.preferences>summary { display:grid; place-items:center; width:44px; height:44px; border-radius:var(--radius-full); color:var(--fg); cursor:pointer; list-style:none; }
+.preferences>summary::-webkit-details-marker,.share-menu>summary::-webkit-details-marker { display:none; }
+.preferences[open]>summary { background:var(--glass-active); }
+.preferences-panel { position:absolute; top:calc(100% + 12px); right:0; width:280px; max-width:calc(100vw - 32px); padding:8px 16px; border:1px solid var(--glass-border); border-radius:24px; background:var(--card); box-shadow:var(--glass-shadow); }
+.preferences-panel label { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:64px; font-size:14px; }.preferences-panel label+label { border-top:1px solid var(--border-soft); }
+.preferences-panel select { max-width:180px; min-height:44px; border:0; padding:8px; background:transparent; color:var(--fg); font-size:14px; }
+.download-status { margin:8px 0 0; color:var(--muted); font-size:12px; overflow-wrap:anywhere; }.download-status:empty { display:none; }
+.filter-bar { display:flex; flex-wrap:wrap; position:relative; gap:12px; margin-bottom:16px; }
+.section-header { flex-wrap:wrap; }
+.gallery-actions { margin-left:auto; display:flex; align-items:center; gap:8px; flex-shrink:0; flex-wrap:wrap; }.gallery-actions .btn-ghost { background:var(--glass); border-color:var(--glass-border); border-radius:var(--radius-full); box-shadow:var(--glass-shadow); backdrop-filter:blur(24px); }
+.filter-toolbar { display:none; min-width:0; width:100%; flex-basis:100%; padding:16px; border:1px solid var(--border-soft); border-radius:24px; background:var(--surface); flex-wrap:wrap; gap:16px; }
+.filters-open .filter-toolbar { display:flex; }.date-panel { flex-basis:100%; }.filter-actions { margin-left:auto; }.results-row { width:100%; display:flex; flex-wrap:wrap; gap:8px 16px; min-height:0; padding:0; border:0; }
+.active-filters { color:var(--accent); font-size:12px; overflow-wrap:anywhere; }.sort-label { margin-left:auto; }
+.batch-visible .gallery { padding-bottom:calc(var(--batch-height) + 40px); }.batch-visible .back-to-top { bottom:calc(var(--batch-height) + 28px); }
+.lb-actions #lb-download { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.share-menu { position:relative; }.share-menu>summary { display:flex; min-height:44px; align-items:center; justify-content:center; padding:8px 16px; border:1px solid var(--border); border-radius:var(--radius-full); cursor:pointer; list-style:none; color:var(--accent); font-size:14px; }.share-menu>div { display:grid; gap:8px; padding-top:8px; }.share-menu button { width:100%; }
+.category-filter { display:flex; align-items:flex-start; gap:8px; width:100%; }
+.category-filter>.filter-label { padding-top:12px; flex-shrink:0; }
+.category-filter .filter-group { gap:4px; border:0; min-width:0; }
+.category-filter .pill { display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:8px 12px; border:0; border-radius:var(--radius-full); }
+.category-filter .pill.active { color:var(--accent); background:var(--glass-active); }
+
+@media(max-width:739px) { .section-header { padding-right:0; flex-wrap:wrap; gap:12px; }.gallery-actions { width:100%; justify-content:flex-end; }.gallery-actions .btn-ghost { font-size:13px; }.category-filter { flex-direction:column; gap:4px; }.category-filter>.filter-label { padding-top:0; }.category-filter .pill { min-height:44px; } }
+
+/* Preferences share the navigation dialog surface, without a nested popover. */
+.inline-preferences { padding:0 12px 12px; }
+.inline-preferences .preference-row { padding:12px 0; }
+.inline-preferences + .sidebar-action { border:0; border-radius:var(--radius-sm); margin-top:8px; }
+
+/* Filters live in the modal and retain the same controls and query state. */
+.nav-sheet .filter-toolbar { display:flex; flex-direction:column; padding:0; border:0; background:transparent; gap:20px; }
+.nav-sheet .category-filter,.nav-sheet .color-filter { flex-direction:column; align-items:flex-start; gap:10px; }
+.nav-sheet .filter-label { padding:0; }
+.nav-sheet .filter-group,.nav-sheet .color-group { flex-wrap:wrap; }
+.nav-sheet .filter-actions { margin-left:0; }
+.nav-sheet .date-panel { padding:0; flex-wrap:wrap; }
+.filter-dialog-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--border-soft); margin-top:20px; padding-top:16px; }
+.nav-sheet { overflow:auto; overscroll-behavior:contain; }
+
+/* Make the existing route out of filtered results easy to spot. */
+#filter-reset,#filter-dialog-reset {
+ color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent-border);
+ min-height:40px; padding:8px 14px; border-radius:var(--radius-full); font-weight:600;
+}

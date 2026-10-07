@@ -1,272 +1,182 @@
-/**
- * 通用 UI 渲染
- * 分类/颜色 Pill、卡片网格、Hero、统计信息。
- */
-
+import { updatePhotoAccent } from './accent.js';
+import { animateIn } from './motion.js';
+import { t, setMessage } from './i18n.js';
+import { icon } from './icons.js';
+/** Rendering for the compact photo archive. */
 import { CATEGORY_ORDER, COLOR_ORDER, COLOR_HEX, PAGE_SIZE, DEFAULT_HERO_RES } from './config.js';
-import { countBy, formatDate, getFiltered } from './filter.js';
-import { buildResUrl, defaultResolution, ensureItemLoaded } from './api.js';
+import { formatDate } from './filter.js';
+import { buildResUrl, ensureItemLoaded } from './api.js';
 import { activeCat, activeColor, filtered, rendered, selected, setRendered, items } from './state.js';
 
-/**
- * 渲染分类 Pill
- * @param {HTMLElement} container
- * @param {Function} onClick
- * @param {string} q
- * @param {string} dateFrom
- * @param {string} dateTo
- * @param {Function} countFn
- */
-export async function renderCategoryPills(container, onClick, q, dateFrom, dateTo, countFn) {
-  const present = new Set(items.map(i => i.category).filter(Boolean));
-  container.innerHTML = '';
-  const allBtn = makePill('全部', '', activeCat === '', container, onClick);
-  allBtn.setAttribute('role', 'tab');
-  for (const c of CATEGORY_ORDER) {
-    if (!present.has(c)) continue;
-    const n = await countFn({ dim: 'category', value: c, q, dateFrom, dateTo, activeCat, activeColor });
-    const btn = makePill(c, c, activeCat === c, container, onClick, n);
-    btn.setAttribute('role', 'tab');
-  }
-}
-
-/**
- * 渲染颜色 Pill
- * @param {HTMLElement} container
- * @param {Function} onClick
- * @param {string} q
- * @param {string} dateFrom
- * @param {string} dateTo
- * @param {Function} countFn
- */
-export async function renderColorPills(container, onClick, q, dateFrom, dateTo, countFn) {
-  const present = new Set(items.map(i => i.color).filter(Boolean));
-  container.innerHTML = '';
-  const allBtn = makeColorPill('全部', '', activeColor === '', container, onClick);
-  allBtn.setAttribute('role', 'tab');
-  for (const c of COLOR_ORDER) {
-    if (!present.has(c)) continue;
-    const n = await countFn({ dim: 'color', value: c, q, dateFrom, dateTo, activeCat, activeColor });
-    const btn = makeColorPill(c, c, activeColor === c, container, onClick, n);
-    btn.setAttribute('role', 'tab');
-  }
-}
-
-/**
- * 创建普通 Pill 按钮
- * @param {string} label
- * @param {string} value
- * @param {boolean} active
- * @param {HTMLElement} parent
- * @param {Function} onClick
- * @param {number} [count]
- * @returns {HTMLButtonElement}
- */
-function makePill(label, value, active, parent, onClick, count) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'pill' + (active ? ' active' : '');
-  btn.textContent = count != null ? `${label} ${count}` : label;
-  btn.addEventListener('click', () => onClick(value));
-  parent.appendChild(btn);
-  return btn;
-}
-
-/**
- * 创建颜色 Pill 按钮
- * @param {string} label
- * @param {string} value
- * @param {boolean} active
- * @param {HTMLElement} parent
- * @param {Function} onClick
- * @param {number} [count]
- * @returns {HTMLButtonElement}
- */
-function makeColorPill(label, value, active, parent, onClick, count) {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'color-pill' + (active ? ' active' : '');
-  const dot = document.createElement('span');
-  dot.className = 'color-dot';
-  if (value) dot.style.background = COLOR_HEX[value] || 'transparent';
-  else dot.classList.add('all');
-  btn.appendChild(dot);
-  const text = document.createElement('span');
-  text.textContent = count != null ? `${label} ${count}` : label;
-  btn.appendChild(text);
-  btn.addEventListener('click', () => onClick(value));
-  parent.appendChild(btn);
-  return btn;
-}
-
-/**
- * 渲染顶部 Hero 区域
- * @param {Object} els
- * @param {Function} els.downloadHero
- * @param {Function} els.openLightbox
- */
-export async function renderHero(els) {
-  // 首页 Hero 随机展示一张壁纸
-  let latest = items[Math.floor(Math.random() * items.length)];
-  if (!latest) return;
-  els.hero.hidden = false;
-
-  // 轻量索引没有 url，先加载该张的完整数据
-  latest = await ensureItemLoaded(latest);
-
-  // 首屏默认加载 1080p，点击/下载再按需升级 UHD
-  // 先用本地缩略图即时呈现（零跨域开销），高清图预加载完成后淡入替换
-  const initialRes = DEFAULT_HERO_RES;
-  const full = buildResUrl(latest.url, initialRes) || latest.url;
-  els.heroBgImg.alt = latest.title || latest.date;
-  els.heroBgImg.decoding = 'async';
-  if (latest.thumbnail) {
-    els.heroBgImg.onload = () => {
-      els.heroBgImg.onload = null;
-      els.heroBgImg.classList.add('ready');
-    };
-    els.heroBgImg.src = latest.thumbnail;
-  } else {
-    els.heroBgImg.src = full;
-    els.heroBgImg.classList.add('ready');
-  }
-
-  // 高清图后台预加载，就绪后交叉淡入
-  const hi = new Image();
-  hi.onload = () => {
-    els.heroBgImg.onerror = null;
-    els.heroBgImg.classList.remove('ready');
-    els.heroBgImg.onload = () => {
-      els.heroBgImg.onload = null;
-      requestAnimationFrame(() => els.heroBgImg.classList.add('ready'));
-    };
-    els.heroBgImg.src = full;
-  };
-  hi.onerror = () => {
-    // 高清不可用时保持缩略图；若无缩略图则回退原 url
-    if (!latest.thumbnail) {
-      els.heroBgImg.onerror = null;
-      els.heroBgImg.src = latest.url;
-      els.heroBgImg.classList.add('ready');
+function updateChoices(container, values, active, onClick, count, color = false) {
+  // Reuse buttons so clicking a filter does not discard keyboard focus.
+  if (!container.children.length) {
+    for (const value of ['', ...values]) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.value = value;
+      button.className = color ? 'color-pill' : 'pill';
+      if (color) {
+        const dot = document.createElement('span');
+        dot.className = 'color-dot' + (value ? '' : ' all');
+        if (value) dot.style.background = COLOR_HEX[value];
+        button.append(dot);
+      } else {
+        const label = document.createElement('span');
+        label.className = 'choice-label';
+        button.append(label);
+      }
+      container.append(button);
     }
-  };
-  hi.src = full;
+  }
+  for (const button of container.children) {
+    const value = button.dataset.value;
+    const label = t(value || (color ? '全部颜色' : '全部'));
+    if (!color) button.querySelector('.choice-label').textContent=label;
+    const n = value ? count(value) : null;
+    button.classList.toggle('active', value === active);
+    button.setAttribute('aria-pressed', String(value === active));
+    button.setAttribute('aria-label', n === null ? label : t('{label}，{n} 张',{label,n:n.toLocaleString()}));
+    button.title = n === null ? label : `${label} · ${n.toLocaleString()} 张`;
+    button.onclick = () => onClick(value);
+  }
+}
 
+export function renderCategoryPills(container, onClick, q, dateFrom, dateTo, countFn) {
+  const present = new Set(items.map(i => i.category));
+  updateChoices(container, CATEGORY_ORDER.filter(c => present.has(c)), activeCat, onClick,
+    value => countFn({ dim: 'category', value, q, dateFrom, dateTo, activeCat, activeColor }));
+}
+export function renderColorPills(container, onClick, q, dateFrom, dateTo, countFn) {
+  const present = new Set(items.map(i => i.color));
+  updateChoices(container, COLOR_ORDER.filter(c => present.has(c)), activeColor, onClick,
+    value => countFn({ dim: 'color', value, q, dateFrom, dateTo, activeCat, activeColor }), true);
+}
+
+let heroGeneration = 0;
+let heroDate = '';
+export async function renderHero(els) {
+  const generation = ++heroGeneration;
+  const candidates = items.filter(it => it.date !== heroDate);
+  const choice = candidates[Math.floor(Math.random() * candidates.length)] || items[0];
+  if (!choice) return;
+  let latest = choice;
+  const replacing = !!heroDate;
+  heroDate = latest.date;
+  els.hero.hidden = false;
+  document.body.classList.add('has-hero');
+  const full = buildResUrl(latest.url, DEFAULT_HERO_RES) || latest.url;
+  els.heroBgImg.alt = latest.title || latest.date;
+  els.heroBgImg.src = latest.thumbnail || full;
+  els.heroBgImg.decoding = 'async';
+  updatePhotoAccent(latest.thumbnail, () => generation === heroGeneration);
+  if(replacing) { animateIn(els.heroBgImg,0); animateIn(els.heroTitle,6); }
   els.heroDate.textContent = formatDate(latest.date);
+  els.heroDate.dateTime = `${latest.date.slice(0,4)}-${latest.date.slice(4,6)}-${latest.date.slice(6,8)}`;
   els.heroTitle.textContent = latest.title || latest.date;
   els.heroDesc.textContent = latest.copyright || '';
-
-  const heroUhd = latest.uhd !== false;
-  els.heroDownloadText.textContent = heroUhd ? '下载 UHD' : '下载 1080p';
-  els.heroDownload.onclick = () => els.downloadHero(latest, heroUhd ? 'UHD' : '1920x1080');
-  els.heroView.onclick = () => {
-    els.openLightbox(latest);
-  };
+  const uhd = latest.uhd !== false;
+  els.heroDownloadText.textContent = t(uhd ? '下载 UHD' : '下载 1080p');
+  els.heroDownload.setAttribute('aria-label',els.heroDownloadText.textContent);
+  document.getElementById('hero-download-compact').textContent=uhd ? 'UHD' : '1080p';
+  setMessage(els.heroStatus,'');
+  els.heroDownload.onclick = () => els.downloadHero(latest, uhd ? 'UHD' : '1920x1080');
+  els.heroView.onclick = () => els.openLightbox(latest);
+  // Paint the local thumbnail before fetching the year's full metadata.
+  try {
+    const loaded = await ensureItemLoaded(choice);
+    if (generation !== heroGeneration) return;
+    latest = loaded;
+    const full = buildResUrl(latest.url, DEFAULT_HERO_RES) || latest.url;
+    if (!full) return;
+    const hi = new Image();
+    hi.onload = () => { if (generation === heroGeneration) els.heroBgImg.src = full; };
+    hi.src = full;
+  } catch {
+    // The local photo and its actions remain usable; opening/downloading retries.
+    if (!choice.thumbnail && generation === heroGeneration) throw new Error('Hero unavailable');
+  }
 }
 
-/**
- * 渲染一批卡片
- * @param {Object} els
- * @param {HTMLElement} els.grid
- * @param {HTMLElement} els.sentinel
- * @param {HTMLElement} els.emptyEl
- * @param {Function} els.openLightbox
- * @returns {number} 本次渲染数量
- */
 export function renderMore(els) {
   const batch = filtered.slice(rendered, rendered + PAGE_SIZE);
-  const frag = document.createDocumentFragment();
-  batch.forEach((it, i) => {
-    const card = createCard(it, els.openLightbox);
-    // 批内交错进场（上限 480ms），避免长队列延迟
-    card.style.animationDelay = `${Math.min(i * 16, 480)}ms`;
-    frag.appendChild(card);
-  });
-  els.grid.appendChild(frag);
-  const newRendered = rendered + batch.length;
-  setRendered(newRendered);
+  const fragment = document.createDocumentFragment();
+  batch.forEach(it => fragment.append(createCard(it, els.openLightbox)));
+  els.grid.append(fragment);
+  setRendered(rendered + batch.length);
   els.emptyEl.hidden = filtered.length !== 0;
-  els.sentinel.textContent = newRendered < filtered.length
-    ? `加载更多…（${newRendered}/${filtered.length}）`
-    : (newRendered ? '已显示全部' : '');
+  els.sentinel.textContent = rendered < filtered.length
+    ? t('继续浏览 · 已显示 {n} 张',{n:rendered})
+    : (rendered ? t('已显示全部壁纸') : '');
   return batch.length;
 }
 
-/**
- * 创建单张卡片 DOM
- * @param {WallpaperItem} it
- * @param {Function} openLightbox
- * @returns {HTMLElement}
- */
 function createCard(it, openLightbox) {
-  const card = document.createElement('div');
+  const card = document.createElement('article');
   card.className = 'card';
   card.dataset.date = it.date;
-  card.title = (it.title || '') + (it.copyright ? ' — ' + it.copyright : '');
-
   const sel = document.createElement('input');
   sel.type = 'checkbox';
   sel.className = 'sel';
   sel.dataset.date = it.date;
   sel.checked = selected.has(it.date);
-  sel.title = '选择打包下载';
-  if (sel.checked) card.classList.add('selected');
-  card.appendChild(sel);
-
-    const media = document.createElement('div');
-    media.className = 'media';
-    if (it.thumbnail) {
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.src = it.thumbnail;
-      img.alt = it.title || it.date;
-      img.addEventListener('load', () => img.classList.add('loaded'));
-      if (img.complete && img.naturalWidth > 0) img.classList.add('loaded');
-      media.appendChild(img);
-    } else {
-    card.classList.add('missing');
-    const ph = document.createElement('div');
-    ph.className = 'ph';
-    ph.textContent = it.date;
-    media.appendChild(ph);
+  sel.setAttribute('aria-label', t('选择 {title}',{title:it.title || it.date}));
+  card.classList.toggle('selected', sel.checked);
+  const selectionHit = document.createElement('label');
+  selectionHit.className = 'selection-hit';
+  selectionHit.append(sel);
+  card.append(selectionHit);
+  const media = document.createElement('button');
+  media.type = 'button';
+  media.className = 'media';
+  media.setAttribute('aria-label', t('查看 {title}',{title:it.title || it.date}));
+  if (it.thumbnail) {
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.width = 480; img.height = 270;
+    img.src = it.thumbnail;
+    img.alt = '';
+    media.append(img);
+  } else {
+    const placeholder = document.createElement('span');
+    placeholder.className = 'ph';
+    placeholder.textContent = t('查看原图');
+    media.append(placeholder);
   }
-  card.appendChild(media);
-
+  media.onclick = () => {
+    if (document.body.classList.contains('selection-mode')) sel.click();
+    else openLightbox(it);
+  };
+  card.append(media);
   const info = document.createElement('div');
   info.className = 'info';
-  const title = document.createElement('div');
+  const title = document.createElement('h3');
   title.className = 'title';
+  title.dataset.sourceText='';
   title.textContent = it.title || it.date;
-  info.appendChild(title);
-
-  const tag = document.createElement('div');
-  tag.className = 'tag';
-  if (it.category) tag.textContent = it.category;
-  info.appendChild(tag);
-  card.appendChild(info);
-
-  card.addEventListener('click', (e) => {
-    if (e.target.closest('.sel')) return;
-    openLightbox(it);
-  });
+  const meta = document.createElement('div');
+  meta.className = 'card-meta';
+  const date = document.createElement('time');
+  date.dateTime = `${it.date.slice(0,4)}-${it.date.slice(4,6)}-${it.date.slice(6,8)}`;
+  date.textContent = formatDate(it.date);
+  const tag = document.createElement('span');
+  tag.dataset.category=it.category || '';
+  tag.textContent = t(it.category || '');
+  meta.append(date, tag);
+  info.append(title, meta);
+  card.append(info);
   return card;
 }
-
-/**
- * 更新筛选结果计数
- * @param {HTMLElement} filterCount
- */
-export function updateFilterCount(filterCount) {
-  if (!filterCount) return;
-  filterCount.textContent = `当前筛选：${filtered.length.toLocaleString()} 张`;
+export function updateFilterCount(el) {
+  el.textContent = t('{n} 张壁纸',{n:filtered.length.toLocaleString()});
+}
+export function updateStats(el) {
+  el.textContent = t('已收录 {n} 张 · 每日更新',{n:items.length.toLocaleString()});
+  document.title = t('Bing 每日壁纸归档 · {n} 张',{n:items.length.toLocaleString()});
 }
 
-/**
- * 更新顶部统计与页面标题
- * @param {HTMLElement} archiveStats
- */
-export function updateStats(archiveStats) {
-  archiveStats.textContent = `已归档 ${items.length.toLocaleString()} 张 · 每日更新`;
-  document.title = `Bing 每日壁纸归档 · ${items.length.toLocaleString()} 张`;
+export function refreshHeroLabels(els) {
+  const current=items.find(item=>item.date===heroDate);
+  if(current) els.heroDownloadText.textContent=t(current.uhd===false?'下载 1080p':'下载 UHD');
 }

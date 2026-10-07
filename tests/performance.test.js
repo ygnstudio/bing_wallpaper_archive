@@ -1,0 +1,54 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { evaluateFilters, getFiltered, countBy } from '../site/assets/filter.js';
+import { setItems, setActiveCat, setActiveColor, mergeYearItems } from '../site/assets/state.js';
+import { ensureYearLoaded, ensureItemLoaded } from '../site/assets/api.js';
+import { CATEGORY_ORDER, COLOR_ORDER } from '../site/assets/config.js';
+const data = JSON.parse(readFileSync(new URL('../data/index.json',import.meta.url),'utf8'));
+setItems(data);
+for (const cat of ['', '风景', '动物']) for (const col of ['', '蓝', '黄']) {
+  setActiveCat(cat); setActiveColor(col);
+  for (const [q,from,to] of [['','',''],['中国','2017-01-01','2026-10-06'],['山','2020-01','2024-12'],['20261005','2026-10-05','2026-10-05']]) {
+    const snapshot = evaluateFilters(q,from,to);
+    assert.deepEqual(snapshot.results,getFiltered(q,from,to));
+    for (const value of CATEGORY_ORDER) assert.equal(snapshot.categories.get(value)||0,countBy('category',value,q,from,to));
+    for (const value of COLOR_ORDER) assert.equal(snapshot.colors.get(value)||0,countBy('color',value,q,from,to));
+  }
+}
+console.log('✓ 单次扫描在36种组合下与原筛选结果及全部分类颜色计数一致');
+setActiveCat('');setActiveColor('');setItems([{date:'20010101',title:'old'}]);
+assert.equal(evaluateFilters('new','','').results.length,0);
+mergeYearItems([{date:'20010101',title:'new'}]);
+assert.equal(evaluateFilters('new','','').results.length,1);
+console.log('✓ 完整元数据替换后搜索缓存正确更新');
+let calls = 0, finish;
+globalThis.fetch = () => { calls++; return new Promise(resolve=>{finish=resolve;}); };
+const first=ensureYearLoaded('2002'), second=ensureYearLoaded('2002');
+assert.equal(calls,1);finish({ok:true,json:async()=>[{date:'20020101',url:'https://example.test/photo.jpg'}]});
+await Promise.all([first,second]);
+assert.equal((await ensureItemLoaded({date:'20020101'})).url,'https://example.test/photo.jpg');
+assert.equal(calls,1);
+console.log('✓ 同一年并发读取只发送一次请求，成功后复用缓存');
+globalThis.fetch = async()=>{calls++;throw new Error('offline');};
+await Promise.all([assert.rejects(ensureYearLoaded('2003')),assert.rejects(ensureYearLoaded('2003'))]);
+assert.equal(calls,2);
+globalThis.fetch = async()=>{calls++;return {ok:true,json:async()=>[]};};
+await ensureYearLoaded('2003');assert.equal(calls,3);
+console.log('✓ 失败的共享请求不会阻止再次重试');
+const { renderHero } = await import('../site/assets/ui.js');
+const node=()=>({hidden:true,dataset:{},textContent:'',setAttribute(){}});
+const compact=node();
+globalThis.document={documentElement:{lang:'zh-CN',dataset:{}},body:{classList:{add(){}}},getElementById:()=>compact};
+globalThis.location={href:'http://localhost/',origin:'http://localhost'};
+globalThis.Image=class {decode(){return Promise.reject(new Error('No canvas in unit test'));}};
+const heroEls=Object.fromEntries(['hero','heroBgImg','heroTitle','heroDate','heroDesc','heroDownloadText','heroDownload','heroView','heroStatus'].map(key=>[key,node()]));
+heroEls.downloadHero=()=>{};heroEls.openLightbox=()=>{};
+setItems([{date:'20040101',title:'Local preview',thumbnail:'thumbnails/preview.webp'}]);
+let rejectMetadata;
+globalThis.fetch=()=>new Promise((resolve,reject)=>{rejectMetadata=reject;});
+const rendering=renderHero(heroEls);
+assert.equal(heroEls.hero.hidden,false);assert.equal(heroEls.heroBgImg.src,'thumbnails/preview.webp');
+assert.equal(heroEls.heroTitle.textContent,'Local preview');
+rejectMetadata(new Error('offline'));await rendering;
+assert.equal(heroEls.hero.hidden,false);assert.equal(typeof heroEls.heroView.onclick,'function');
+console.log('✓ 年份数据返回前显示首图缩略图，失败后保留预览与可重试操作');

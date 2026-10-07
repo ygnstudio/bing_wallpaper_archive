@@ -2,37 +2,60 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: "0 1 * * *"   # 09:00 Beijing：主调度，Bing 换图后早间入库
-    - cron: "0 2 * * *"   # 10:00 Beijing：兜底，避免 GitHub schedule 延迟/跳过
-    - cron: "0 6 * * *"   # 14:00 Beijing：二次兜底，确保当天入库
+    # UTC; Beijing: 00:37, 04:37, 08:37, 12:37, 16:37, 20:37.
+    # Off the top of the hour; GitHub schedules are still best-effort.
+    - cron: "37 */4 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
   actions: write
 
+concurrency:
+  group: wallpaper-archive-update
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: main
           fetch-depth: 0
 
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Test archive pipeline
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Check recent wallpapers and missing thumbnails
+        id: check
+        run: python scripts/download.py --check --report .archive-update/report.json
+
+      - name: Install image dependencies
+        if: steps.check.outputs.needs_work == 'true'
         run: pip install -r requirements.txt
 
+      - name: Download pending wallpapers
+        if: steps.check.outputs.needs_work == 'true'
+        run: python scripts/download.py --apply-report .archive-update/report.json
+
+      - name: Classify color and keyword category
+        if: steps.check.outputs.needs_work == 'true'
+        run: python scripts/classify.py
+
       - name: Install VLM dependencies
+        if: steps.check.outputs.has_new == 'true'
         run: |
-          pip install --quiet --upgrade pip
           pip install --quiet torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install --quiet transformers qwen-vl-utils huggingface_hub
 
       - name: Cache VLM model
+        if: steps.check.outputs.has_new == 'true'
         uses: actions/cache@v5
         with:
           path: ~/.cache/huggingface
@@ -40,49 +63,60 @@ jobs:
           restore-keys: |
             qwen2-vl-2b-
 
-      - name: Prefetch VLM model (no-op on cache hit)
+      - name: Prefetch VLM model
+        if: steps.check.outputs.has_new == 'true'
         run: |
           python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2-VL-2B-Instruct'); print('model ready')"
 
-      - name: Fetch today's wallpaper
-        run: python scripts/download.py
-
-      - name: Classify (color + keyword category)
-        run: python scripts/classify.py
-
-      - name: VLM classify latest wallpaper
-        run: python scripts/vlm_classify.py --latest
+      - name: VLM classify all new wallpapers
+        if: steps.check.outputs.has_new == 'true'
+        run: python scripts/vlm_classify.py --dates-file .archive-update/report.json
 
       - name: Detect missing UHD availability
+        if: steps.check.outputs.needs_work == 'true'
         run: python scripts/detect_uhd.py
 
-      - name: Rebuild index
-        run: python scripts/generate_index.py
+      - name: Rebuild index and README stats
+        if: steps.check.outputs.needs_work == 'true'
+        run: |
+          python scripts/generate_index.py
+          python scripts/update_readme_stats.py
 
-      - name: Update README stats
-        run: python scripts/update_readme_stats.py
-
-      - name: Verify archive (no missing thumbnails)
+      - name: Verify archive
         run: python scripts/check_archive.py
 
-      - name: Commit and push
+      - name: Commit archive changes
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data thumbnails site README.md
+          # Observation-only updates do not need a Pages deployment.
+          if test -n "$(git status --porcelain -- data/index.json data/metadata.json thumbnails README.md)"; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+          git add data thumbnails README.md
           if git diff --cached --quiet; then
             echo "no changes"
-            echo "changed=false" >> $GITHUB_OUTPUT
           else
-            git commit -m "daily: update wallpaper"
-            git pull --rebase --autostash
-            git push
-            echo "changed=true" >> $GITHUB_OUTPUT
+            git commit -m "daily: sync Bing archive and observations"
+            git pull --rebase --autostash origin main
+            git push origin HEAD:main
           fi
 
       - name: Trigger Pages deployment
-        if: steps.commit.outputs.changed == 'true'
+        if: steps.commit.outputs.publish == 'true'
         run: gh workflow run pages.yml --ref main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save poll report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bing-poll-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .archive-update/report.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90

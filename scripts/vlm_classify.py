@@ -12,7 +12,8 @@
   python scripts/vlm_classify.py --all        # 全量重判
   python scripts/vlm_classify.py --category X # 只重判某类
   python scripts/vlm_classify.py --date YYYYMMDD   # 只判指定日期
-  python scripts/vlm_classify.py --latest     # 只判 metadata 最新一条（每日 CI 用）
+  python scripts/vlm_classify.py --latest     # 只判 metadata 最新一条
+  python scripts/vlm_classify.py --dates-file REPORT.json  # 分类检查报告中全部新增记录
 
 模型：默认用本地 ModelScope 缓存；环境变量 VLM_MODEL_DIR 可覆盖（CI 用）。
 """
@@ -111,6 +112,13 @@ def thumb_path(date):
     return os.path.join(ROOT, "thumbnails", y, mo, date + ".webp")
 
 
+def report_targets(path, meta):
+    dates = load_json(path)["new_dates"]
+    if not isinstance(dates, list) or any(date not in meta for date in dates):
+        raise ValueError("Classification report contains unknown dates")
+    return sorted(set(dates))
+
+
 def main():
     args = sys.argv[1:]
     mode_all = "--all" in args
@@ -125,7 +133,9 @@ def main():
     meta = load_json(META_PATH)
 
     # 选目标
-    if mode_latest:
+    if "--dates-file" in args:
+        targets = report_targets(args[args.index("--dates-file") + 1], meta)
+    elif mode_latest:
         # 判 metadata 里日期最新的条目（每日 CI 用：download 刚写入的最新一张）
         targets = [max(meta.keys())] if meta else []
     elif only_date:
@@ -147,6 +157,9 @@ def main():
                     targets.append(date)
 
     print(f"待重判 {len(targets)} 条（总 {len(meta)} 条）", flush=True)
+
+    if not targets:
+        return
 
     model, processor = load_model()
     clf = build_classifier(model, processor)

@@ -6,7 +6,7 @@
 
 ## 功能特性
 
-- **每日自动更新**：GitHub Actions 每天 09:00（北京时间）自动抓取 Bing 最新壁纸，全自动、零人工。
+- **每日自动更新**：GitHub Actions 每四小时检查一次，计划在北京时间 00:37、04:37、08:37、12:37、16:37、20:37 运行；实际触发可能延迟。
 - **分类筛选**：10 类 —— 人物 / 动物 / 美食 / 交通 / 建筑 / 太空 / 植物 / 抽象艺术 / 风景 / 其他。
 - **颜色筛选**：10 色 —— 蓝 / 绿 / 红 / 黄 / 橙 / 紫 / 粉 / 棕 / 灰白 / 多彩，基于缩略图主色自动计算。
 - **多维检索**：按标题 / 版权 / 日期全文搜索，年份、月份、分类、颜色下拉可任意叠加。
@@ -33,7 +33,7 @@ bing_wallpaper_archive/
 │   ├── index.html / about.html
 │   └── assets/                #   JS/CSS 模块、Service Worker、Web Worker
 ├── scripts/                   # Python / Node 脚本
-│   ├── download.py            #   每日抓取最新壁纸并生成缩略图
+│   ├── download.py            #   检查最近八条并补齐缺失缩略图
 │   ├── classify.py            #   关键词分类 + Pillow 主色提取
 │   ├── vlm_classify.py        #   Qwen2-VL 视觉语言模型精修分类
 │   ├── generate_index.py      #   由 metadata.json 重建 index.json
@@ -83,3 +83,28 @@ flowchart LR
 ## License
 
 详见 [LICENSE](LICENSE)。壁纸图片版权归原作者与 Bing 所有，本项目仅用于归档与学习。
+
+### 归档日期与本地刷新
+
+每日抓取检查 Bing 最近八张壁纸，以官方 `startdate` 作为归档日期，不使用抓取当天日期，也不根据 `fullstartdate` 推算或平移日期。日期缺失或无效时中止更新，避免写入猜测日期。已有图片的日期、分类与颜色保持不变。
+
+本地预览使用构建时的数据副本，不会自动跟随远端主分支更新。更新本地数据后需重新构建：
+
+```sh
+python3 scripts/download.py
+python3 scripts/classify.py
+python3 scripts/generate_index.py
+python3 scripts/update_readme_stats.py
+python3 scripts/check_archive.py
+npm run build
+```
+
+首次运行需安装 `requirements.txt`。官方日期保留、重复同步及失败保护可用 `npm run test:archive` 验证。
+
+### 更新工作流
+
+先用 `python3 scripts/download.py --check` 检查官方最近八条记录和全库缺失、空文件缩略图。没有新增且图片完整时跳过图片依赖、下载、分类、模型和重建；新增时模型一次处理全部新增日期，纯缺图修复不重新运行模型。Bing 元数据与图片网络请求最多尝试三次；仍失败则任务报错，不提交不完整数据。流程串行运行，避免重复任务相互覆盖。
+
+每次成功检查的 `.archive-update/report.json` 包含检查时间（UTC）、官方归档日期、原始 `fullstartdate` / `enddate`、新增和缺图列表，作为 Actions artifact 保存 90 天。`data/first-seen.json` 持久记录每张图首次被本检查器观察到的时间，并注明当时是否已经在库；首次启用时的历史条目不会伪装成刚发布。**首次观察时间不是 Bing 发布时间。** 无新数据时只上传检查报告；首次新增观察记录可单独提交，不触发 Pages 部署。
+
+本地可用 `python3 scripts/download.py --apply-report .archive-update/report.json` 处理已检查的待办，再按前述命令分类、重建和校验。工作流使用 `--dates-file .archive-update/report.json` 让视觉模型处理全部新图。缺失缩略图字段、空文件、文件不存在或缺失日期都会使校验失败。

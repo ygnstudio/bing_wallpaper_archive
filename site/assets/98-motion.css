@@ -1,0 +1,50 @@
+/* Motion belongs to the action layer; photographs remain steady while browsing. */
+:root { --motion-press:160ms; --motion-settle:280ms; --motion-panel:280ms; --ease-settle:cubic-bezier(.16,1,.3,1); --ease-soft:cubic-bezier(.2,.8,.2,1); }
+button,.btn-primary,.nav-back,.preferences>summary,.share-menu>summary,.about-links a,.sidebar-action,.lb-actions a {
+ transition:transform var(--motion-settle) var(--ease-settle),background-color 180ms ease,color 180ms ease,border-color 180ms ease,box-shadow 180ms ease;
+ transform-origin:center;
+}
+button:active:not(:disabled),.btn-primary:active,.nav-back:active,.about-links a:active,.preferences>summary:active,.share-menu>summary:active,.sidebar-action:active,.lb-actions a:active {
+ transform:scale(.97); transition-duration:var(--motion-press);
+}
+.card .media:active:not(:disabled) { transform:scale(.985); }
+.card .media img { transition:transform 360ms var(--ease-settle); }
+.card .sel { transition:background-color 180ms ease,box-shadow 180ms ease; }
+
+/* Modern engines interpolate entry/exit without animating layout properties. */
+@supports (transition-behavior:allow-discrete) {
+ .filter-toolbar,.date-panel,details::details-content {
+   opacity:1; transform:translateY(0); transition:opacity 220ms var(--ease-soft),transform 260ms var(--ease-settle),display 220ms allow-discrete,content-visibility 220ms allow-discrete;
+ }
+ .filter-bar:not(.filters-open) .filter-toolbar,.date-panel[hidden],details:not([open])::details-content { opacity:0; transform:translateY(-6px); }
+ @starting-style { .filters-open .filter-toolbar,.date-panel:not([hidden]),details[open]::details-content { opacity:0; transform:translateY(-6px); } }
+}
+.nav-sheet::backdrop { transition:background-color 180ms ease,backdrop-filter 180ms ease; }
+@starting-style { .nav-sheet[open]::backdrop { background-color:transparent; backdrop-filter:blur(0); } }
+.nav-sheet.is-closing::backdrop { background-color:transparent; backdrop-filter:blur(0); }
+/* Cross-document navigation uses the browser lifecycle, without delaying links. */
+@view-transition { navigation:auto; }
+::view-transition-old(root) { animation:page-out 160ms ease both; }
+::view-transition-new(root) { animation:page-in 240ms var(--ease-soft) both; }
+@keyframes page-out { to { opacity:0; } }
+@keyframes page-in { from { opacity:0; } to { opacity:1; } }
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+ ::view-transition-old(root),::view-transition-new(root) { animation:none!important; }
+}
+html[data-input="keyboard"] button,html[data-input="keyboard"] details::details-content,html[data-input="keyboard"] .filter-toolbar,html[data-input="keyboard"] .date-panel { transition:none; }
+html[data-input="keyboard"] ::view-transition-old(root),html[data-input="keyboard"] ::view-transition-new(root) { animation:none; }
+
+/* One feedback layer preserves each control's fill, label and selected state. */
+:root { --control-hover:rgba(255,255,255,.065); --control-pressed:rgba(255,255,255,.12); }
+html[data-theme="light"] { --control-hover:rgba(0,0,0,.045); --control-pressed:rgba(0,0,0,.085); }
+:where(button,.btn-primary,.nav-back,.about-links a,.sidebar-action,.lb-actions a,.preferences>summary,.share-menu>summary) { --control-shadow:0 0 transparent; }
+:where(.hero-actions button,#close,.lb-nav,.nav-back) { --control-shadow:var(--glass-shadow); }
+@media(hover:hover) and (pointer:fine) {
+ :is(button,#close,#hero-shuffle,.btn-primary,.nav-back,.about-links a,.sidebar-action,.lb-actions a,.preferences>summary,.share-menu>summary):not(:disabled):not(.media):hover {
+  box-shadow:inset 0 0 0 100vmax var(--control-hover),var(--control-shadow);
+ }
+}
+:is(button,#close,#hero-shuffle,.btn-primary,.nav-back,.about-links a,.sidebar-action,.lb-actions a,.preferences>summary,.share-menu>summary):not(:disabled):not(.media):active {
+ box-shadow:inset 0 0 0 100vmax var(--control-pressed),var(--control-shadow);
+}
