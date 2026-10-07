@@ -24,6 +24,7 @@
   --warn-bg: rgba(255, 183, 77, .12);
   --skeleton-a: #1a1d24;
   --skeleton-b: #22262e;
+  --lightbox-bg: rgba(0, 0, 0, .92);
   --radius: 14px;
   --radius-sm: 10px;
   --font-display: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
@@ -52,6 +53,7 @@ html[data-theme="light"] {
   --warn-bg: rgba(154, 107, 0, .10);
   --skeleton-a: #ece6da;
   --skeleton-b: #f3eee4;
+  --lightbox-bg: rgba(250, 247, 242, .96);
   color-scheme: light;
 }
 

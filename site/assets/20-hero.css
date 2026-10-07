@@ -1,23 +1,11 @@
 /* ===== Hero ===== */
-/* Hero 压在壁纸照片 + 暗色渐变上，双主题下恒用暗场令牌 */
+/* 压在壁纸照片 + 暗色 scrim 上；scrim 双主题恒定，
+   卡片/按钮等控件颜色随主题令牌，几何与质感两主题一致 */
 .hero {
   position: relative;
   height: min(56vh, 520px);
   min-height: 340px;
   overflow: hidden;
-  --surface: #14161b;
-  --card: #181a20;
-  --fg: #f0f2f5;
-  --muted: #9aa0a6;
-  --accent: #e8b923;
-  --accent-hover: #f0c94a;
-  --on-accent: #1a1300;
-  --accent-soft: rgba(232, 185, 35, .14);
-  --accent-border: rgba(232, 185, 35, .45);
-  --border: rgba(255, 255, 255, .14);
-  --border-soft: rgba(255, 255, 255, .08);
-  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
-  color-scheme: dark;
 }
 .hero-bg {
   position: absolute;
@@ -123,11 +111,11 @@
 }
 .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .btn-secondary {
-  background: rgba(255, 255, 255, .08);
-  color: #f0f2f5;
-  border-color: rgba(255, 255, 255, .14);
+  background: var(--accent-soft);
+  color: var(--fg);
+  border-color: var(--accent-border);
 }
-.btn-secondary:hover { background: rgba(255, 255, 255, .15); }
+.btn-secondary:hover { border-color: var(--accent); }
 .btn-ghost {
   background: transparent;
   color: var(--muted);
@@ -147,9 +135,9 @@
   color: var(--muted);
 }
 .hero-links a {
-  color: #b0b5bd;
+  color: var(--muted);
   text-decoration: none;
   transition: color .15s;
 }
 .hero-links a:hover { color: var(--accent); }
-.hero-link-sep { color: rgba(255, 255, 255, .18); user-select: none; }
+.hero-link-sep { color: var(--border); user-select: none; }
