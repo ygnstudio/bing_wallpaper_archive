@@ -23,3 +23,6 @@ site/thumbnails
 
 # 本地环境变量
 .env
+
+# Local / CI poll reports (uploaded as workflow artifacts)
+.archive-update/

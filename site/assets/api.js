@@ -1,10 +1,11 @@
+import { t } from './i18n.js';
 /**
  * 数据与网络 API
  * 负责 index.json 加载、分辨率 URL 构建、图片字节获取。
  */
 
 import { DEFAULT_LIGHTBOX_RES, CACHE_BUST } from './config.js';
-import { mergeYearItems } from './state.js';
+import { mergeYearItems, byDate } from './state.js';
 
 /**
  * 加载轻量主索引
@@ -20,6 +21,7 @@ export async function loadIndex(cacheBust) {
 
 /** @type {Set<string>} 已加载完整数据的年份 */
 const loadedYears = new Set();
+const loadingYears = new Map();
 
 /**
  * 按需加载某一年份的完整数据（含 url/copyrightlink/urlbase），
@@ -29,13 +31,19 @@ const loadedYears = new Set();
  */
 export async function ensureYearLoaded(year) {
   if (loadedYears.has(year)) return;
-  const base = `./data/${year}.json`;
-  const url = CACHE_BUST ? `${base}?v=${CACHE_BUST}` : base;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const yearItems = await res.json();
-  mergeYearItems(yearItems);
-  loadedYears.add(year);
+  if (loadingYears.has(year)) return loadingYears.get(year);
+  const pending = (async () => {
+    const base = `./data/${year}.json`;
+    const url = CACHE_BUST ? `${base}?v=${CACHE_BUST}` : base;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const yearItems = await res.json();
+    mergeYearItems(yearItems);
+    loadedYears.add(year);
+  })();
+  loadingYears.set(year, pending);
+  try { await pending; }
+  finally { loadingYears.delete(year); }
 }
 
 /**
@@ -49,16 +57,8 @@ export async function ensureItemLoaded(it) {
   await ensureYearLoaded(year);
   // state.mergeYearItems 会更新 byDate，返回合并后的对象
   // 但这里原对象引用可能仍是旧的，重新从全局取最保险
-  const { byDate } = await import('./state.js');
   return byDate.get(it.date) || it;
 }
-
-/**
- * 根据基础 URL 和分辨率构造完整图片 URL
- * @param {string} url
- * @param {string} res
- * @returns {string}
- */
 
 /**
  * 根据基础 URL 和分辨率构造完整图片 URL
@@ -89,10 +89,10 @@ export function supportedResolutions(item) {
   const u = item.url || '';
   const bing = /bing\.com\/th\?id=OHR/i.test(u);
   if (!bing) {
-    return [{ v: '1920x1080', label: '1080p（已是最清）' }];
+    return [{ v: '1920x1080', label: t('1080p（已是最清）') }];
   }
   if (item.uhd === false) {
-    return [{ v: '1920x1080', label: '1080p（仅此分辨率）' }];
+    return [{ v: '1920x1080', label: t('1080p（仅此分辨率）') }];
   }
   return [
     { v: 'UHD', label: 'UHD' },
@@ -117,9 +117,13 @@ export function defaultResolution(item) {
  * @returns {Promise<Uint8Array>}
  */
 export async function fetchBytes(url) {
-  const r = await fetch(url, { mode: 'cors' });
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  return new Uint8Array(await r.arrayBuffer());
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),30000);
+  try {
+    const r=await fetch(url,{mode:'cors',signal:controller.signal});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return new Uint8Array(await r.arrayBuffer());
+  } finally { clearTimeout(timer); }
 }
 
 /**
@@ -137,13 +141,13 @@ export async function fetchWithFallback(it, res) {
       const url = buildResUrl(it.url, r) || it.url;
       const bytes = await fetchBytes(url);
       const suffix = r === 'UHD' ? '_UHD' : '';
-      return { bytes, name: it.date + suffix + '.jpg' };
+      return { bytes, name: it.date + suffix + '.jpg', resolution:r, thumbnail:false };
     } catch (_) { }
   }
   if (it.thumbnail) {
     try {
       const bytes = await fetchBytes('./' + it.thumbnail);
-      return { bytes, name: it.date + '_thumb.webp' };
+      return { bytes, name: it.date + '_thumb.webp', resolution:'thumbnail', thumbnail:true };
     } catch (_) { }
   }
   return null;

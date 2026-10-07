@@ -1,0 +1,45 @@
+/* Visible choices use the same inset surfaces and selected material throughout. */
+.choice-control { display:flex; gap:3px; padding:4px; border:1px solid var(--border-soft); border-radius:var(--radius-full); background:var(--surface); min-width:0; }
+.choice-control button { display:flex; align-items:center; justify-content:center; flex:1; min-height:36px; min-width:0; padding:6px 12px; border:0; border-radius:var(--radius-full); background:transparent; color:var(--muted); font-size:13px; line-height:1.4; white-space:nowrap; }
+.choice-control button[aria-checked="true"] { background:var(--glass-active); color:var(--fg); box-shadow:0 1px 4px rgba(0,0,0,.14),inset 0 1px 0 var(--glass-border); font-weight:600; }
+.choice-control button:disabled,.month-picker button:disabled { opacity:.35; cursor:default; }
+.choice-control button:focus-visible,.month-trigger:focus-visible,.month-grid button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.preferences-panel { width:320px; padding:8px 16px; }
+.preference-row { padding:12px 0; display:grid; gap:8px; font-size:13px; }
+.preference-row+.preference-row { border-top:1px solid var(--border-soft); }
+.preference-row .choice-control button { padding-inline:8px; min-height:40px; }
+.batch-res .choice-control { flex-shrink:0; }
+.batch-res .choice-control button { min-height:36px; font-size:12px; padding-inline:10px; }
+.lb-res-row .choice-control { display:inline-flex; }
+.month-field { display:grid; gap:6px; flex:1 1 160px; min-width:0; font-size:12px; color:var(--muted); }
+.month-trigger { width:100%; min-height:44px; padding:10px 16px; border:1px solid var(--border); border-radius:var(--radius-full); background:var(--bg); color:var(--fg); font-size:14px; text-align:left; }
+.month-trigger::after { content:'⌄'; float:right; margin-left:12px; color:var(--muted); }
+.month-trigger[aria-expanded="true"] { border-color:var(--accent); background:var(--accent-soft); }
+.date-panel { width:100%; margin-bottom:0; border-radius:var(--radius-sm); }
+.month-picker { scroll-margin-block:16px 110px; width:100%; max-width:360px; margin-inline:auto; padding:12px; border:1px solid var(--border-soft); border-radius:24px; background:var(--bg); }
+.month-picker-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.month-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.month-grid button { min-height:44px; padding:8px 2px; border:0; border-radius:var(--radius-full); background:transparent; color:var(--fg); font-size:13px; }
+
+.month-grid button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); }
+@media(max-width:739px) {
+ .month-field { flex-basis:100%; }
+ .batch-res .resolution-label { display:none; }
+ .batch-panel { grid-template-columns:1fr auto; }
+ .batch-res { grid-column:1/-1; grid-row:2; justify-self:stretch; }
+ #batch-done { grid-column:2; }
+ .batch-actions { grid-row:3; }
+ .batch-res .choice-control { width:100%; }
+ .choice-control button,.batch-res .choice-control button { min-height:44px; }
+}
+/* Complete dates keep a compact seven-column calendar at every viewport size. */
+.calendar-heading { display:flex; align-items:center; justify-content:center; gap:4px; min-width:0; flex:1; }
+.month-picker-header>.icon-button { flex:0 0 36px; width:36px; }
+.calendar-year,.calendar-month { flex:0 0 auto; white-space:nowrap; min-height:44px; padding:6px 10px; border:0; border-radius:var(--radius-full); background:transparent; color:var(--fg); font-size:15px; font-weight:600; }
+.calendar-year::after,.calendar-month::after { content:'⌄'; margin-left:6px; color:var(--muted); }
+.calendar-weekdays,.day-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; }
+.calendar-weekdays { margin-bottom:6px; color:var(--muted); font-size:12px; text-align:center; }
+.calendar-weekdays span { padding-block:6px; }
+.day-grid button { min-width:0; min-height:40px; padding:4px 0; border:0; border-radius:var(--radius-full); background:transparent; color:var(--fg); font-size:14px; font-variant-numeric:tabular-nums; }
+.day-grid button[aria-pressed="true"] { background:var(--control-accent); color:var(--on-accent); }
+.day-grid button:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }

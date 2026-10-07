@@ -1,3 +1,7 @@
+import { enhanceChoices, refreshChoices } from './choices.js';
+import { reveal, animateIn } from './motion.js';
+import { t, setMessage } from './i18n.js';
+import { downloadPhoto } from './download.js';
 /**
  * 灯箱（Lightbox）组件
  * 大图查看、上一张/下一张导航、分辨率切换、链接复制、下载、URL 状态同步。
@@ -12,6 +16,24 @@ let current = null;
 
 /** 是否已为本次灯箱会话推入历史记录 */
 let pushed = false;
+let previousFocus = null;
+let requestId = 0;
+async function hideLightbox(els) {
+  const id = ++requestId;
+  current = null;
+  if (!(await reveal(els.lightbox,false)) || id !== requestId) return;
+  document.body.style.overflow = '';
+  previousFocus?.focus({ preventScroll: true });
+}
+function setResolutionOptions(els, preferred) {
+  els.lbRes.replaceChildren();
+  for (const option of supportedResolutions(current)) {
+    const el = document.createElement('option');
+    el.value = option.v; el.textContent = option.label; els.lbRes.append(el);
+  }
+  els.lbRes.value = [...els.lbRes.options].some(o => o.value === preferred) ? preferred : defaultResolution(current);
+  refreshChoices(els.lbRes);
+}
 
 /**
  * 初始化灯箱事件
@@ -31,14 +53,24 @@ let pushed = false;
  * @param {HTMLButtonElement} els.lbNext
  */
 export function initLightbox(els) {
+  enhanceChoices(els.lbRes);
+  els.lbDownload.addEventListener('click',()=>{ if(current) downloadPhoto(current,els.lbRes.value,els.lbDownload,els.lbStatus); });
+  document.addEventListener('languagechange',()=>{ if(current) { const preferred=els.lbRes.value; setResolutionOptions(els,preferred); } });
   els.lbRes.addEventListener('change', () => applyResolution(els));
   els.lbClose.onclick = () => closeLightbox(els);
   els.lightbox.addEventListener('click', (e) => { if (e.target === els.lightbox) closeLightbox(els); });
   els.lbImg.addEventListener('click', () => { if (els.lbLink.href) window.open(els.lbLink.href, '_blank', 'noopener'); });
-  els.lbImg.addEventListener('load', () => els.lbImg.classList.add('loaded'));
+  els.lbImg.addEventListener('load', () => { els.lbImg.classList.add('loaded'); if(!els.lightbox.hidden) animateIn(els.lbImg,0); });
   document.addEventListener('keydown', (e) => {
     if (els.lightbox.hidden) return;
-    if (e.key === 'Escape') closeLightbox(els);
+    if (e.key === 'Tab') {
+      const focusable = [...els.lightbox.querySelectorAll('button:not([disabled]),a[href],select,summary')].filter(el => el.getClientRects().length);
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    if (e.key === 'Escape') { e.preventDefault(); closeLightbox(els); }
+    if (e.target.closest('select,input,[role=radiogroup]')) return;
     else if (e.key === 'ArrowLeft') nav(els, -1);
     else if (e.key === 'ArrowRight') nav(els, 1);
   });
@@ -48,7 +80,7 @@ export function initLightbox(els) {
   // 浏览器后退：关闭灯箱（popstate 已由 clearLightboxUrl 触发）
   window.addEventListener('popstate', () => {
     pushed = false;
-    if (!els.lightbox.hidden) els.lightbox.hidden = true;
+    if (!els.lightbox.hidden) hideLightbox(els);
   });
 
   els.lbCopy.onclick = async () => {
@@ -72,26 +104,44 @@ export function initLightbox(els) {
  * @param {{fromUrl?: boolean}} [opts] - fromUrl: URL 已带 d 参数（直链进入），不再额外 push
  */
 export async function openLightbox(it, els, opts = {}) {
-  current = await ensureItemLoaded(it);
-  els.lbNote.hidden = true;
-  const opts2 = supportedResolutions(current);
-  els.lbRes.innerHTML = '';
-  for (const o of opts2) {
-    const el = document.createElement('option');
-    el.value = o.v;
-    el.textContent = o.label;
-    els.lbRes.appendChild(el);
-  }
-  els.lbRes.value = defaultResolution(current);
-  applyResolution(els);
-  els.lightbox.hidden = false;
-  updateNavVisibility(els);
-  if (opts.fromUrl) {
-    pushed = true; // 历史里已有 ?d，后退即关闭
-  } else {
-    setLightboxUrl(true, current.date);
+  const id = ++requestId;
+  const entering = els.lightbox.hidden;
+  if (entering) previousFocus = document.activeElement;
+  current = null;
+  els.lightbox.dataset.loadState = 'loading';
+  els.lbTitle.textContent = it.title || it.date;
+  els.lbCopyright.replaceChildren();
+  if (document.activeElement === els.lbRetry) els.lbClose.focus({preventScroll:true});
+  els.lbNote.hidden = els.lbRetry.hidden = true;
+  els.lbPrev.hidden = els.lbNext.hidden = true;
+  els.lbLink.removeAttribute('href');
+  setMessage(els.lbStatus,'正在读取归档…');
+  reveal(els.lightbox,true);
+  document.body.style.overflow = 'hidden';
+  if (entering) {
+    els.lbClose.focus({preventScroll:true});
+    if (!opts.fromUrl) setLightboxUrl(true, it.date);
     pushed = true;
   }
+  let loaded;
+  try { loaded=await ensureItemLoaded(it); }
+  catch {
+    if (id !== requestId || els.lightbox.hidden) return;
+    els.lightbox.dataset.loadState = 'error';
+    setMessage(els.lbStatus,'图片详情加载失败，请重试');
+    els.lbRetry.hidden = false;
+    els.lbRetry.onclick = () => openLightbox(it, els, opts);
+    return;
+  }
+  if (id !== requestId || els.lightbox.hidden) return;
+  current = loaded;
+  els.lightbox.dataset.loadState = 'ready';
+  setMessage(els.lbStatus,'');
+  setResolutionOptions(els, defaultResolution(current));
+  applyResolution(els);
+  updateNavVisibility(els);
+  // Retrying within the same session must not add another history entry.
+  if (!entering) setLightboxUrl(false, current.date);
 }
 
 /**
@@ -99,8 +149,7 @@ export async function openLightbox(it, els, opts = {}) {
  * @param {Object} els
  */
 function closeLightbox(els) {
-  els.lightbox.hidden = true;
-  current = null;
+  hideLightbox(els);
   if (pushed) {
     pushed = false;
     clearLightboxUrl();
@@ -118,8 +167,18 @@ async function nav(els, dir) {
   const base = idx >= 0 ? idx : 0;
   const next = filtered[(base + dir + filtered.length) % filtered.length];
   if (!next || next.date === current.date) return;
-  current = await ensureItemLoaded(next);
+  const id = ++requestId;
+  let loaded;
+  try { loaded=await ensureItemLoaded(next); } catch {
+    if (id === requestId && !els.lightbox.hidden) setMessage(els.lbStatus,'加载失败，请刷新重试');
+    return;
+  }
+  if (id !== requestId || els.lightbox.hidden) return;
+  current = loaded;
+  setResolutionOptions(els, els.lbRes.value);
+  els.lbNote.hidden = true;
   applyResolution(els);
+  animateIn(els.lbTitle.parentElement,6);
   setLightboxUrl(false, current.date);
 }
 
@@ -148,18 +207,21 @@ function applyResolution(els) {
       fellBack = true;
       els.lbImg.src = it.thumbnail;
       els.lbNote.hidden = false;
-      els.lbNote.textContent = '所选分辨率源不可用，已回退缩略图。';
+      els.lbNote.textContent = t('所选分辨率源不可用，已回退缩略图。');
     }
   };
   els.lbImg.classList.remove('loaded');
   els.lbImg.src = full || it.thumbnail || '';
+  els.lbImg.alt = it.title || it.date;
   els.lbTitle.textContent = it.title || it.date;
-  els.lbCopyright.innerHTML = it.copyrightlink
-    ? `<a href="${it.copyrightlink}" target="_blank" rel="noopener">${it.copyright || ''}</a>`
-    : (it.copyright || '');
+  els.lbCopyright.replaceChildren();
+  if (it.copyrightlink) {
+    const link = document.createElement('a');
+    link.href = it.copyrightlink; link.target = '_blank'; link.rel = 'noopener';
+    link.textContent = it.copyright || ''; els.lbCopyright.append(link);
+  } else els.lbCopyright.textContent = it.copyright || '';
   els.lbLink.href = full || '#';
-  els.lbDownload.href = full || it.thumbnail || '#';
-  els.lbDownload.download = (it.date || 'bing') + (res !== '1920x1080' ? '_' + res : '') + '.jpg';
+  setMessage(els.lbStatus,'');
 }
 
 /**
@@ -172,9 +234,9 @@ function applyResolution(els) {
 async function copyToClipboard(text, btn, okText, resetText) {
   try {
     await navigator.clipboard.writeText(text);
-    btn.textContent = okText + ' ✓';
-    setTimeout(() => (btn.textContent = resetText), 1500);
+    btn.textContent = t(okText) + ' ✓';
+    setTimeout(() => (btn.textContent = t(resetText)), 1500);
   } catch {
-    btn.textContent = '复制失败';
+    btn.textContent = t('复制失败，请打开原图后复制地址');
   }
 }

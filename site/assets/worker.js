@@ -145,8 +145,8 @@ function matchesForCount(i, p) {
 }
 
 function inDateRange(i, from, to) {
-  const ym = +i.date.slice(0, 6);
-  if (from && ym < +from.replace('-', '')) return false;
-  if (to && ym > +to.replace('-', '')) return false;
+  const day = i.date;
+  if (from && day < from.replaceAll('-', '').padEnd(8, '0')) return false;
+  if (to && day > to.replaceAll('-', '').padEnd(8, '9')) return false;
   return true;
 }
