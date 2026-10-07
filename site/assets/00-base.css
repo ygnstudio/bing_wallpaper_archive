@@ -1,23 +1,72 @@
+/* ===== 主题令牌 =====
+ * 深色（默认）：墨黑 + 金；浅色：纸白 + 墨蓝。
+ * html[data-theme="light"] 切换，head 内联脚本写入初始值防闪烁。
+ */
 :root {
   --bg: #0b0d10;
   --surface: #14161b;
   --card: #181a20;
   --fg: #f0f2f5;
   --muted: #9aa0a6;
+  --placeholder: #82878f;
   --accent: #e8b923;
   --accent-hover: #f0c94a;
+  --on-accent: #1a1300;
+  --accent-soft: rgba(232, 185, 35, .14);
+  --accent-border: rgba(232, 185, 35, .45);
   --border: #272a31;
+  --border-soft: rgba(255, 255, 255, .08);
+  --header-bg: rgba(11, 13, 16, .82);
   --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  --shadow-fab: 0 8px 22px rgba(232, 185, 35, .28);
+  --focus-ring: 0 0 0 3px rgba(232, 185, 35, .22);
+  --warn-fg: #ffb74d;
+  --warn-bg: rgba(255, 183, 77, .12);
+  --skeleton-a: #1a1d24;
+  --skeleton-b: #22262e;
   --radius: 14px;
   --radius-sm: 10px;
+  --font-display: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  --bg: #faf7f2;
+  --surface: #f1ece3;
+  --card: #ffffff;
+  --fg: #1f1c17;
+  --muted: #8a857c;
+  --placeholder: #a29b8e;
+  --accent: #1b365d;
+  --accent-hover: #264a7a;
+  --on-accent: #f7f4ee;
+  --accent-soft: rgba(27, 54, 93, .10);
+  --accent-border: rgba(27, 54, 93, .40);
+  --border: #e3ddd1;
+  --border-soft: #eae4d9;
+  --header-bg: rgba(250, 247, 242, .85);
+  --shadow: 0 10px 30px rgba(31, 28, 23, .12);
+  --shadow-fab: 0 8px 22px rgba(27, 54, 93, .22);
+  --focus-ring: 0 0 0 3px rgba(27, 54, 93, .20);
+  --warn-fg: #9a6b00;
+  --warn-bg: rgba(154, 107, 0, .10);
+  --skeleton-a: #ece6da;
+  --skeleton-b: #f3eee4;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; color-scheme: dark; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
   font-family: -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
   background: var(--bg);
   color: var(--fg);
   line-height: 1.5;
+  transition: background .25s ease, color .25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  body { transition: none; }
 }

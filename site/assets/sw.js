@@ -6,7 +6,7 @@
  * - 缩略图：Cache First，长期缓存
  */
 
-const CACHE_NAME = 'bing-wallpaper-v1';
+const CACHE_NAME = 'bing-wallpaper-v2';
 
 const CORE_URLS = [
   './',
