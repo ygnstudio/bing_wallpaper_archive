@@ -80,7 +80,7 @@ function initScrollControls() {
     }
     root.classList.add('controls-scrolling');
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(show, 240);
+    idleTimer = setTimeout(show, 320);
   }, { passive:true });
   // Keyboard users can reach the controls immediately, even during smooth scrolling.
   document.addEventListener('keydown', show, true);
