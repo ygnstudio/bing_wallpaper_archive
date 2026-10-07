@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """校验 data/index.json 的完整性。
 
-- 每条带 `thumbnail` 的索引项，其对应缩略图文件必须存在于磁盘
+- 每条索引必须有 thumbnail，且对应文件存在、非空
 - 统计总条目、含缩略图数、缺图数、缺 date 字段数
 - 缺图时退出码 1（可用于 CI 防回归），全部存在则退出码 0
 
@@ -30,6 +30,9 @@ def main() -> int:
         return 2
 
     items = json.loads(index_path.read_text(encoding="utf-8"))
+    if not isinstance(items, list) or not items:
+        print("ERROR: 索引为空或不是列表")
+        return 1
     total = len(items)
     with_thumb = 0
     missing = []
@@ -41,8 +44,10 @@ def main() -> int:
         if it.get("thumbnail"):
             with_thumb += 1
             p = root / it["thumbnail"].lstrip("./")
-            if not p.exists():
+            if not p.is_file() or p.stat().st_size == 0:
                 missing.append(it.get("date", "<no-date>"))
+        else:
+            missing.append(it.get("date", "<no-date>"))
 
     print(f"总条目    : {total}")
     print(f"含缩略图  : {with_thumb}")
@@ -50,7 +55,7 @@ def main() -> int:
         print(f"缺 date   : {len(bad_dates)}")
     print(f"缺缩略图  : {len(missing)}")
 
-    if missing:
+    if missing or bad_dates:
         print("--- 缺图清单（前 30）---")
         for d in missing[:30]:
             print("   ", d)

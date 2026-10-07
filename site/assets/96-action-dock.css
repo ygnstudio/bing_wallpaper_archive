@@ -1,0 +1,26 @@
+/* A single action row for the photo, and a single navigation/action dock. */
+.sr-only { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip-path:inset(50%)!important; white-space:nowrap!important; border:0!important; }
+.hero-actions { grid-column:1/-1; grid-row:auto; display:flex; flex-wrap:nowrap; justify-content:flex-start; gap:8px; max-width:100%; min-width:0; margin-top:20px; overflow-x:auto; scrollbar-width:thin; }
+.hero-actions button,#hero-shuffle { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; gap:6px; margin:0; white-space:nowrap; }
+.hero-compact-label { display:none; }
+.action-dock { position:fixed; z-index:38; bottom:calc(12px + env(safe-area-inset-bottom,0px)); left:calc(var(--sidebar-space) + 12px); right:12px; display:flex; justify-content:center; pointer-events:none; }
+.dock-items { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); width:min(100%,352px); padding:4px; pointer-events:auto; }
+.dock-items button { position:relative; min-width:0; min-height:56px; padding:5px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border:0; border-radius:var(--radius-full); background:transparent; color:var(--fg); font-size:11px; line-height:1.25; white-space:nowrap; }
+.dock-items button[aria-expanded="true"],.dock-items button[aria-pressed="true"] { background:var(--glass-active); color:var(--accent); }
+.dock-items .icon { width:20px; height:20px; }
+.dock-items .batch-badge { position:absolute; right:4px; top:0; min-width:16px; height:16px; font-size:10px; }
+#back-to-top { opacity:1; visibility:visible; }
+.archive-page .topnav>.nav-search { display:none; }
+.archive-page .gallery { padding-bottom:112px; }
+.archive-page .footer { padding-bottom:112px; }
+.batch-panel { bottom:calc(88px + env(safe-area-inset-bottom,0px)); max-height:calc(100dvh - 112px); }
+.batch-visible .gallery,.selection-mode .gallery { padding-bottom:calc(var(--batch-height) + 128px + env(safe-area-inset-bottom,0px)); }
+@media(max-width:739px) {
+ .hero-actions { display:flex; margin-top:16px; gap:6px; }
+ .hero-actions button,#hero-shuffle { flex:1 0 auto; margin:0; padding:8px 10px; min-height:44px; font-size:13px; }
+ .action-dock { left:12px; }
+}
+@media(max-width:599px) {
+ .hero-actions .hero-full-label { display:none; }
+ .hero-actions .hero-compact-label { display:inline; }
+}

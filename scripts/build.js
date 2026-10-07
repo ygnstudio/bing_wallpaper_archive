@@ -99,9 +99,9 @@ async function bundleCss() {
  * 用 Rollup 打包 JS
  * @returns {Promise<{code: string, hash: string}>}
  */
-async function bundleJs() {
+async function bundleJs(entry = 'app.js') {
   const bundle = await rollup({
-    input: join(SRC, 'assets', 'app.js'),
+    input: join(SRC, 'assets', entry),
     plugins: [
       nodeResolve(),
       ...(isDev ? [] : [terser()])
@@ -122,7 +122,7 @@ async function bundleJs() {
  * @param {string} jsHash
  * @param {string} cssHash
  */
-async function processHtml(name, jsHash, cssHash) {
+async function processHtml(name, jsHash, cssHash, themeHash) {
   const src = join(SRC, name);
   const dst = join(DIST, name);
   let html = await readFile(src, 'utf-8');
@@ -130,6 +130,7 @@ async function processHtml(name, jsHash, cssHash) {
     .replace(/\.\/assets\/style\.css\?v=[^"']+/g, `./assets/style.${cssHash}.css`)
     .replace(/<script[^>]*src="\.\/assets\/app\.js\?v=[^"]+"[^>]*><\/script>/g,
       `<script src="./assets/app.${jsHash}.js"></script>`);
+  html = html.replace(/<script[^>]*src="\.\/assets\/theme\.js\?v=[^"]+"[^>]*><\/script>/g, `<script src="./assets/theme.${themeHash}.js"></script>`);
   await writeFile(dst, html);
 }
 
@@ -231,9 +232,9 @@ async function main() {
   await ensureDir(DIST);
 
   // 打包 JS/CSS
-  const [{ code: jsCode, hash: jsHash }, { css: cssCode, hash: cssHash }] = await Promise.all([
+  const [{ code: jsCode, hash: jsHash }, { css: cssCode, hash: cssHash }, {code: themeCode, hash: themeHash}] = await Promise.all([
     bundleJs(),
-    bundleCss()
+    bundleCss(), bundleJs('theme.js')
   ]);
 
   // 写入带 hash 的资源
@@ -246,6 +247,7 @@ async function main() {
   // 复制 Service Worker 与 Web Worker（不打包，保持独立）
   await copyFile(join(SRC, 'assets', 'sw.js'), join(DIST, 'assets', 'sw.js'));
   await copyFile(join(SRC, 'assets', 'worker.js'), join(DIST, 'assets', 'worker.js'));
+  await writeFile(join(DIST, 'assets', `theme.${themeHash}.js`), themeCode);
 
   // 生成资源清单，供 SW 预缓存（注意与 PWA manifest.json 区分）
   await writeFile(join(DIST, 'assets', 'asset-manifest.json'), JSON.stringify({
@@ -253,13 +255,14 @@ async function main() {
       `./assets/${jsName}`,
       `./assets/${cssName}`,
       `./assets/sw.js`,
-      `./assets/worker.js`
+      `./assets/worker.js`,
+      `./assets/theme.${themeHash}.js`
     ]
   }));
 
   // 处理 HTML
-  await processHtml('index.html', jsHash, cssHash);
-  await processHtml('about.html', jsHash, cssHash);
+  await processHtml('index.html', jsHash, cssHash, themeHash);
+  await processHtml('about.html', jsHash, cssHash, themeHash);
 
   // 复制 PWA 与 SEO 静态资源
   await copyFile(join(SRC, 'favicon.svg'), join(DIST, 'favicon.svg'));

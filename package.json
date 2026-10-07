@@ -7,7 +7,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "dev": "node scripts/build.js --dev",
-    "test": "node tests/unit.test.js",
+    "test": "node tests/unit.test.js && node tests/interface.test.js && node tests/motion.test.js && node tests/accent.test.js && node tests/lightbox.test.js && node tests/performance.test.js",
+    "test:archive": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "validate": "python3 scripts/validate.py"
   },
   "devDependencies": {
