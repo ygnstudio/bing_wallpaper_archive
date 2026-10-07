@@ -39,3 +39,6 @@ jobs:
 
       - name: Test deployment targets
         run: npm run test:deployment
+
+      - name: Test archive automation and README preservation
+        run: npm run test:archive

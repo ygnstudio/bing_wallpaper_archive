@@ -144,7 +144,9 @@ async function processHtml(name, jsHash, cssHash, themeHash) {
     .replace(/<script[^>]*src="\.\/assets\/app\.js\?v=[^"]+"[^>]*><\/script>/g,
       `<script src="./assets/app.${jsHash}.js"></script>`);
   html = html.replace(/<script[^>]*src="\.\/assets\/theme\.js\?v=[^"]+"[^>]*><\/script>/g, `<script src="./assets/theme.${themeHash}.js"></script>`);
-  await writeFile(dst, rewriteSiteUrls(html));
+  // 只改写 head 中的 SEO 地址；正文里的主站和备用站链接必须各自保留。
+  html = html.replace(/<head>[\s\S]*?<\/head>/, head => rewriteSiteUrls(head));
+  await writeFile(dst, html);
 }
 
 /**
