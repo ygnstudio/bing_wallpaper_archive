@@ -10,7 +10,8 @@
     "test": "node tests/unit.test.js && node tests/interface.test.js && node tests/motion.test.js && node tests/accent.test.js && node tests/lightbox.test.js && node tests/performance.test.js",
     "test:archive": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "test:scroll-controls": "node tests/scroll-controls.browser.mjs",
-    "validate": "python3 scripts/validate.py"
+    "validate": "python3 scripts/validate.py",
+    "test:deployment": "node --test tests/deployment.test.js"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",

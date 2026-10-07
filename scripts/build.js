@@ -41,6 +41,19 @@ const SRC = join(ROOT, 'site');
 const DIST = join(ROOT, 'dist');
 
 const isDev = process.argv.includes('--dev');
+const LEGACY_SITE_URL = 'https://ygnstudio.github.io/bing_wallpaper_archive';
+const siteUrl = new URL(process.env.SITE_URL || LEGACY_SITE_URL);
+if (siteUrl.protocol !== 'https:' || siteUrl.username || siteUrl.password || siteUrl.search || siteUrl.hash) {
+  throw new Error('SITE_URL 必须是无凭据、查询参数和片段的 HTTPS 站点地址');
+}
+const SITE_URL = siteUrl.href.replace(/\/+$/, '');
+const isCloudflare = process.env.CF_PAGES === '1';
+const aboutPath = isCloudflare ? 'about' : 'about.html';
+
+function rewriteSiteUrls(text) {
+  return text.replaceAll(LEGACY_SITE_URL, SITE_URL)
+    .replaceAll(`${SITE_URL}/about.html`, `${SITE_URL}/${aboutPath}`);
+}
 
 /**
  * 计算文件内容 hash（8 位）
@@ -131,7 +144,7 @@ async function processHtml(name, jsHash, cssHash, themeHash) {
     .replace(/<script[^>]*src="\.\/assets\/app\.js\?v=[^"]+"[^>]*><\/script>/g,
       `<script src="./assets/app.${jsHash}.js"></script>`);
   html = html.replace(/<script[^>]*src="\.\/assets\/theme\.js\?v=[^"]+"[^>]*><\/script>/g, `<script src="./assets/theme.${themeHash}.js"></script>`);
-  await writeFile(dst, html);
+  await writeFile(dst, rewriteSiteUrls(html));
 }
 
 /**
@@ -199,11 +212,11 @@ async function validateData() {
  * 生成 sitemap.xml（首页 + 关于页）
  */
 async function generateSitemap() {
-  const BASE_URL = 'https://ygnstudio.github.io/bing_wallpaper_archive';
+  const BASE_URL = SITE_URL;
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     { loc: `${BASE_URL}/`, lastmod: today, changefreq: 'daily', priority: '1.0' },
-    { loc: `${BASE_URL}/about.html`, lastmod: today, changefreq: 'monthly', priority: '0.5' }
+    { loc: `${BASE_URL}/${aboutPath}`, lastmod: today, changefreq: 'monthly', priority: '0.5' }
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
@@ -245,7 +258,14 @@ async function main() {
   await writeFile(join(DIST, 'assets', cssName), cssCode);
 
   // 复制 Service Worker 与 Web Worker（不打包，保持独立）
-  await copyFile(join(SRC, 'assets', 'sw.js'), join(DIST, 'assets', 'sw.js'));
+  // 放到站点根目录，使默认 scope 同时覆盖根部署与 GitHub 项目子路径。
+  const swSource = await readFile(join(SRC, 'assets', 'sw.js'), 'utf-8');
+  const releaseInputs = await Promise.all([
+    readFile(join(SRC, 'index.html')), readFile(join(SRC, 'about.html')),
+    readFile(join(ROOT, 'data', 'index.json'))
+  ]);
+  const release = hash(jsCode + cssCode + themeCode + swSource + SITE_URL + releaseInputs.join(''));
+  await writeFile(join(DIST, 'sw.js'), swSource.replace('__BUILD_REVISION__', release));
   await copyFile(join(SRC, 'assets', 'worker.js'), join(DIST, 'assets', 'worker.js'));
   await writeFile(join(DIST, 'assets', `theme.${themeHash}.js`), themeCode);
 
@@ -254,7 +274,7 @@ async function main() {
     assets: [
       `./assets/${jsName}`,
       `./assets/${cssName}`,
-      `./assets/sw.js`,
+      `./sw.js`,
       `./assets/worker.js`,
       `./assets/theme.${themeHash}.js`
     ]
@@ -267,7 +287,12 @@ async function main() {
   // 复制 PWA 与 SEO 静态资源
   await copyFile(join(SRC, 'favicon.svg'), join(DIST, 'favicon.svg'));
   await copyFile(join(SRC, 'manifest.json'), join(DIST, 'manifest.json'));
-  await copyFile(join(SRC, 'robots.txt'), join(DIST, 'robots.txt'));
+  await writeFile(join(DIST, 'robots.txt'), rewriteSiteUrls(await readFile(join(SRC, 'robots.txt'), 'utf-8')));
+  await copyFile(join(SRC, '404.html'), join(DIST, '404.html'));
+  if (isCloudflare) {
+    const headers = await readFile(join(SRC, '_headers'), 'utf-8');
+    await writeFile(join(DIST, '_headers'), headers);
+  }
   const ogImage = join(SRC, 'assets', 'og-image.jpg');
   if (existsSync(ogImage)) {
     await copyFile(ogImage, join(DIST, 'assets', 'og-image.jpg'));

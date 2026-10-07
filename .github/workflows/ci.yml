@@ -36,3 +36,6 @@ jobs:
 
       - name: Unit test
         run: npm test
+
+      - name: Test deployment targets
+        run: npm run test:deployment
