@@ -32,6 +32,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Test deployment targets
+        run: npm run test:deployment
+
       - name: Build site
         run: npm run build
 
