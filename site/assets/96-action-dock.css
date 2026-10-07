@@ -8,8 +8,9 @@
 .dock-items button { position:relative; min-width:0; min-height:56px; padding:5px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border:0; border-radius:var(--radius-full); background:transparent; color:var(--fg); font-size:11px; line-height:1.25; white-space:nowrap; }
 .dock-items button[aria-expanded="true"],.dock-items button[aria-pressed="true"] { background:var(--glass-active); color:var(--accent); }
 .dock-items .icon { width:20px; height:20px; }
-.archive-page .topnav,.action-dock { transition:opacity 180ms ease; }
-.controls-scrolling .archive-page .topnav,.controls-scrolling .action-dock { opacity:0; }
+.archive-page .topnav,.action-dock { transition:opacity 420ms cubic-bezier(.4,0,.2,1); }
+.controls-scrolling .archive-page .topnav,.controls-scrolling .action-dock { opacity:0; transition-duration:160ms; transition-timing-function:ease-out; }
+html[data-input="keyboard"] .archive-page .topnav,html[data-input="keyboard"] .action-dock { transition:none; }
 .controls-scrolling .archive-page .topnav,.controls-scrolling .archive-page .topnav *,
 .controls-scrolling .action-dock,.controls-scrolling .action-dock * { pointer-events:none; }
 .dock-items .batch-badge { position:absolute; right:4px; top:0; min-width:20px; height:20px; font-size:10px; }
