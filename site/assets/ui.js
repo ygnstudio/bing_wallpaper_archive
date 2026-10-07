@@ -160,10 +160,7 @@ function createCard(it, openLightbox) {
   const date = document.createElement('time');
   date.dateTime = `${it.date.slice(0,4)}-${it.date.slice(4,6)}-${it.date.slice(6,8)}`;
   date.textContent = formatDate(it.date);
-  const tag = document.createElement('span');
-  tag.dataset.category=it.category || '';
-  tag.textContent = t(it.category || '');
-  meta.append(date, tag);
+  meta.append(date);
   info.append(title, meta);
   card.append(info);
   return card;
