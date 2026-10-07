@@ -62,4 +62,28 @@ export function initNavigation({ resetFilters, applySearch }) {
   document.addEventListener('languagechange',()=>{
     if(panel) title.textContent=t(titles[panel]);
   });
+  initScrollControls();
+}
+
+/** Keep floating controls out of the way until page scrolling settles. */
+function initScrollControls() {
+  const root = document.documentElement;
+  let idleTimer;
+  const show = () => {
+    clearTimeout(idleTimer);
+    root.classList.remove('controls-scrolling');
+  };
+  window.addEventListener('scroll', () => {
+    if (root.dataset.input === 'keyboard' || document.querySelector('dialog[open]')) {
+      show();
+      return;
+    }
+    root.classList.add('controls-scrolling');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(show, 240);
+  }, { passive:true });
+  // Keyboard users can reach the controls immediately, even during smooth scrolling.
+  document.addEventListener('keydown', show, true);
+  document.addEventListener('focusin', show);
+  window.addEventListener('pageshow', show);
 }
