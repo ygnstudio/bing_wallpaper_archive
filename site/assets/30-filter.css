@@ -1,22 +1,22 @@
 .filter-group { display:flex; flex-wrap:wrap; align-items:center; gap:6px 15px; border-bottom:1px solid var(--border-soft); }
-.pill { min-height:46px; min-width:40px; padding:8px 5px 11px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:var(--muted); font-size:13px; white-space:nowrap; }
-.pill.active { border-bottom-color:var(--accent); color:var(--accent); font-weight:600; }
+.pill { min-height:var(--control-height); min-width:var(--control-height); padding:8px 12px; border:0; border-radius:var(--radius-full); background:transparent; color:var(--muted); font-size:13px; white-space:nowrap; }
+.pill.active { background:var(--glass-active); color:var(--accent); font-weight:600; }
 
 .filter-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px 24px; padding:12px 0; flex-wrap:wrap; }
 .color-filter { display:flex; align-items:center; gap:8px; min-width:0; max-width:100%; }
 .filter-label { min-width:52px; color:var(--muted); font-size:12px; }
 .color-group { display:flex; flex-wrap:nowrap; min-width:0; gap:0; overflow-x:auto; padding:6px 4px; scrollbar-width:thin; scroll-padding-inline:6px; }
-.color-pill { flex:0 0 40px; width:40px; height:40px; padding:0; border:0; border-radius:6px; background:transparent; display:grid; place-items:center; }
+.color-pill { flex:0 0 var(--control-height); width:var(--control-height); height:var(--control-height); padding:0; border:0; border-radius:var(--radius-full); background:transparent; display:grid; place-items:center; }
 .color-dot { width:17px; height:17px; border-radius:50%; outline:1px solid var(--border); outline-offset:-1px; }
 .color-pill.active .color-dot { box-shadow:0 0 0 3px var(--bg),0 0 0 4px var(--fg); }
 
 .color-dot.all { background:linear-gradient(135deg,var(--bg) 46%,var(--muted) 47%,var(--muted) 53%,var(--bg) 54%); }
 .filter-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.date-panel { display:flex; align-items:end; gap:14px; flex-wrap:wrap; padding:16px; margin:0 0 14px; border-radius:8px; background:var(--surface); }
+.date-panel { display:flex; align-items:end; gap:14px; flex-wrap:wrap; padding:16px; margin:0 0 14px; border-radius:var(--radius-sm); background:var(--surface); }
 .date-panel label { display:grid; gap:6px; font-size:12px; color:var(--muted); }
-.date-panel input { min-height:42px; width:180px; max-width:100%; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--fg); padding:7px 10px; }
+.date-panel input { min-height:var(--control-height); width:180px; max-width:100%; border:1px solid var(--border); border-radius:var(--radius-full); background:var(--bg); color:var(--fg); padding:7px 10px; }
 .date-divider { padding-bottom:10px; color:var(--muted); font-size:12px; }
 #date-hint { margin:0 0 10px auto; font-size:12px; color:var(--muted); }
 .results-row { min-height:42px; display:flex; gap:14px; align-items:center; padding:0 0 12px; font-size:12px; color:var(--muted); }
-.results-row .text-button { min-height:30px; font-size:12px; padding-block:0; }
+.results-row .text-button { min-height:var(--control-height); font-size:12px; padding-block:0; }
 .sort-label { margin-left:auto; }
