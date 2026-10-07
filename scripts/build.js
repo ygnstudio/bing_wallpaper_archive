@@ -265,6 +265,10 @@ async function main() {
   await copyFile(join(SRC, 'favicon.svg'), join(DIST, 'favicon.svg'));
   await copyFile(join(SRC, 'manifest.json'), join(DIST, 'manifest.json'));
   await copyFile(join(SRC, 'robots.txt'), join(DIST, 'robots.txt'));
+  const ogImage = join(SRC, 'assets', 'og-image.jpg');
+  if (existsSync(ogImage)) {
+    await copyFile(ogImage, join(DIST, 'assets', 'og-image.jpg'));
+  }
 
   // 生成 sitemap.xml
   await generateSitemap();

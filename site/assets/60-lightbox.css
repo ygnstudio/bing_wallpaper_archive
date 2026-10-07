@@ -11,7 +11,41 @@
   z-index: 50;
 }
 .lightbox[hidden] { display: none; }
-.lightbox img { max-width: 92vw; max-height: 78vh; border-radius: var(--radius-sm); cursor: pointer; }
+.lightbox:not([hidden]) { animation: lb-in .22s ease; }
+@keyframes lb-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.lightbox img { max-width: 92vw; max-height: 78vh; border-radius: var(--radius-sm); cursor: pointer; opacity: 0; transform: scale(.985); transition: opacity .3s ease, transform .3s ease; }
+.lightbox img.loaded { opacity: 1; transform: none; }
+
+/* ===== 灯箱导航（上一张/下一张） ===== */
+.lb-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 51;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background .15s, transform .15s;
+  backdrop-filter: blur(6px);
+}
+.lb-nav:hover { background: rgba(255, 255, 255, .18); transform: translateY(-50%) scale(1.06); }
+.lb-nav[hidden] { display: none; }
+.lb-nav-prev { left: 18px; }
+.lb-nav-next { right: 18px; }
+@media (max-width: 640px) {
+  .lb-nav { top: auto; bottom: 18px; width: 44px; height: 44px; }
+  .lb-nav-prev { left: calc(50% - 56px); }
+  .lb-nav-next { right: calc(50% - 56px); }
+}
 .lb-meta { margin-top: 14px; text-align: center; max-width: 92vw; }
 .lb-meta h2 { margin: 0 0 4px; font-size: 17px; }
 .lb-meta p { margin: 0 0 6px; color: var(--muted); font-size: 13px; }
@@ -65,3 +99,9 @@
   place-items: center;
 }
 #close:hover { background: rgba(255,255,255,.16); }
+
+/* ===== 动效守卫 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .lightbox:not([hidden]) { animation: none; }
+  .lightbox img { transition: none; opacity: 1; transform: none; }
+}

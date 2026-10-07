@@ -115,16 +115,42 @@ export async function renderHero(els) {
   latest = await ensureItemLoaded(latest);
 
   // 首屏默认加载 1080p，点击/下载再按需升级 UHD
+  // 先用本地缩略图即时呈现（零跨域开销），高清图预加载完成后淡入替换
   const initialRes = DEFAULT_HERO_RES;
   const full = buildResUrl(latest.url, initialRes) || latest.url;
-  els.heroBgImg.src = full;
   els.heroBgImg.alt = latest.title || latest.date;
+  els.heroBgImg.decoding = 'async';
+  if (latest.thumbnail) {
+    els.heroBgImg.onload = () => {
+      els.heroBgImg.onload = null;
+      els.heroBgImg.classList.add('ready');
+    };
+    els.heroBgImg.src = latest.thumbnail;
+  } else {
+    els.heroBgImg.src = full;
+    els.heroBgImg.classList.add('ready');
+  }
 
-  // 若 1080p 也失败，回退原 url
-  els.heroBgImg.onerror = () => {
+  // 高清图后台预加载，就绪后交叉淡入
+  const hi = new Image();
+  hi.onload = () => {
     els.heroBgImg.onerror = null;
-    if (els.heroBgImg.src !== latest.url) els.heroBgImg.src = latest.url;
+    els.heroBgImg.classList.remove('ready');
+    els.heroBgImg.onload = () => {
+      els.heroBgImg.onload = null;
+      requestAnimationFrame(() => els.heroBgImg.classList.add('ready'));
+    };
+    els.heroBgImg.src = full;
   };
+  hi.onerror = () => {
+    // 高清不可用时保持缩略图；若无缩略图则回退原 url
+    if (!latest.thumbnail) {
+      els.heroBgImg.onerror = null;
+      els.heroBgImg.src = latest.url;
+      els.heroBgImg.classList.add('ready');
+    }
+  };
+  hi.src = full;
 
   els.heroDate.textContent = formatDate(latest.date);
   els.heroTitle.textContent = latest.title || latest.date;
@@ -150,9 +176,12 @@ export async function renderHero(els) {
 export function renderMore(els) {
   const batch = filtered.slice(rendered, rendered + PAGE_SIZE);
   const frag = document.createDocumentFragment();
-  for (const it of batch) {
-    frag.appendChild(createCard(it, els.openLightbox));
-  }
+  batch.forEach((it, i) => {
+    const card = createCard(it, els.openLightbox);
+    // 批内交错进场（上限 480ms），避免长队列延迟
+    card.style.animationDelay = `${Math.min(i * 16, 480)}ms`;
+    frag.appendChild(card);
+  });
   els.grid.appendChild(frag);
   const newRendered = rendered + batch.length;
   setRendered(newRendered);
@@ -192,6 +221,8 @@ function createCard(it, openLightbox) {
       img.decoding = 'async';
       img.src = it.thumbnail;
       img.alt = it.title || it.date;
+      img.addEventListener('load', () => img.classList.add('loaded'));
+      if (img.complete && img.naturalWidth > 0) img.classList.add('loaded');
       media.appendChild(img);
     } else {
     card.classList.add('missing');
