@@ -13,7 +13,7 @@
 .card .title { margin:0 0 4px; font-size:14px; line-height:1.4; font-weight:600; overflow-wrap:anywhere; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
 .card-meta { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; font-size:11px; line-height:1.4; color:rgba(255,255,255,.66); }
 .card-meta time { font-variant-numeric:tabular-nums; }
-.card .selection-hit { display:none; position:absolute; z-index:2; top:2px; right:2px; width:44px; height:44px; place-items:center; cursor:pointer; }
+.card .selection-hit { display:none; position:absolute; z-index:2; top:2px; right:2px; width:var(--control-height); height:var(--control-height); place-items:center; cursor:pointer; }
 .card .sel { width:24px; height:24px; margin:0; accent-color:var(--accent); cursor:pointer; }
 .selection-mode .card .selection-hit,.card.selected .selection-hit { display:grid; }
 .card.selected .media { outline:2px solid var(--accent); outline-offset:3px; }
