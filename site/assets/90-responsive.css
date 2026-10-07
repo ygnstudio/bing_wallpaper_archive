@@ -19,7 +19,8 @@
   .nav-search { order: 3; width: 100%; max-width: none; }
   .hero { height: min(44vh, 380px); min-height: 300px; }
   .hero-content { padding: 16px; padding-bottom: 24px; }
-  .hero-card { max-width: none; width: 100%; }
+  /* 中等宽度下卡片保持定宽靠左，不再撑满整个 Hero 盖住壁纸 */
+  .hero-card { max-width: min(72%, 420px); padding: 16px 18px 18px; }
   .hero-overlay {
     background:
       linear-gradient(to top, rgba(11, 13, 16, .96) 0%, rgba(11, 13, 16, .45) 45%, transparent 75%);
