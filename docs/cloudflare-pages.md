@@ -2,6 +2,8 @@
 
 本项目是原生 HTML/CSS/JS 静态站，由 Node.js + Rollup 构建；没有 Astro、Pagefind 或跨仓库的 `BING_ARCHIVE_DIR` 依赖。搜索和语言切换沿用现有前端实现。
 
+正式入口：[Cloudflare Pages](https://ygn-bing-wallpaper.pages.dev/) · [GitHub Pages 备用](https://ygnstudio.github.io/bing_wallpaper_archive/)
+
 ## 项目配置
 
 Cloudflare：Workers & Pages → Create application → Continue to Pages → Import Git repository。
@@ -44,9 +46,15 @@ Cloudflare 会把 `about.html` 重定向为 `/about`，因此其 canonical/sitem
 
 Service Worker 输出到 `/sw.js`（GitHub 为项目子路径下的 `sw.js`），默认作用域覆盖整个站点。预缓存 URL 基于真实 scope 解析。缓存按站点作用域和构建版本隔离，只清理本站旧版本，不删除同源其他项目的缓存。页面及动态数据优先联网，离线时回退缓存；Bing 等跨域图片由浏览器直接请求。
 
+## 链接和自动生成内容
+
+README 的主入口、GitHub 仓库 Description / Website、关于页及首页页脚共同说明主站和备用入口。作者小红书主页为 https://www.xiaohongshu.com/user/profile/66a7e7ae000000001d023641 。修改正式域名时同步这些位置和 Cloudflare 的 `SITE_URL`。
+
+`update_readme_stats.py` 只更新 README 的 `archive-stats` 标记区；标记缺失、重复或索引为空时中止写入，防止覆盖人工内容。CI 和每日更新都会运行保护测试。构建只替换 HTML head 中的 SEO 地址，不替换正文中刻意保留的 GitHub 备用链接。
+
 ## 数据与图片更新
 
-`data/` 和 `thumbnails/` 与源码在同一仓库，Cloudflare 构建直接复制它们。继续由 GitHub 的 Daily Update 工作流检查、下载并提交新壁纸；Cloudflare Git 集成监听 `main` 更新，GitHub Pages 原工作流保留。上线后需核对下一次有新内容的机器人提交是否触发两端发布；无数据变化的轮询没有新部署属于正常。
+`data/` 和 `thumbnails/` 与源码在同一仓库，Cloudflare 构建直接复制它们。继续由 GitHub 的 Daily Update 工作流检查、下载并提交新壁纸；Cloudflare Git 集成监听 `main` 更新，GitHub Pages 原工作流保留。每日更新和手动 4K 检测在有内容提交时均显式触发 `pages.yml`，因为 `GITHUB_TOKEN` 的推送不会自动启动另一个 GitHub Actions push 工作流。手动 4K 检测同时提交重新生成的按年详情文件，避免首页索引和详情页数据不一致。两个写入数据的工作流使用同一并发组，避免相互覆盖。Cloudflare 仍由 Git 集成触发；下一次实际机器人提交后核对其部署结果。无变化的轮询不发布；仅补充观察记录的提交不主动触发 GitHub 备用部署。
 
 缩略图随站点托管，原图来自 Bing，并非 GitHub Raw。普通 Cloudflare Pages 不是中国大陆 CDN，也不能改善浏览器到 Bing 原图服务器的链路。原图失败时站点现有逻辑会尝试其他分辨率或回退缩略图；下载完成提示可能明确说明回退，不能把缩略图当作原图交付。
 
