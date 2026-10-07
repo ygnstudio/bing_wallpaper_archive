@@ -25,7 +25,13 @@ test('GitHub subpath and Cloudflare root deployments produce usable independent 
     assert.equal(JSON.parse(jsonLd).url, `${base}/`);
     assert.ok(read('dist/robots.txt').includes(`${base}/sitemap.xml`));
     assert.ok(read('dist/sitemap.xml').includes(`<loc>${base}/${about}</loc>`));
-    if (cloudflare === '1') assert.ok(!home.includes('https://ygnstudio.github.io/bing_wallpaper_archive'));
+    if (cloudflare === '1') assert.ok(!home.split('</head>')[0].includes('https://ygnstudio.github.io/bing_wallpaper_archive'));
+    // Changing SEO origin must never turn the backup link into the main site.
+    for (const html of [home, aboutHtml]) {
+      assert.ok(html.includes('href="https://ygnstudio.github.io/bing_wallpaper_archive/"'));
+      assert.ok(html.includes('href="https://www.xiaohongshu.com/user/profile/66a7e7ae000000001d023641"'));
+    }
+    assert.ok(aboutHtml.includes('href="https://ygn-bing-wallpaper.pages.dev/"'));
     for (const html of [home, aboutHtml]) {
       for (const [, path] of html.matchAll(/(?:src|href)="\.\/([^"?#]+)(?:[^\"]*)?"/g)) {
         assert.ok(existsSync(new URL(`../dist/${path}`, import.meta.url)), `Missing asset: ${path}`);

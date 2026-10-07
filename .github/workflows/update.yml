@@ -105,7 +105,9 @@ jobs:
             git push origin HEAD:main
           fi
 
-      - name: Trigger Pages deployment
+      # Cloudflare Git integration builds main after the push. GITHUB_TOKEN
+      # does not start another GitHub Actions push workflow, so dispatch the backup explicitly.
+      - name: Trigger GitHub Pages backup deployment
         if: steps.commit.outputs.publish == 'true'
         run: gh workflow run pages.yml --ref main
         env:
