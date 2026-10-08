@@ -70,5 +70,13 @@
   "urlbase": "/th?id=OHR.MayotteOctopus_ZH-CN2837659998",
   "first_seen_at": "2026-10-07T19:04:17+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261008": {
+  "date": "20261008",
+  "fullstartdate": "202610081600",
+  "enddate": "20261009",
+  "urlbase": "/th?id=OHR.IlesSanguinaires_ZH-CN3149346035",
+  "first_seen_at": "2026-10-08T21:28:58+00:00",
+  "already_archived_at_first_seen": false
  }
 }
