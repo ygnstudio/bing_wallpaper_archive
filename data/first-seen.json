@@ -78,5 +78,13 @@
   "urlbase": "/th?id=OHR.IlesSanguinaires_ZH-CN3149346035",
   "first_seen_at": "2026-10-08T21:28:58+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261009": {
+  "date": "20261009",
+  "fullstartdate": "202610091600",
+  "enddate": "20261010",
+  "urlbase": "/th?id=OHR.CormorantsFlight_ZH-CN0770863330",
+  "first_seen_at": "2026-10-09T21:14:16+00:00",
+  "already_archived_at_first_seen": false
  }
 }
