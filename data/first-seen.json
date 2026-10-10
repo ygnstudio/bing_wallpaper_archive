@@ -86,5 +86,13 @@
   "urlbase": "/th?id=OHR.CormorantsFlight_ZH-CN0770863330",
   "first_seen_at": "2026-10-09T21:14:16+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261010": {
+  "date": "20261010",
+  "fullstartdate": "202610101600",
+  "enddate": "20261011",
+  "urlbase": "/th?id=OHR.BabcockSP_ZH-CN5266848536",
+  "first_seen_at": "2026-10-10T20:18:41+00:00",
+  "already_archived_at_first_seen": false
  }
 }
