@@ -94,5 +94,13 @@
   "urlbase": "/th?id=OHR.BabcockSP_ZH-CN5266848536",
   "first_seen_at": "2026-10-10T20:18:41+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261011": {
+  "date": "20261011",
+  "fullstartdate": "202610111600",
+  "enddate": "20261012",
+  "urlbase": "/th?id=OHR.MumblesSwansea2026_ZH-CN5419531039",
+  "first_seen_at": "2026-10-11T20:33:15+00:00",
+  "already_archived_at_first_seen": false
  }
 }
