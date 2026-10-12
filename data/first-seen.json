@@ -102,5 +102,13 @@
   "urlbase": "/th?id=OHR.MumblesSwansea2026_ZH-CN5419531039",
   "first_seen_at": "2026-10-11T20:33:15+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261012": {
+  "date": "20261012",
+  "fullstartdate": "202610121600",
+  "enddate": "20261013",
+  "urlbase": "/th?id=OHR.PlitviceAutumn_ZH-CN5646237897",
+  "first_seen_at": "2026-10-12T18:11:48+00:00",
+  "already_archived_at_first_seen": false
  }
 }
