@@ -110,5 +110,13 @@
   "urlbase": "/th?id=OHR.PlitviceAutumn_ZH-CN5646237897",
   "first_seen_at": "2026-10-12T18:11:48+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261013": {
+  "date": "20261013",
+  "fullstartdate": "202610131600",
+  "enddate": "20261014",
+  "urlbase": "/th?id=OHR.AmmoniteFossils_ZH-CN5825251327",
+  "first_seen_at": "2026-10-13T19:31:02+00:00",
+  "already_archived_at_first_seen": false
  }
 }
