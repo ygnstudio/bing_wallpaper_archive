@@ -118,5 +118,13 @@
   "urlbase": "/th?id=OHR.AmmoniteFossils_ZH-CN5825251327",
   "first_seen_at": "2026-10-13T19:31:02+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261014": {
+  "date": "20261014",
+  "fullstartdate": "202610141600",
+  "enddate": "20261015",
+  "urlbase": "/th?id=OHR.WroclawPoland_ZH-CN6042428292",
+  "first_seen_at": "2026-10-14T20:19:36+00:00",
+  "already_archived_at_first_seen": false
  }
 }
