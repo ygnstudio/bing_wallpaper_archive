@@ -134,5 +134,13 @@
   "urlbase": "/th?id=OHR.SneffelsAutumn_ZH-CN3002661429",
   "first_seen_at": "2026-10-15T20:01:21+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261016": {
+  "date": "20261016",
+  "fullstartdate": "202610161600",
+  "enddate": "20261017",
+  "urlbase": "/th?id=OHR.ChauvetPaintingsFrance_ZH-CN3150703955",
+  "first_seen_at": "2026-10-16T19:41:35+00:00",
+  "already_archived_at_first_seen": false
  }
 }
