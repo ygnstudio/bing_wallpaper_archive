@@ -142,5 +142,13 @@
   "urlbase": "/th?id=OHR.ChauvetPaintingsFrance_ZH-CN3150703955",
   "first_seen_at": "2026-10-16T19:41:35+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261017": {
+  "date": "20261017",
+  "fullstartdate": "202610171600",
+  "enddate": "20261018",
+  "urlbase": "/th?id=OHR.DolbadarnWales_ZH-CN3649667806",
+  "first_seen_at": "2026-10-17T18:48:32+00:00",
+  "already_archived_at_first_seen": false
  }
 }
