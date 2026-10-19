@@ -158,5 +158,13 @@
   "urlbase": "/th?id=OHR.VeniceSunrise_ZH-CN5251815339",
   "first_seen_at": "2026-10-18T18:53:48+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261019": {
+  "date": "20261019",
+  "fullstartdate": "202610191600",
+  "enddate": "20261020",
+  "urlbase": "/th?id=OHR.BrownSloth_ZH-CN5776383136",
+  "first_seen_at": "2026-10-19T21:14:05+00:00",
+  "already_archived_at_first_seen": false
  }
 }
