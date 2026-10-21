@@ -174,5 +174,13 @@
   "urlbase": "/th?id=OHR.VietnamBridge_ZH-CN6134321119",
   "first_seen_at": "2026-10-20T20:07:29+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261021": {
+  "date": "20261021",
+  "fullstartdate": "202610211600",
+  "enddate": "20261022",
+  "urlbase": "/th?id=OHR.NaejangsanNP_ZH-CN6538893004",
+  "first_seen_at": "2026-10-21T20:21:13+00:00",
+  "already_archived_at_first_seen": false
  }
 }
