@@ -182,5 +182,13 @@
   "urlbase": "/th?id=OHR.NaejangsanNP_ZH-CN6538893004",
   "first_seen_at": "2026-10-21T20:21:13+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261022": {
+  "date": "20261022",
+  "fullstartdate": "202610221600",
+  "enddate": "20261023",
+  "urlbase": "/th?id=OHR.YellowstoneWolves_ZH-CN6767268961",
+  "first_seen_at": "2026-10-22T20:17:07+00:00",
+  "already_archived_at_first_seen": false
  }
 }
