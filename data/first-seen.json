@@ -190,5 +190,13 @@
   "urlbase": "/th?id=OHR.YellowstoneWolves_ZH-CN6767268961",
   "first_seen_at": "2026-10-22T20:17:07+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261023": {
+  "date": "20261023",
+  "fullstartdate": "202610231600",
+  "enddate": "20261024",
+  "urlbase": "/th?id=OHR.PortugueseLibrary_ZH-CN7096893027",
+  "first_seen_at": "2026-10-23T20:04:29+00:00",
+  "already_archived_at_first_seen": false
  }
 }
