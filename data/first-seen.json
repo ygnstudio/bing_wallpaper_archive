@@ -198,5 +198,13 @@
   "urlbase": "/th?id=OHR.PortugueseLibrary_ZH-CN7096893027",
   "first_seen_at": "2026-10-23T20:04:29+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261024": {
+  "date": "20261024",
+  "fullstartdate": "202610241600",
+  "enddate": "20261025",
+  "urlbase": "/th?id=OHR.MaligneFest_ZH-CN8343066766",
+  "first_seen_at": "2026-10-24T18:58:39+00:00",
+  "already_archived_at_first_seen": false
  }
 }
