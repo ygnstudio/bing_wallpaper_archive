@@ -206,5 +206,13 @@
   "urlbase": "/th?id=OHR.MaligneFest_ZH-CN8343066766",
   "first_seen_at": "2026-10-24T18:58:39+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261025": {
+  "date": "20261025",
+  "fullstartdate": "202610251600",
+  "enddate": "20261026",
+  "urlbase": "/th?id=OHR.SitovoWaterfall_ZH-CN8495214046",
+  "first_seen_at": "2026-10-25T19:14:26+00:00",
+  "already_archived_at_first_seen": false
  }
 }
