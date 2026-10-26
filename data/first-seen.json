@@ -214,5 +214,13 @@
   "urlbase": "/th?id=OHR.SitovoWaterfall_ZH-CN8495214046",
   "first_seen_at": "2026-10-25T19:14:26+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261026": {
+  "date": "20261026",
+  "fullstartdate": "202610261600",
+  "enddate": "20261027",
+  "urlbase": "/th?id=OHR.PondCypress_ZH-CN9472607734",
+  "first_seen_at": "2026-10-26T21:10:52+00:00",
+  "already_archived_at_first_seen": false
  }
 }
