@@ -222,5 +222,13 @@
   "urlbase": "/th?id=OHR.PondCypress_ZH-CN9472607734",
   "first_seen_at": "2026-10-26T21:10:52+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261027": {
+  "date": "20261027",
+  "fullstartdate": "202610271600",
+  "enddate": "20261028",
+  "urlbase": "/th?id=OHR.KuneticeCastle_ZH-CN8895858920",
+  "first_seen_at": "2026-10-27T20:56:50+00:00",
+  "already_archived_at_first_seen": false
  }
 }
