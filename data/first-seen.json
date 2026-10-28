@@ -230,5 +230,13 @@
   "urlbase": "/th?id=OHR.KuneticeCastle_ZH-CN8895858920",
   "first_seen_at": "2026-10-27T20:56:50+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261028": {
+  "date": "20261028",
+  "fullstartdate": "202610281600",
+  "enddate": "20261029",
+  "urlbase": "/th?id=OHR.AveburyStones_ZH-CN9127100951",
+  "first_seen_at": "2026-10-28T21:18:34+00:00",
+  "already_archived_at_first_seen": false
  }
 }
