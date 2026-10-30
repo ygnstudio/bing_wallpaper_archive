@@ -246,5 +246,13 @@
   "urlbase": "/th?id=OHR.AutumnCranes_ZH-CN5772055404",
   "first_seen_at": "2026-10-29T21:25:02+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261030": {
+  "date": "20261030",
+  "fullstartdate": "202610301600",
+  "enddate": "20261031",
+  "urlbase": "/th?id=OHR.FrankfurtHalloween_ZH-CN5998782698",
+  "first_seen_at": "2026-10-30T21:01:50+00:00",
+  "already_archived_at_first_seen": false
  }
 }
