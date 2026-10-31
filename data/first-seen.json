@@ -254,5 +254,13 @@
   "urlbase": "/th?id=OHR.FrankfurtHalloween_ZH-CN5998782698",
   "first_seen_at": "2026-10-30T21:01:50+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261031": {
+  "date": "20261031",
+  "fullstartdate": "202610311600",
+  "enddate": "20261101",
+  "urlbase": "/th?id=OHR.SchwarzwaldAutumn_ZH-CN6323627599",
+  "first_seen_at": "2026-10-31T20:16:56+00:00",
+  "already_archived_at_first_seen": false
  }
 }
