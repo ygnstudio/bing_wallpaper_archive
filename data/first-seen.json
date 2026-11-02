@@ -270,5 +270,13 @@
   "urlbase": "/th?id=OHR.HudsonBear_ZH-CN6630706907",
   "first_seen_at": "2026-11-01T20:48:23+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261102": {
+  "date": "20261102",
+  "fullstartdate": "202611021600",
+  "enddate": "20261103",
+  "urlbase": "/th?id=OHR.AlpineBraies_ZH-CN7307997866",
+  "first_seen_at": "2026-11-02T18:49:16+00:00",
+  "already_archived_at_first_seen": false
  }
 }
