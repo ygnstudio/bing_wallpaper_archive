@@ -278,5 +278,13 @@
   "urlbase": "/th?id=OHR.AlpineBraies_ZH-CN7307997866",
   "first_seen_at": "2026-11-02T18:49:16+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261103": {
+  "date": "20261103",
+  "fullstartdate": "202611031600",
+  "enddate": "20261104",
+  "urlbase": "/th?id=OHR.AutumnChina_ZH-CN7665959692",
+  "first_seen_at": "2026-11-03T19:49:44+00:00",
+  "already_archived_at_first_seen": false
  }
 }
