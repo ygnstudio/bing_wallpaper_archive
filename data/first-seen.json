@@ -286,5 +286,13 @@
   "urlbase": "/th?id=OHR.AutumnChina_ZH-CN7665959692",
   "first_seen_at": "2026-11-03T19:49:44+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261104": {
+  "date": "20261104",
+  "fullstartdate": "202611041600",
+  "enddate": "20261105",
+  "urlbase": "/th?id=OHR.StileCrossing_ZH-CN9811465935",
+  "first_seen_at": "2026-11-04T19:59:59+00:00",
+  "already_archived_at_first_seen": false
  }
 }
