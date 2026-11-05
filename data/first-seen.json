@@ -294,5 +294,13 @@
   "urlbase": "/th?id=OHR.StileCrossing_ZH-CN9811465935",
   "first_seen_at": "2026-11-04T19:59:59+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261105": {
+  "date": "20261105",
+  "fullstartdate": "202611051600",
+  "enddate": "20261106",
+  "urlbase": "/th?id=OHR.PipiwaiTrail_ZH-CN1811194311",
+  "first_seen_at": "2026-11-05T22:14:56+00:00",
+  "already_archived_at_first_seen": false
  }
 }
