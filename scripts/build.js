@@ -41,7 +41,7 @@ const SRC = join(ROOT, 'site');
 const DIST = join(ROOT, 'dist');
 
 const isDev = process.argv.includes('--dev');
-const LEGACY_SITE_URL = 'https://ygnstudio.github.io/bing_wallpaper_archive';
+const LEGACY_SITE_URL = 'https://yangn-st.github.io/bing_wallpaper_archive';
 const siteUrl = new URL(process.env.SITE_URL || LEGACY_SITE_URL);
 if (siteUrl.protocol !== 'https:' || siteUrl.username || siteUrl.password || siteUrl.search || siteUrl.hash) {
   throw new Error('SITE_URL 必须是无凭据、查询参数和片段的 HTTPS 站点地址');

@@ -2,7 +2,7 @@
 
 本项目是原生 HTML/CSS/JS 静态站，由 Node.js + Rollup 构建；没有 Astro、Pagefind 或跨仓库的 `BING_ARCHIVE_DIR` 依赖。搜索和语言切换沿用现有前端实现。
 
-正式入口：[Cloudflare Pages](https://ygn-bing-wallpaper.pages.dev/) · [GitHub Pages 备用](https://ygnstudio.github.io/bing_wallpaper_archive/)
+正式入口：[Cloudflare Pages](https://ygn-bing-wallpaper.pages.dev/) · [GitHub Pages 备用](https://yangn-st.github.io/bing_wallpaper_archive/)
 
 ## 项目配置
 
@@ -10,7 +10,7 @@ Cloudflare：Workers & Pages → Create application → Continue to Pages → Im
 
 | 项目 | 设置 |
 | --- | --- |
-| Repository | `ygnstudio/bing_wallpaper_archive` |
+| Repository | `YanGN-ST/bing_wallpaper_archive` |
 | Project name | `ygn-bing-wallpaper` |
 | Production branch | `main` |
 | Framework preset | `None` |
@@ -72,6 +72,6 @@ README 的主入口、GitHub 仓库 Description / Website、关于页及首页�
 
 Cloudflare 部署问题：在 Deployments 中回滚到先前成功的生产部署，再修复或 revert 出错提交，避免自动部署再次引入故障。DNS、环境变量和外部 Bing 图片不会随产物回滚。
 
-平台不可达时继续使用 [GitHub Pages 备用站](https://ygnstudio.github.io/bing_wallpaper_archive/)。若后续切换自定义域名，先备份 DNS，并预先演练备用域名绑定及 HTTPS，不能只改 DNS 就假定 GitHub 可接管。
+平台不可达时继续使用 [GitHub Pages 备用站](https://yangn-st.github.io/bing_wallpaper_archive/)。若后续切换自定义域名，先备份 DNS，并预先演练备用域名绑定及 HTTPS，不能只改 DNS 就假定 GitHub 可接管。
 
 官方文档：[Git 集成](https://developers.cloudflare.com/pages/configuration/git-integration/)、[静态资源路由](https://developers.cloudflare.com/pages/configuration/serving-pages/)、[响应头](https://developers.cloudflare.com/pages/configuration/headers/)、[自定义域名](https://developers.cloudflare.com/pages/configuration/custom-domains/)、[回滚](https://developers.cloudflare.com/pages/configuration/rollbacks/)、[China Network](https://developers.cloudflare.com/china-network/)。

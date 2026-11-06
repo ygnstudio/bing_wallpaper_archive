@@ -15,7 +15,7 @@ class ReadmeStats(unittest.TestCase):
             {'date': '20160305', 'thumbnail': 'old.webp'},
             {'date': '20261008'},
         ])
-        self.assertIn('共 **2 张**壁纸（其中 1 张含缩略图）', updated)
+        self.assertIn('contains **2 wallpapers** since **2016-03-05**, including 1 with thumbnails', updated)
         self.assertEqual(original.split(stats.START)[0], updated.split(stats.START)[0])
         self.assertEqual(original.split(stats.END)[1], updated.split(stats.END)[1])
         self.assertEqual(updated, stats.render_stats(updated, [

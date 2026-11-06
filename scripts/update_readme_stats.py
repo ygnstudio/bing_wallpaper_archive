@@ -19,7 +19,7 @@ def render_stats(text, idx):
     start = dates[0]
     start_fmt = f"{start[:4]}-{start[4:6]}-{start[6:8]}"
     with_thumb = sum(1 for e in idx if e.get("thumbnail"))
-    line = f"- 收录 **{start_fmt} 至今** 共 **{len(idx)} 张**壁纸（其中 {with_thumb} 张含缩略图）。"
+    line = f"- The archive contains **{len(idx)} wallpapers** since **{start_fmt}**, including {with_thumb} with thumbnails."
     pattern = re.compile(re.escape(START) + r"[\s\S]*?" + re.escape(END))
     updated, count = pattern.subn(f"{START}\n{line}\n{END}", text)
     if count != 1:

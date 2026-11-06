@@ -11,7 +11,7 @@ const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'
 // Exercise the actual output for both hosts, including all metadata and local assets.
 test('GitHub subpath and Cloudflare root deployments produce usable independent artifacts', () => {
   for (const [cloudflare, base, about] of [
-    ['0', 'https://ygnstudio.github.io/bing_wallpaper_archive', 'about.html'],
+    ['0', 'https://yangn-st.github.io/bing_wallpaper_archive', 'about.html'],
     ['1', 'https://wallpapers.example.com', 'about'],
   ]) {
     execFileSync(process.execPath, ['scripts/build.js'], {
@@ -25,10 +25,10 @@ test('GitHub subpath and Cloudflare root deployments produce usable independent 
     assert.equal(JSON.parse(jsonLd).url, `${base}/`);
     assert.ok(read('dist/robots.txt').includes(`${base}/sitemap.xml`));
     assert.ok(read('dist/sitemap.xml').includes(`<loc>${base}/${about}</loc>`));
-    if (cloudflare === '1') assert.ok(!home.split('</head>')[0].includes('https://ygnstudio.github.io/bing_wallpaper_archive'));
+    if (cloudflare === '1') assert.ok(!home.split('</head>')[0].includes('https://yangn-st.github.io/bing_wallpaper_archive'));
     // Changing SEO origin must never turn the backup link into the main site.
     for (const html of [home, aboutHtml]) {
-      assert.ok(html.includes('href="https://ygnstudio.github.io/bing_wallpaper_archive/"'));
+      assert.ok(html.includes('href="https://yangn-st.github.io/bing_wallpaper_archive/"'));
       assert.ok(html.includes('href="https://www.xiaohongshu.com/user/profile/66a7e7ae000000001d023641"'));
     }
     assert.ok(aboutHtml.includes('href="https://ygn-bing-wallpaper.pages.dev/"'));

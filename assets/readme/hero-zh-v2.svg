@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Bing Archive — 每天，换一个视角。</title>
+  <desc id="desc">每天，换一个视角。 A visual summary of the project.</desc>
+  <rect width="1200" height="400" rx="24" fill="#18251f"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif">
+    <text x="500" y="87" font-size="19" font-weight="700" letter-spacing="2" fill="#cddf96">DAILY WALLPAPERS</text>
+    <text x="500" y="178" font-size="58" font-weight="700" fill="#f8f6ec">Bing Archive</text>
+    <text x="500" y="238" font-size="32" font-weight="500" fill="#f8f6ec">每天，换一个视角。</text>
+    <path d="M500 285h84" stroke="#cddf96" stroke-width="5" stroke-linecap="round"/>
+    <g transform="translate(-720 0)"><g transform="translate(772 65)"><rect x="0" y="0" width="165" height="112" rx="10" fill="#7f9c76"/><path d="M0 99 46 51l32 29 39-48 48 67Z" fill="#d3d9ab"/><rect x="178" y="0" width="165" height="112" rx="10" fill="#a9bca6"/><circle cx="291" cy="34" r="16" fill="#f1e1ad"/><path d="M178 99 231 49l45 38 22-19 45 31Z" fill="#668376"/><rect x="0" y="125" width="165" height="112" rx="10" fill="#8baba4"/><path d="M0 212 50 172l38 25 37-45 40 60Z" fill="#d6ddc8"/><rect x="178" y="125" width="165" height="112" rx="10" fill="#c9b39c"/><path d="M178 215 225 158l43 41 24-29 51 45Z" fill="#8d765f"/></g></g>
+  </g>
+</svg>
