@@ -302,5 +302,13 @@
   "urlbase": "/th?id=OHR.PipiwaiTrail_ZH-CN1811194311",
   "first_seen_at": "2026-11-05T22:14:56+00:00",
   "already_archived_at_first_seen": false
+ },
+ "20261106": {
+  "date": "20261106",
+  "fullstartdate": "202611061600",
+  "enddate": "20261107",
+  "urlbase": "/th?id=OHR.DakotaBison_ZH-CN2302503868",
+  "first_seen_at": "2026-11-06T16:14:23+00:00",
+  "already_archived_at_first_seen": false
  }
 }

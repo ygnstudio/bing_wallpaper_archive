@@ -21,7 +21,7 @@ The site is static HTML, CSS and JavaScript. It uses no server-side application 
 ## Archive
 
 <!-- archive-stats:start -->
-- The archive contains **3898 wallpapers** since **2016-03-05**, including 3898 with thumbnails.
+- The archive contains **3899 wallpapers** since **2016-03-05**, including 3899 with thumbnails.
 <!-- archive-stats:end -->
 
 The source is Bing's `HPImageArchive` API for `zh-CN`. Categories use keyword classification and a visual model; colors are derived from thumbnails. These labels are automated and may be imperfect.
