@@ -30,7 +30,7 @@
 ### 克隆与构建
 
 ```bash
-git clone https://github.com/ygnstudio/bing_wallpaper_archive.git
+git clone https://github.com/YanGN-ST/bing_wallpaper_archive.git
 cd bing_wallpaper_archive
 npm install
 pip install -r requirements.txt
@@ -77,4 +77,4 @@ npm test
 
 - Issue 优先：[GitHub Issues](../../issues)
 - 小红书私信：[YanGN 的主页](https://www.xiaohongshu.com/user/profile/66a7e7ae000000001d023641)
-- GitHub 主页：<https://github.com/ygnstudio>
+- GitHub 主页：<https://github.com/YanGN-ST>

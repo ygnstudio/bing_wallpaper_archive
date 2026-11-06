@@ -7,12 +7,16 @@
  * 4. 搜索防抖与结果
  * 5. 移动端视口截图
  */
-// 优先解析项目内 playwright-core，回退到本机受管 workspace（无 npm install 环境也可跑）
+// 优先解析项目内 playwright-core；未安装时可用 PLAYWRIGHT_CORE_PATH 指向本地 index.mjs
 let chromium;
 try {
   ({ chromium } = await import('playwright-core'));
 } catch {
-  ({ chromium } = await import('/Users/ygnan/.workbuddy/binaries/node/workspace/node_modules/playwright-core/index.mjs'));
+  const fallback = process.env.PLAYWRIGHT_CORE_PATH;
+  if (!fallback) {
+    throw new Error('playwright-core 未安装；请先安装它，或设置 PLAYWRIGHT_CORE_PATH 指向 index.mjs');
+  }
+  ({ chromium } = await import(fallback));
 }
 import { homedir } from 'os';
 import { join } from 'path';

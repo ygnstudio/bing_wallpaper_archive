@@ -76,7 +76,7 @@ jobs:
         if: steps.check.outputs.needs_work == 'true'
         run: python scripts/detect_uhd.py
 
-      - name: Rebuild index and README stats
+      - name: Rebuild index and bilingual README stats
         if: steps.check.outputs.needs_work == 'true'
         run: |
           python scripts/generate_index.py
@@ -91,12 +91,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # Observation-only updates do not need a Pages deployment.
-          if test -n "$(git status --porcelain -- data/index.json data/metadata.json thumbnails README.md)"; then
+          if test -n "$(git status --porcelain -- data/index.json data/metadata.json thumbnails README.md README.zh-CN.md)"; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
           fi
-          git add data thumbnails README.md
+          git add data thumbnails README.md README.zh-CN.md
           if git diff --cached --quiet; then
             echo "no changes"
           else

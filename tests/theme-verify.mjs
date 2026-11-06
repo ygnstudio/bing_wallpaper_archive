@@ -1,5 +1,14 @@
 // 双主题 × 视口验证矩阵
-import { chromium } from '/Users/ygnan/.workbuddy/binaries/node/workspace/node_modules/playwright-core/index.mjs';
+let chromium;
+try {
+  ({ chromium } = await import('playwright-core'));
+} catch {
+  const fallback = process.env.PLAYWRIGHT_CORE_PATH;
+  if (!fallback) {
+    throw new Error('playwright-core 未安装；请先安装它，或设置 PLAYWRIGHT_CORE_PATH 指向 index.mjs');
+  }
+  ({ chromium } = await import(fallback));
+}
 import { homedir } from 'os';
 import { join } from 'path';
 import { readdirSync, existsSync } from 'fs';

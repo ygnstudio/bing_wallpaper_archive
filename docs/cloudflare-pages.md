@@ -48,9 +48,9 @@ Service Worker 输出到 `/sw.js`（GitHub 为项目子路径下的 `sw.js`）�
 
 ## 链接和自动生成内容
 
-README 的主入口、GitHub 仓库 Description / Website、关于页及首页页脚共同说明主站和备用入口。作者小红书主页为 https://www.xiaohongshu.com/user/profile/66a7e7ae000000001d023641 。修改正式域名时同步这些位置和 Cloudflare 的 `SITE_URL`。
+两份 README 的主入口、GitHub 仓库 Description / Website、关于页及首页页脚共同说明主站和备用入口。作者小红书主页为 https://www.xiaohongshu.com/user/profile/66a7e7ae000000001d023641 。修改正式域名时同步这些位置和 Cloudflare 的 `SITE_URL`。
 
-`update_readme_stats.py` 只更新 README 的 `archive-stats` 标记区；标记缺失、重复或索引为空时中止写入，防止覆盖人工内容。CI 和每日更新都会运行保护测试。构建只替换 HTML head 中的 SEO 地址，不替换正文中刻意保留的 GitHub 备用链接。
+`update_readme_stats.py` 只更新两份 README 的 `archive-stats` 标记区；标记缺失、重复或索引为空时中止写入，防止覆盖人工内容。CI 和每日更新都会运行保护测试。构建只替换 HTML head 中的 SEO 地址，不替换正文中刻意保留的 GitHub 备用链接。
 
 ## 数据与图片更新
 
